@@ -1,0 +1,7 @@
+### Development ###
+.idea/
+tmp/
+*.log
+
+### Credentials ###
+*.env
