@@ -8,3 +8,6 @@ import (
 
 // Post is the predicate function for post builders.
 type Post func(*sql.Selector)
+
+// Site is the predicate function for site builders.
+type Site func(*sql.Selector)

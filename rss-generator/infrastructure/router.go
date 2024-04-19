@@ -22,12 +22,20 @@ func NewRouter(app *Application) *gin.Engine {
 	router := gin.Default()
 	router.Use(corsHandler())
 
-	v1 := router.Group("/api/v1")
+	// ping: always return 200 OK
+	router.GET("/ping", func(c *gin.Context) {
+		c.String(http.StatusOK, "pong")
+	})
+
+	api := router.Group("/api")
 	{
-		// ping: always return 200 OK
-		v1.GET("/ping", func(c *gin.Context) {
-			c.String(http.StatusOK, "pong")
-		})
+		v1 := api.Group("/v1")
+		{
+			sites := v1.Group("/sites")
+			{
+				sites.POST("", app.SiteController.Create)
+			}
+		}
 	}
 
 	router.NoRoute()

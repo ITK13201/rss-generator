@@ -16,6 +16,8 @@ type Tx struct {
 	config
 	// Post is the client for interacting with the Post builders.
 	Post *PostClient
+	// Site is the client for interacting with the Site builders.
+	Site *SiteClient
 
 	// lazily loaded.
 	client     *Client
@@ -148,6 +150,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Post = NewPostClient(tx.config)
+	tx.Site = NewSiteClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

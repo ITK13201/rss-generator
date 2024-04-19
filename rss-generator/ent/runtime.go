@@ -2,8 +2,39 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/ITK13201/rss-generator/ent/schema"
+	"github.com/ITK13201/rss-generator/ent/site"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	siteFields := schema.Site{}.Fields()
+	_ = siteFields
+	// siteDescSlug is the schema descriptor for slug field.
+	siteDescSlug := siteFields[1].Descriptor()
+	// site.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	site.SlugValidator = siteDescSlug.Validators[0].(func(string) error)
+	// siteDescTitle is the schema descriptor for title field.
+	siteDescTitle := siteFields[2].Descriptor()
+	// site.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	site.TitleValidator = siteDescTitle.Validators[0].(func(string) error)
+	// siteDescURL is the schema descriptor for url field.
+	siteDescURL := siteFields[4].Descriptor()
+	// site.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	site.URLValidator = siteDescURL.Validators[0].(func(string) error)
+	// siteDescCreatedAt is the schema descriptor for created_at field.
+	siteDescCreatedAt := siteFields[5].Descriptor()
+	// site.DefaultCreatedAt holds the default value on creation for the created_at field.
+	site.DefaultCreatedAt = siteDescCreatedAt.Default.(func() time.Time)
+	// siteDescUpdatedAt is the schema descriptor for updated_at field.
+	siteDescUpdatedAt := siteFields[6].Descriptor()
+	// site.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	site.DefaultUpdatedAt = siteDescUpdatedAt.Default.(func() time.Time)
+	// site.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	site.UpdateDefaultUpdatedAt = siteDescUpdatedAt.UpdateDefault.(func() time.Time)
 }
