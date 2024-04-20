@@ -7,7 +7,7 @@ import (
 )
 
 type SiteInteractor interface {
-	Create(site *domain.SiteCreateInput) (*ent.Site, error)
+	Create(site *domain.SitesCreateInput) (*ent.Site, error)
 }
 
 type siteInteractor struct {
@@ -20,7 +20,7 @@ func NewSiteInteractor(sqlClient *ent.Client) SiteInteractor {
 	}
 }
 
-func (si *siteInteractor) Create(site *domain.SiteCreateInput) (*ent.Site, error) {
+func (si *siteInteractor) Create(site *domain.SitesCreateInput) (*ent.Site, error) {
 	ctx := context.Background()
 	s, err := si.sqlClient.Site.
 		Create().

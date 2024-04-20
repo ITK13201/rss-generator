@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	cfgFile string
-	config  domain.Config
+	config domain.Config
 
 	rootCmd = &cobra.Command{
 		Use:   "rss-generator",

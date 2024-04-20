@@ -21,6 +21,8 @@ const (
 	FieldDescription = "description"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
+	// FieldEnableJsRendering holds the string denoting the enable_js_rendering field in the database.
+	FieldEnableJsRendering = "enable_js_rendering"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -36,6 +38,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldDescription,
 	FieldURL,
+	FieldEnableJsRendering,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -57,6 +60,8 @@ var (
 	TitleValidator func(string) error
 	// URLValidator is a validator for the "url" field. It is called by the builders before save.
 	URLValidator func(string) error
+	// DefaultEnableJsRendering holds the default value on creation for the "enable_js_rendering" field.
+	DefaultEnableJsRendering bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -91,6 +96,11 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 // ByURL orders the results by the url field.
 func ByURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldURL, opts...).ToFunc()
+}
+
+// ByEnableJsRendering orders the results by the enable_js_rendering field.
+func ByEnableJsRendering(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnableJsRendering, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

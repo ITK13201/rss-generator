@@ -19,8 +19,16 @@ services:
       DATABASE_HOST: "mysql"
       DATABASE_PORT: "3306"
       DATABASE_NAME: "rss"
+      SELENIUM_SERVER_URL: "http://selenium:4444/wd/hub"
     depends_on:
+      - selenium
       - mysql
+
+  selenium:
+    image: selenium/standalone-chrome:123.0.6312.86-chromedriver-123.0.6312.86-grid-4.19.1-20240402
+    ports:
+      - "4444:4444"
+    shm_size: "2g"
 
   mysql:
     platform: linux/x86_64

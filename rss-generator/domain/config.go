@@ -22,7 +22,8 @@ func (config DatabaseConfig) DSN() string {
 }
 
 type Config struct {
-	Debug    bool           `json:"debug" env:"DEBUG"`
-	Port     string         `json:"port" env:"PORT"`
-	Database DatabaseConfig `json:"database"`
+	Debug             bool           `json:"debug" env:"DEBUG"`
+	Port              string         `json:"port" env:"PORT"`
+	SeleniumServerURL string         `json:"selenium_server_url" env:"SELENIUM_SERVER_URL"`
+	Database          DatabaseConfig `json:"database"`
 }

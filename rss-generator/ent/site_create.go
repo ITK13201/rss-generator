@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -55,6 +54,20 @@ func (sc *SiteCreate) SetURL(s string) *SiteCreate {
 	return sc
 }
 
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (sc *SiteCreate) SetEnableJsRendering(b bool) *SiteCreate {
+	sc.mutation.SetEnableJsRendering(b)
+	return sc
+}
+
+// SetNillableEnableJsRendering sets the "enable_js_rendering" field if the given value is not nil.
+func (sc *SiteCreate) SetNillableEnableJsRendering(b *bool) *SiteCreate {
+	if b != nil {
+		sc.SetEnableJsRendering(*b)
+	}
+	return sc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (sc *SiteCreate) SetCreatedAt(t time.Time) *SiteCreate {
 	sc.mutation.SetCreatedAt(t)
@@ -84,8 +97,8 @@ func (sc *SiteCreate) SetNillableUpdatedAt(t *time.Time) *SiteCreate {
 }
 
 // SetID sets the "id" field.
-func (sc *SiteCreate) SetID(s string) *SiteCreate {
-	sc.mutation.SetID(s)
+func (sc *SiteCreate) SetID(i int) *SiteCreate {
+	sc.mutation.SetID(i)
 	return sc
 }
 
@@ -124,6 +137,10 @@ func (sc *SiteCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (sc *SiteCreate) defaults() {
+	if _, ok := sc.mutation.EnableJsRendering(); !ok {
+		v := site.DefaultEnableJsRendering
+		sc.mutation.SetEnableJsRendering(v)
+	}
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		v := site.DefaultCreatedAt()
 		sc.mutation.SetCreatedAt(v)
@@ -160,6 +177,9 @@ func (sc *SiteCreate) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Site.url": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.EnableJsRendering(); !ok {
+		return &ValidationError{Name: "enable_js_rendering", err: errors.New(`ent: missing required field "Site.enable_js_rendering"`)}
+	}
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Site.created_at"`)}
 	}
@@ -180,12 +200,9 @@ func (sc *SiteCreate) sqlSave(ctx context.Context) (*Site, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Site.ID type: %T", _spec.ID.Value)
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
 	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
@@ -195,7 +212,7 @@ func (sc *SiteCreate) sqlSave(ctx context.Context) (*Site, error) {
 func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Site{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(site.Table, sqlgraph.NewFieldSpec(site.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(site.Table, sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = sc.conflict
 	if id, ok := sc.mutation.ID(); ok {
@@ -217,6 +234,10 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.URL(); ok {
 		_spec.SetField(site.FieldURL, field.TypeString, value)
 		_node.URL = value
+	}
+	if value, ok := sc.mutation.EnableJsRendering(); ok {
+		_spec.SetField(site.FieldEnableJsRendering, field.TypeBool, value)
+		_node.EnableJsRendering = value
 	}
 	if value, ok := sc.mutation.CreatedAt(); ok {
 		_spec.SetField(site.FieldCreatedAt, field.TypeTime, value)
@@ -329,6 +350,18 @@ func (u *SiteUpsert) SetURL(v string) *SiteUpsert {
 // UpdateURL sets the "url" field to the value that was provided on create.
 func (u *SiteUpsert) UpdateURL() *SiteUpsert {
 	u.SetExcluded(site.FieldURL)
+	return u
+}
+
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (u *SiteUpsert) SetEnableJsRendering(v bool) *SiteUpsert {
+	u.Set(site.FieldEnableJsRendering, v)
+	return u
+}
+
+// UpdateEnableJsRendering sets the "enable_js_rendering" field to the value that was provided on create.
+func (u *SiteUpsert) UpdateEnableJsRendering() *SiteUpsert {
+	u.SetExcluded(site.FieldEnableJsRendering)
 	return u
 }
 
@@ -467,6 +500,20 @@ func (u *SiteUpsertOne) UpdateURL() *SiteUpsertOne {
 	})
 }
 
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (u *SiteUpsertOne) SetEnableJsRendering(v bool) *SiteUpsertOne {
+	return u.Update(func(s *SiteUpsert) {
+		s.SetEnableJsRendering(v)
+	})
+}
+
+// UpdateEnableJsRendering sets the "enable_js_rendering" field to the value that was provided on create.
+func (u *SiteUpsertOne) UpdateEnableJsRendering() *SiteUpsertOne {
+	return u.Update(func(s *SiteUpsert) {
+		s.UpdateEnableJsRendering()
+	})
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (u *SiteUpsertOne) SetCreatedAt(v time.Time) *SiteUpsertOne {
 	return u.Update(func(s *SiteUpsert) {
@@ -511,12 +558,7 @@ func (u *SiteUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *SiteUpsertOne) ID(ctx context.Context) (id string, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: SiteUpsertOne.ID is not supported by MySQL driver. Use SiteUpsertOne.Exec instead")
-	}
+func (u *SiteUpsertOne) ID(ctx context.Context) (id int, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -525,7 +567,7 @@ func (u *SiteUpsertOne) ID(ctx context.Context) (id string, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *SiteUpsertOne) IDX(ctx context.Context) string {
+func (u *SiteUpsertOne) IDX(ctx context.Context) int {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -580,6 +622,10 @@ func (scb *SiteCreateBulk) Save(ctx context.Context) ([]*Site, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -770,6 +816,20 @@ func (u *SiteUpsertBulk) SetURL(v string) *SiteUpsertBulk {
 func (u *SiteUpsertBulk) UpdateURL() *SiteUpsertBulk {
 	return u.Update(func(s *SiteUpsert) {
 		s.UpdateURL()
+	})
+}
+
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (u *SiteUpsertBulk) SetEnableJsRendering(v bool) *SiteUpsertBulk {
+	return u.Update(func(s *SiteUpsert) {
+		s.SetEnableJsRendering(v)
+	})
+}
+
+// UpdateEnableJsRendering sets the "enable_js_rendering" field to the value that was provided on create.
+func (u *SiteUpsertBulk) UpdateEnableJsRendering() *SiteUpsertBulk {
+	return u.Update(func(s *SiteUpsert) {
+		s.UpdateEnableJsRendering()
 	})
 }
 

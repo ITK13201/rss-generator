@@ -15,14 +15,13 @@ func RespondMessage(c *gin.Context, code int, message string) {
 	})
 }
 
-func RespondOK(c *gin.Context) error {
+func RespondOK(c *gin.Context) {
 	body := gin.H{}
 	code := http.StatusOK
 	body["status"] = http.StatusText(code)
 	body["status_code"] = code
 
 	c.JSON(http.StatusOK, body)
-	return nil
 }
 
 func RespondOKWithData(c *gin.Context, data interface{}) {

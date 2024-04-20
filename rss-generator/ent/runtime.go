@@ -27,12 +27,16 @@ func init() {
 	siteDescURL := siteFields[4].Descriptor()
 	// site.URLValidator is a validator for the "url" field. It is called by the builders before save.
 	site.URLValidator = siteDescURL.Validators[0].(func(string) error)
+	// siteDescEnableJsRendering is the schema descriptor for enable_js_rendering field.
+	siteDescEnableJsRendering := siteFields[5].Descriptor()
+	// site.DefaultEnableJsRendering holds the default value on creation for the enable_js_rendering field.
+	site.DefaultEnableJsRendering = siteDescEnableJsRendering.Default.(bool)
 	// siteDescCreatedAt is the schema descriptor for created_at field.
-	siteDescCreatedAt := siteFields[5].Descriptor()
+	siteDescCreatedAt := siteFields[6].Descriptor()
 	// site.DefaultCreatedAt holds the default value on creation for the created_at field.
 	site.DefaultCreatedAt = siteDescCreatedAt.Default.(func() time.Time)
 	// siteDescUpdatedAt is the schema descriptor for updated_at field.
-	siteDescUpdatedAt := siteFields[6].Descriptor()
+	siteDescUpdatedAt := siteFields[7].Descriptor()
 	// site.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	site.DefaultUpdatedAt = siteDescUpdatedAt.Default.(func() time.Time)
 	// site.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

@@ -16,7 +16,7 @@ import (
 type Site struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 	// Slug holds the value of the "slug" field.
 	Slug string `json:"slug,omitempty"`
 	// Title holds the value of the "title" field.
@@ -25,6 +25,8 @@ type Site struct {
 	Description string `json:"description,omitempty"`
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
+	// EnableJsRendering holds the value of the "enable_js_rendering" field.
+	EnableJsRendering bool `json:"enable_js_rendering,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -37,7 +39,11 @@ func (*Site) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case site.FieldID, site.FieldSlug, site.FieldTitle, site.FieldDescription, site.FieldURL:
+		case site.FieldEnableJsRendering:
+			values[i] = new(sql.NullBool)
+		case site.FieldID:
+			values[i] = new(sql.NullInt64)
+		case site.FieldSlug, site.FieldTitle, site.FieldDescription, site.FieldURL:
 			values[i] = new(sql.NullString)
 		case site.FieldCreatedAt, site.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -57,11 +63,11 @@ func (s *Site) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case site.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				s.ID = value.String
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			s.ID = int(value.Int64)
 		case site.FieldSlug:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field slug", values[i])
@@ -85,6 +91,12 @@ func (s *Site) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
 				s.URL = value.String
+			}
+		case site.FieldEnableJsRendering:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field enable_js_rendering", values[i])
+			} else if value.Valid {
+				s.EnableJsRendering = value.Bool
 			}
 		case site.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -145,6 +157,9 @@ func (s *Site) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("url=")
 	builder.WriteString(s.URL)
+	builder.WriteString(", ")
+	builder.WriteString("enable_js_rendering=")
+	builder.WriteString(fmt.Sprintf("%v", s.EnableJsRendering))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(s.CreatedAt.Format(time.ANSIC))

@@ -1,13 +1,13 @@
 package domain
 
-type SiteCreateInput struct {
+type SitesCreateInput struct {
 	Slug        string  `json:"slug"`
 	Title       string  `json:"title"`
 	Description *string `json:"description"`
 	URL         string  `json:"url"`
 }
 
-type SiteCreateOutput struct {
+type SitesCreateOutput struct {
 	Slug  string `json:"slug"`
 	Title string `json:"title"`
 }

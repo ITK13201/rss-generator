@@ -295,19 +295,20 @@ func (m *PostMutation) ResetEdge(name string) error {
 // SiteMutation represents an operation that mutates the Site nodes in the graph.
 type SiteMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *string
-	slug          *string
-	title         *string
-	description   *string
-	url           *string
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Site, error)
-	predicates    []predicate.Site
+	op                  Op
+	typ                 string
+	id                  *int
+	slug                *string
+	title               *string
+	description         *string
+	url                 *string
+	enable_js_rendering *bool
+	created_at          *time.Time
+	updated_at          *time.Time
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*Site, error)
+	predicates          []predicate.Site
 }
 
 var _ ent.Mutation = (*SiteMutation)(nil)
@@ -330,7 +331,7 @@ func newSiteMutation(c config, op Op, opts ...siteOption) *SiteMutation {
 }
 
 // withSiteID sets the ID field of the mutation.
-func withSiteID(id string) siteOption {
+func withSiteID(id int) siteOption {
 	return func(m *SiteMutation) {
 		var (
 			err   error
@@ -382,13 +383,13 @@ func (m SiteMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Site entities.
-func (m *SiteMutation) SetID(id string) {
+func (m *SiteMutation) SetID(id int) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *SiteMutation) ID() (id string, exists bool) {
+func (m *SiteMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -399,12 +400,12 @@ func (m *SiteMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *SiteMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *SiteMutation) IDs(ctx context.Context) ([]int, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []int{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -571,6 +572,42 @@ func (m *SiteMutation) ResetURL() {
 	m.url = nil
 }
 
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (m *SiteMutation) SetEnableJsRendering(b bool) {
+	m.enable_js_rendering = &b
+}
+
+// EnableJsRendering returns the value of the "enable_js_rendering" field in the mutation.
+func (m *SiteMutation) EnableJsRendering() (r bool, exists bool) {
+	v := m.enable_js_rendering
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEnableJsRendering returns the old "enable_js_rendering" field's value of the Site entity.
+// If the Site object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteMutation) OldEnableJsRendering(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEnableJsRendering is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEnableJsRendering requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEnableJsRendering: %w", err)
+	}
+	return oldValue.EnableJsRendering, nil
+}
+
+// ResetEnableJsRendering resets all changes to the "enable_js_rendering" field.
+func (m *SiteMutation) ResetEnableJsRendering() {
+	m.enable_js_rendering = nil
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *SiteMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -677,7 +714,7 @@ func (m *SiteMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SiteMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.slug != nil {
 		fields = append(fields, site.FieldSlug)
 	}
@@ -689,6 +726,9 @@ func (m *SiteMutation) Fields() []string {
 	}
 	if m.url != nil {
 		fields = append(fields, site.FieldURL)
+	}
+	if m.enable_js_rendering != nil {
+		fields = append(fields, site.FieldEnableJsRendering)
 	}
 	if m.created_at != nil {
 		fields = append(fields, site.FieldCreatedAt)
@@ -712,6 +752,8 @@ func (m *SiteMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case site.FieldURL:
 		return m.URL()
+	case site.FieldEnableJsRendering:
+		return m.EnableJsRendering()
 	case site.FieldCreatedAt:
 		return m.CreatedAt()
 	case site.FieldUpdatedAt:
@@ -733,6 +775,8 @@ func (m *SiteMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDescription(ctx)
 	case site.FieldURL:
 		return m.OldURL(ctx)
+	case site.FieldEnableJsRendering:
+		return m.OldEnableJsRendering(ctx)
 	case site.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case site.FieldUpdatedAt:
@@ -773,6 +817,13 @@ func (m *SiteMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetURL(v)
+		return nil
+	case site.FieldEnableJsRendering:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEnableJsRendering(v)
 		return nil
 	case site.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -857,6 +908,9 @@ func (m *SiteMutation) ResetField(name string) error {
 		return nil
 	case site.FieldURL:
 		m.ResetURL()
+		return nil
+	case site.FieldEnableJsRendering:
+		m.ResetEnableJsRendering()
 		return nil
 	case site.FieldCreatedAt:
 		m.ResetCreatedAt()

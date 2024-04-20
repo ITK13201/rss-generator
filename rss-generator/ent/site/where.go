@@ -10,58 +10,48 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Site {
+func ID(id int) predicate.Site {
 	return predicate.Site(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Site {
+func IDEQ(id int) predicate.Site {
 	return predicate.Site(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Site {
+func IDNEQ(id int) predicate.Site {
 	return predicate.Site(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Site {
+func IDIn(ids ...int) predicate.Site {
 	return predicate.Site(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Site {
+func IDNotIn(ids ...int) predicate.Site {
 	return predicate.Site(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Site {
+func IDGT(id int) predicate.Site {
 	return predicate.Site(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Site {
+func IDGTE(id int) predicate.Site {
 	return predicate.Site(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Site {
+func IDLT(id int) predicate.Site {
 	return predicate.Site(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Site {
+func IDLTE(id int) predicate.Site {
 	return predicate.Site(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Site {
-	return predicate.Site(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Site {
-	return predicate.Site(sql.FieldContainsFold(FieldID, id))
 }
 
 // Slug applies equality check predicate on the "slug" field. It's identical to SlugEQ.
@@ -82,6 +72,11 @@ func Description(v string) predicate.Site {
 // URL applies equality check predicate on the "url" field. It's identical to URLEQ.
 func URL(v string) predicate.Site {
 	return predicate.Site(sql.FieldEQ(FieldURL, v))
+}
+
+// EnableJsRendering applies equality check predicate on the "enable_js_rendering" field. It's identical to EnableJsRenderingEQ.
+func EnableJsRendering(v bool) predicate.Site {
+	return predicate.Site(sql.FieldEQ(FieldEnableJsRendering, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -362,6 +357,16 @@ func URLEqualFold(v string) predicate.Site {
 // URLContainsFold applies the ContainsFold predicate on the "url" field.
 func URLContainsFold(v string) predicate.Site {
 	return predicate.Site(sql.FieldContainsFold(FieldURL, v))
+}
+
+// EnableJsRenderingEQ applies the EQ predicate on the "enable_js_rendering" field.
+func EnableJsRenderingEQ(v bool) predicate.Site {
+	return predicate.Site(sql.FieldEQ(FieldEnableJsRendering, v))
+}
+
+// EnableJsRenderingNEQ applies the NEQ predicate on the "enable_js_rendering" field.
+func EnableJsRenderingNEQ(v bool) predicate.Site {
+	return predicate.Site(sql.FieldNEQ(FieldEnableJsRendering, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

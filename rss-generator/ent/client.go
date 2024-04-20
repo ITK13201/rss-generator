@@ -402,7 +402,7 @@ func (c *SiteClient) UpdateOne(s *Site) *SiteUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *SiteClient) UpdateOneID(id string) *SiteUpdateOne {
+func (c *SiteClient) UpdateOneID(id int) *SiteUpdateOne {
 	mutation := newSiteMutation(c.config, OpUpdateOne, withSiteID(id))
 	return &SiteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -419,7 +419,7 @@ func (c *SiteClient) DeleteOne(s *Site) *SiteDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SiteClient) DeleteOneID(id string) *SiteDeleteOne {
+func (c *SiteClient) DeleteOneID(id int) *SiteDeleteOne {
 	builder := c.Delete().Where(site.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -436,12 +436,12 @@ func (c *SiteClient) Query() *SiteQuery {
 }
 
 // Get returns a Site entity by its id.
-func (c *SiteClient) Get(ctx context.Context, id string) (*Site, error) {
+func (c *SiteClient) Get(ctx context.Context, id int) (*Site, error) {
 	return c.Query().Where(site.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *SiteClient) GetX(ctx context.Context, id string) *Site {
+func (c *SiteClient) GetX(ctx context.Context, id int) *Site {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

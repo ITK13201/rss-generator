@@ -31,7 +31,7 @@ func NewSiteController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent
 }
 
 func (sc *siteController) Create(c *gin.Context) {
-	var s domain.SiteCreateInput
+	var s domain.SitesCreateInput
 	err := c.Bind(&s)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
@@ -45,7 +45,7 @@ func (sc *siteController) Create(c *gin.Context) {
 		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	data := domain.SiteCreateOutput{
+	data := domain.SitesCreateOutput{
 		Slug:  site.Slug,
 		Title: site.Title,
 	}

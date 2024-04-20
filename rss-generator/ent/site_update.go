@@ -90,6 +90,20 @@ func (su *SiteUpdate) SetNillableURL(s *string) *SiteUpdate {
 	return su
 }
 
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (su *SiteUpdate) SetEnableJsRendering(b bool) *SiteUpdate {
+	su.mutation.SetEnableJsRendering(b)
+	return su
+}
+
+// SetNillableEnableJsRendering sets the "enable_js_rendering" field if the given value is not nil.
+func (su *SiteUpdate) SetNillableEnableJsRendering(b *bool) *SiteUpdate {
+	if b != nil {
+		su.SetEnableJsRendering(*b)
+	}
+	return su
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (su *SiteUpdate) SetCreatedAt(t time.Time) *SiteUpdate {
 	su.mutation.SetCreatedAt(t)
@@ -175,7 +189,7 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := su.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(site.Table, site.Columns, sqlgraph.NewFieldSpec(site.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(site.Table, site.Columns, sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -197,6 +211,9 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.URL(); ok {
 		_spec.SetField(site.FieldURL, field.TypeString, value)
+	}
+	if value, ok := su.mutation.EnableJsRendering(); ok {
+		_spec.SetField(site.FieldEnableJsRendering, field.TypeBool, value)
 	}
 	if value, ok := su.mutation.CreatedAt(); ok {
 		_spec.SetField(site.FieldCreatedAt, field.TypeTime, value)
@@ -282,6 +299,20 @@ func (suo *SiteUpdateOne) SetURL(s string) *SiteUpdateOne {
 func (suo *SiteUpdateOne) SetNillableURL(s *string) *SiteUpdateOne {
 	if s != nil {
 		suo.SetURL(*s)
+	}
+	return suo
+}
+
+// SetEnableJsRendering sets the "enable_js_rendering" field.
+func (suo *SiteUpdateOne) SetEnableJsRendering(b bool) *SiteUpdateOne {
+	suo.mutation.SetEnableJsRendering(b)
+	return suo
+}
+
+// SetNillableEnableJsRendering sets the "enable_js_rendering" field if the given value is not nil.
+func (suo *SiteUpdateOne) SetNillableEnableJsRendering(b *bool) *SiteUpdateOne {
+	if b != nil {
+		suo.SetEnableJsRendering(*b)
 	}
 	return suo
 }
@@ -384,7 +415,7 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 	if err := suo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(site.Table, site.Columns, sqlgraph.NewFieldSpec(site.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(site.Table, site.Columns, sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt))
 	id, ok := suo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Site.id" for update`)}
@@ -423,6 +454,9 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 	}
 	if value, ok := suo.mutation.URL(); ok {
 		_spec.SetField(site.FieldURL, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.EnableJsRendering(); ok {
+		_spec.SetField(site.FieldEnableJsRendering, field.TypeBool, value)
 	}
 	if value, ok := suo.mutation.CreatedAt(); ok {
 		_spec.SetField(site.FieldCreatedAt, field.TypeTime, value)

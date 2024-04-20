@@ -16,11 +16,12 @@ type Site struct {
 // Fields of the Site.
 func (Site) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").Unique().Immutable(),
+		field.Int("id").Unique().Immutable(),
 		field.String("slug").NotEmpty().Unique(),
 		field.String("title").NotEmpty(),
 		field.String("description").Optional(),
 		field.String("url").NotEmpty(),
+		field.Bool("enable_js_rendering").Default(false),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}

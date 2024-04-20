@@ -81,8 +81,8 @@ func (sq *SiteQuery) FirstX(ctx context.Context) *Site {
 
 // FirstID returns the first Site ID from the query.
 // Returns a *NotFoundError when no Site ID was found.
-func (sq *SiteQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (sq *SiteQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = sq.Limit(1).IDs(setContextOp(ctx, sq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -94,7 +94,7 @@ func (sq *SiteQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *SiteQuery) FirstIDX(ctx context.Context) string {
+func (sq *SiteQuery) FirstIDX(ctx context.Context) int {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -132,8 +132,8 @@ func (sq *SiteQuery) OnlyX(ctx context.Context) *Site {
 // OnlyID is like Only, but returns the only Site ID in the query.
 // Returns a *NotSingularError when more than one Site ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *SiteQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (sq *SiteQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = sq.Limit(2).IDs(setContextOp(ctx, sq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -149,7 +149,7 @@ func (sq *SiteQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *SiteQuery) OnlyIDX(ctx context.Context) string {
+func (sq *SiteQuery) OnlyIDX(ctx context.Context) int {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -177,7 +177,7 @@ func (sq *SiteQuery) AllX(ctx context.Context) []*Site {
 }
 
 // IDs executes the query and returns a list of Site IDs.
-func (sq *SiteQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (sq *SiteQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if sq.ctx.Unique == nil && sq.path != nil {
 		sq.Unique(true)
 	}
@@ -189,7 +189,7 @@ func (sq *SiteQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *SiteQuery) IDsX(ctx context.Context) []string {
+func (sq *SiteQuery) IDsX(ctx context.Context) []int {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -364,7 +364,7 @@ func (sq *SiteQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (sq *SiteQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(site.Table, site.Columns, sqlgraph.NewFieldSpec(site.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(site.Table, site.Columns, sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt))
 	_spec.From = sq.sql
 	if unique := sq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
