@@ -9,16 +9,16 @@ import (
 	"github.com/ITK13201/rss-generator/ent"
 )
 
-// The PostFunc type is an adapter to allow the use of ordinary
-// function as Post mutator.
-type PostFunc func(context.Context, *ent.PostMutation) (ent.Value, error)
+// The ScrapingSelectorFunc type is an adapter to allow the use of ordinary
+// function as ScrapingSelector mutator.
+type ScrapingSelectorFunc func(context.Context, *ent.ScrapingSelectorMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f PostFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.PostMutation); ok {
+func (f ScrapingSelectorFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ScrapingSelectorMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PostMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ScrapingSelectorMutation", m)
 }
 
 // The SiteFunc type is an adapter to allow the use of ordinary

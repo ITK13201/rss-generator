@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ITK13201/rss-generator/ent/schema"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -13,6 +14,30 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	scrapingselectorFields := schema.ScrapingSelector{}.Fields()
+	_ = scrapingselectorFields
+	// scrapingselectorDescSelector is the schema descriptor for selector field.
+	scrapingselectorDescSelector := scrapingselectorFields[1].Descriptor()
+	// scrapingselector.SelectorValidator is a validator for the "selector" field. It is called by the builders before save.
+	scrapingselector.SelectorValidator = scrapingselectorDescSelector.Validators[0].(func(string) error)
+	// scrapingselectorDescInnerSelector is the schema descriptor for inner_selector field.
+	scrapingselectorDescInnerSelector := scrapingselectorFields[2].Descriptor()
+	// scrapingselector.InnerSelectorValidator is a validator for the "inner_selector" field. It is called by the builders before save.
+	scrapingselector.InnerSelectorValidator = scrapingselectorDescInnerSelector.Validators[0].(func(string) error)
+	// scrapingselectorDescTitleSelector is the schema descriptor for title_selector field.
+	scrapingselectorDescTitleSelector := scrapingselectorFields[3].Descriptor()
+	// scrapingselector.TitleSelectorValidator is a validator for the "title_selector" field. It is called by the builders before save.
+	scrapingselector.TitleSelectorValidator = scrapingselectorDescTitleSelector.Validators[0].(func(string) error)
+	// scrapingselectorDescCreatedAt is the schema descriptor for created_at field.
+	scrapingselectorDescCreatedAt := scrapingselectorFields[6].Descriptor()
+	// scrapingselector.DefaultCreatedAt holds the default value on creation for the created_at field.
+	scrapingselector.DefaultCreatedAt = scrapingselectorDescCreatedAt.Default.(func() time.Time)
+	// scrapingselectorDescUpdatedAt is the schema descriptor for updated_at field.
+	scrapingselectorDescUpdatedAt := scrapingselectorFields[7].Descriptor()
+	// scrapingselector.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	scrapingselector.DefaultUpdatedAt = scrapingselectorDescUpdatedAt.Default.(func() time.Time)
+	// scrapingselector.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	scrapingselector.UpdateDefaultUpdatedAt = scrapingselectorDescUpdatedAt.UpdateDefault.(func() time.Time)
 	siteFields := schema.Site{}.Fields()
 	_ = siteFields
 	// siteDescSlug is the schema descriptor for slug field.

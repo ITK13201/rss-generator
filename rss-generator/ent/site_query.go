@@ -11,16 +11,18 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/predicate"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
 // SiteQuery is the builder for querying Site entities.
 type SiteQuery struct {
 	config
-	ctx        *QueryContext
-	order      []site.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Site
+	ctx                  *QueryContext
+	order                []site.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.Site
+	withScrapingSelector *ScrapingSelectorQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +57,28 @@ func (sq *SiteQuery) Unique(unique bool) *SiteQuery {
 func (sq *SiteQuery) Order(o ...site.OrderOption) *SiteQuery {
 	sq.order = append(sq.order, o...)
 	return sq
+}
+
+// QueryScrapingSelector chains the current query on the "scraping_selector" edge.
+func (sq *SiteQuery) QueryScrapingSelector() *ScrapingSelectorQuery {
+	query := (&ScrapingSelectorClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, selector),
+			sqlgraph.To(scrapingselector.Table, scrapingselector.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, site.ScrapingSelectorTable, site.ScrapingSelectorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Site entity from the query.
@@ -244,15 +268,27 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 		return nil
 	}
 	return &SiteQuery{
-		config:     sq.config,
-		ctx:        sq.ctx.Clone(),
-		order:      append([]site.OrderOption{}, sq.order...),
-		inters:     append([]Interceptor{}, sq.inters...),
-		predicates: append([]predicate.Site{}, sq.predicates...),
+		config:               sq.config,
+		ctx:                  sq.ctx.Clone(),
+		order:                append([]site.OrderOption{}, sq.order...),
+		inters:               append([]Interceptor{}, sq.inters...),
+		predicates:           append([]predicate.Site{}, sq.predicates...),
+		withScrapingSelector: sq.withScrapingSelector.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
+}
+
+// WithScrapingSelector tells the query-builder to eager-load the nodes that are connected to
+// the "scraping_selector" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithScrapingSelector(opts ...func(*ScrapingSelectorQuery)) *SiteQuery {
+	query := (&ScrapingSelectorClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withScrapingSelector = query
+	return sq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +367,11 @@ func (sq *SiteQuery) prepareQuery(ctx context.Context) error {
 
 func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, error) {
 	var (
-		nodes = []*Site{}
-		_spec = sq.querySpec()
+		nodes       = []*Site{}
+		_spec       = sq.querySpec()
+		loadedTypes = [1]bool{
+			sq.withScrapingSelector != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Site).scanValues(nil, columns)
@@ -340,6 +379,7 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Site{config: sq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +391,43 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := sq.withScrapingSelector; query != nil {
+		if err := sq.loadScrapingSelector(ctx, query, nodes, nil,
+			func(n *Site, e *ScrapingSelector) { n.Edges.ScrapingSelector = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (sq *SiteQuery) loadScrapingSelector(ctx context.Context, query *ScrapingSelectorQuery, nodes []*Site, init func(*Site), assign func(*Site, *ScrapingSelector)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Site)
+	for i := range nodes {
+		fk := nodes[i].ScrapingSelectorID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(scrapingselector.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "scraping_selector_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (sq *SiteQuery) sqlCount(ctx context.Context) (int, error) {
@@ -378,6 +454,9 @@ func (sq *SiteQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != site.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if sq.withScrapingSelector != nil {
+			_spec.Node.AddColumnOnce(site.FieldScrapingSelectorID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

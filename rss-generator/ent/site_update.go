@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/predicate"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -124,9 +125,40 @@ func (su *SiteUpdate) SetUpdatedAt(t time.Time) *SiteUpdate {
 	return su
 }
 
+// SetScrapingSelectorID sets the "scraping_selector_id" field.
+func (su *SiteUpdate) SetScrapingSelectorID(i int) *SiteUpdate {
+	su.mutation.SetScrapingSelectorID(i)
+	return su
+}
+
+// SetNillableScrapingSelectorID sets the "scraping_selector_id" field if the given value is not nil.
+func (su *SiteUpdate) SetNillableScrapingSelectorID(i *int) *SiteUpdate {
+	if i != nil {
+		su.SetScrapingSelectorID(*i)
+	}
+	return su
+}
+
+// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
+func (su *SiteUpdate) ClearScrapingSelectorID() *SiteUpdate {
+	su.mutation.ClearScrapingSelectorID()
+	return su
+}
+
+// SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
+func (su *SiteUpdate) SetScrapingSelector(s *ScrapingSelector) *SiteUpdate {
+	return su.SetScrapingSelectorID(s.ID)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (su *SiteUpdate) Mutation() *SiteMutation {
 	return su.mutation
+}
+
+// ClearScrapingSelector clears the "scraping_selector" edge to the ScrapingSelector entity.
+func (su *SiteUpdate) ClearScrapingSelector() *SiteUpdate {
+	su.mutation.ClearScrapingSelector()
+	return su
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -220,6 +252,35 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(site.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if su.mutation.ScrapingSelectorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   site.ScrapingSelectorTable,
+			Columns: []string{site.ScrapingSelectorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ScrapingSelectorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   site.ScrapingSelectorTable,
+			Columns: []string{site.ScrapingSelectorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -337,9 +398,40 @@ func (suo *SiteUpdateOne) SetUpdatedAt(t time.Time) *SiteUpdateOne {
 	return suo
 }
 
+// SetScrapingSelectorID sets the "scraping_selector_id" field.
+func (suo *SiteUpdateOne) SetScrapingSelectorID(i int) *SiteUpdateOne {
+	suo.mutation.SetScrapingSelectorID(i)
+	return suo
+}
+
+// SetNillableScrapingSelectorID sets the "scraping_selector_id" field if the given value is not nil.
+func (suo *SiteUpdateOne) SetNillableScrapingSelectorID(i *int) *SiteUpdateOne {
+	if i != nil {
+		suo.SetScrapingSelectorID(*i)
+	}
+	return suo
+}
+
+// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
+func (suo *SiteUpdateOne) ClearScrapingSelectorID() *SiteUpdateOne {
+	suo.mutation.ClearScrapingSelectorID()
+	return suo
+}
+
+// SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
+func (suo *SiteUpdateOne) SetScrapingSelector(s *ScrapingSelector) *SiteUpdateOne {
+	return suo.SetScrapingSelectorID(s.ID)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (suo *SiteUpdateOne) Mutation() *SiteMutation {
 	return suo.mutation
+}
+
+// ClearScrapingSelector clears the "scraping_selector" edge to the ScrapingSelector entity.
+func (suo *SiteUpdateOne) ClearScrapingSelector() *SiteUpdateOne {
+	suo.mutation.ClearScrapingSelector()
+	return suo
 }
 
 // Where appends a list predicates to the SiteUpdate builder.
@@ -463,6 +555,35 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 	}
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(site.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if suo.mutation.ScrapingSelectorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   site.ScrapingSelectorTable,
+			Columns: []string{site.ScrapingSelectorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ScrapingSelectorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   site.ScrapingSelectorTable,
+			Columns: []string{site.ScrapingSelectorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Site{config: suo.config}
 	_spec.Assign = _node.assignValues

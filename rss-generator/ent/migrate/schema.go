@@ -9,15 +9,22 @@ import (
 )
 
 var (
-	// PostsColumns holds the columns for the "posts" table.
-	PostsColumns = []*schema.Column{
+	// ScrapingSelectorsColumns holds the columns for the "scraping_selectors" table.
+	ScrapingSelectorsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "selector", Type: field.TypeString},
+		{Name: "inner_selector", Type: field.TypeString},
+		{Name: "title_selector", Type: field.TypeString},
+		{Name: "description_selector", Type: field.TypeString, Nullable: true},
+		{Name: "link_selector", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 	}
-	// PostsTable holds the schema information for the "posts" table.
-	PostsTable = &schema.Table{
-		Name:       "posts",
-		Columns:    PostsColumns,
-		PrimaryKey: []*schema.Column{PostsColumns[0]},
+	// ScrapingSelectorsTable holds the schema information for the "scraping_selectors" table.
+	ScrapingSelectorsTable = &schema.Table{
+		Name:       "scraping_selectors",
+		Columns:    ScrapingSelectorsColumns,
+		PrimaryKey: []*schema.Column{ScrapingSelectorsColumns[0]},
 	}
 	// SitesColumns holds the columns for the "sites" table.
 	SitesColumns = []*schema.Column{
@@ -29,21 +36,34 @@ var (
 		{Name: "enable_js_rendering", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "scraping_selector_id", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// SitesTable holds the schema information for the "sites" table.
 	SitesTable = &schema.Table{
 		Name:       "sites",
 		Columns:    SitesColumns,
 		PrimaryKey: []*schema.Column{SitesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "sites_scraping_selectors_site",
+				Columns:    []*schema.Column{SitesColumns[8]},
+				RefColumns: []*schema.Column{ScrapingSelectorsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PostsTable,
+		ScrapingSelectorsTable,
 		SitesTable,
 	}
 )
 
 func init() {
+	ScrapingSelectorsTable.Annotation = &entsql.Annotation{
+		Table: "scraping_selectors",
+	}
+	SitesTable.ForeignKeys[0].RefTable = ScrapingSelectorsTable
 	SitesTable.Annotation = &entsql.Annotation{
 		Table: "sites",
 	}

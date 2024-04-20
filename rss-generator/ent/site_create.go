@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -96,10 +97,29 @@ func (sc *SiteCreate) SetNillableUpdatedAt(t *time.Time) *SiteCreate {
 	return sc
 }
 
+// SetScrapingSelectorID sets the "scraping_selector_id" field.
+func (sc *SiteCreate) SetScrapingSelectorID(i int) *SiteCreate {
+	sc.mutation.SetScrapingSelectorID(i)
+	return sc
+}
+
+// SetNillableScrapingSelectorID sets the "scraping_selector_id" field if the given value is not nil.
+func (sc *SiteCreate) SetNillableScrapingSelectorID(i *int) *SiteCreate {
+	if i != nil {
+		sc.SetScrapingSelectorID(*i)
+	}
+	return sc
+}
+
 // SetID sets the "id" field.
 func (sc *SiteCreate) SetID(i int) *SiteCreate {
 	sc.mutation.SetID(i)
 	return sc
+}
+
+// SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
+func (sc *SiteCreate) SetScrapingSelector(s *ScrapingSelector) *SiteCreate {
+	return sc.SetScrapingSelectorID(s.ID)
 }
 
 // Mutation returns the SiteMutation object of the builder.
@@ -247,6 +267,23 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 		_spec.SetField(site.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if nodes := sc.mutation.ScrapingSelectorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   site.ScrapingSelectorTable,
+			Columns: []string{site.ScrapingSelectorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ScrapingSelectorID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -386,6 +423,24 @@ func (u *SiteUpsert) SetUpdatedAt(v time.Time) *SiteUpsert {
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
 func (u *SiteUpsert) UpdateUpdatedAt() *SiteUpsert {
 	u.SetExcluded(site.FieldUpdatedAt)
+	return u
+}
+
+// SetScrapingSelectorID sets the "scraping_selector_id" field.
+func (u *SiteUpsert) SetScrapingSelectorID(v int) *SiteUpsert {
+	u.Set(site.FieldScrapingSelectorID, v)
+	return u
+}
+
+// UpdateScrapingSelectorID sets the "scraping_selector_id" field to the value that was provided on create.
+func (u *SiteUpsert) UpdateScrapingSelectorID() *SiteUpsert {
+	u.SetExcluded(site.FieldScrapingSelectorID)
+	return u
+}
+
+// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
+func (u *SiteUpsert) ClearScrapingSelectorID() *SiteUpsert {
+	u.SetNull(site.FieldScrapingSelectorID)
 	return u
 }
 
@@ -539,6 +594,27 @@ func (u *SiteUpsertOne) SetUpdatedAt(v time.Time) *SiteUpsertOne {
 func (u *SiteUpsertOne) UpdateUpdatedAt() *SiteUpsertOne {
 	return u.Update(func(s *SiteUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetScrapingSelectorID sets the "scraping_selector_id" field.
+func (u *SiteUpsertOne) SetScrapingSelectorID(v int) *SiteUpsertOne {
+	return u.Update(func(s *SiteUpsert) {
+		s.SetScrapingSelectorID(v)
+	})
+}
+
+// UpdateScrapingSelectorID sets the "scraping_selector_id" field to the value that was provided on create.
+func (u *SiteUpsertOne) UpdateScrapingSelectorID() *SiteUpsertOne {
+	return u.Update(func(s *SiteUpsert) {
+		s.UpdateScrapingSelectorID()
+	})
+}
+
+// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
+func (u *SiteUpsertOne) ClearScrapingSelectorID() *SiteUpsertOne {
+	return u.Update(func(s *SiteUpsert) {
+		s.ClearScrapingSelectorID()
 	})
 }
 
@@ -858,6 +934,27 @@ func (u *SiteUpsertBulk) SetUpdatedAt(v time.Time) *SiteUpsertBulk {
 func (u *SiteUpsertBulk) UpdateUpdatedAt() *SiteUpsertBulk {
 	return u.Update(func(s *SiteUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetScrapingSelectorID sets the "scraping_selector_id" field.
+func (u *SiteUpsertBulk) SetScrapingSelectorID(v int) *SiteUpsertBulk {
+	return u.Update(func(s *SiteUpsert) {
+		s.SetScrapingSelectorID(v)
+	})
+}
+
+// UpdateScrapingSelectorID sets the "scraping_selector_id" field to the value that was provided on create.
+func (u *SiteUpsertBulk) UpdateScrapingSelectorID() *SiteUpsertBulk {
+	return u.Update(func(s *SiteUpsert) {
+		s.UpdateScrapingSelectorID()
+	})
+}
+
+// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
+func (u *SiteUpsertBulk) ClearScrapingSelectorID() *SiteUpsertBulk {
+	return u.Update(func(s *SiteUpsert) {
+		s.ClearScrapingSelectorID()
 	})
 }
 

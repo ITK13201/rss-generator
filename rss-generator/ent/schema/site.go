@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"time"
 )
@@ -24,12 +25,17 @@ func (Site) Fields() []ent.Field {
 		field.Bool("enable_js_rendering").Default(false),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+		field.Int("scraping_selector_id").Optional(),
 	}
 }
 
 // Edges of the Site.
 func (Site) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("scraping_selector", ScrapingSelector.Type).
+			Ref("site").
+			Unique().Field("scraping_selector_id"),
+	}
 }
 
 func (Site) Annotations() []schema.Annotation {

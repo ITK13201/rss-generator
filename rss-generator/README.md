@@ -27,7 +27,7 @@ docker compose exec rss-generator goose.sh down
 If you would like to create the "Hoge" schema, you can do so with the following command.
 
 ```shell
-docker compose exec backend go run entgo.io/ent/cmd/ent init Hoge
+docker compose exec backend go run -mod=mod entgo.io/ent/cmd/ent new Hoge
 ```
 
 #### Modify Models

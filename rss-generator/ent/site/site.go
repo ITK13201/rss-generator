@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -27,8 +28,19 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldScrapingSelectorID holds the string denoting the scraping_selector_id field in the database.
+	FieldScrapingSelectorID = "scraping_selector_id"
+	// EdgeScrapingSelector holds the string denoting the scraping_selector edge name in mutations.
+	EdgeScrapingSelector = "scraping_selector"
 	// Table holds the table name of the site in the database.
 	Table = "sites"
+	// ScrapingSelectorTable is the table that holds the scraping_selector relation/edge.
+	ScrapingSelectorTable = "sites"
+	// ScrapingSelectorInverseTable is the table name for the ScrapingSelector entity.
+	// It exists in this package in order to avoid circular dependency with the "scrapingselector" package.
+	ScrapingSelectorInverseTable = "scraping_selectors"
+	// ScrapingSelectorColumn is the table column denoting the scraping_selector relation/edge.
+	ScrapingSelectorColumn = "scraping_selector_id"
 )
 
 // Columns holds all SQL columns for site fields.
@@ -41,6 +53,7 @@ var Columns = []string{
 	FieldEnableJsRendering,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldScrapingSelectorID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -111,4 +124,23 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByScrapingSelectorID orders the results by the scraping_selector_id field.
+func ByScrapingSelectorID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScrapingSelectorID, opts...).ToFunc()
+}
+
+// ByScrapingSelectorField orders the results by scraping_selector field.
+func ByScrapingSelectorField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScrapingSelectorStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newScrapingSelectorStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ScrapingSelectorInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, ScrapingSelectorTable, ScrapingSelectorColumn),
+	)
 }

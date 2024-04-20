@@ -14,8 +14,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// Post is the client for interacting with the Post builders.
-	Post *PostClient
+	// ScrapingSelector is the client for interacting with the ScrapingSelector builders.
+	ScrapingSelector *ScrapingSelectorClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 
@@ -149,7 +149,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.Post = NewPostClient(tx.config)
+	tx.ScrapingSelector = NewScrapingSelectorClient(tx.config)
 	tx.Site = NewSiteClient(tx.config)
 }
 
@@ -160,7 +160,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Post.QueryXXX(), the query will be executed
+// applies a query, for example: ScrapingSelector.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

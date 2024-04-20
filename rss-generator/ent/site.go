@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -30,8 +31,33 @@ type Site struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// ScrapingSelectorID holds the value of the "scraping_selector_id" field.
+	ScrapingSelectorID int `json:"scraping_selector_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the SiteQuery when eager-loading is set.
+	Edges        SiteEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// SiteEdges holds the relations/edges for other nodes in the graph.
+type SiteEdges struct {
+	// ScrapingSelector holds the value of the scraping_selector edge.
+	ScrapingSelector *ScrapingSelector `json:"scraping_selector,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ScrapingSelectorOrErr returns the ScrapingSelector value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SiteEdges) ScrapingSelectorOrErr() (*ScrapingSelector, error) {
+	if e.ScrapingSelector != nil {
+		return e.ScrapingSelector, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: scrapingselector.Label}
+	}
+	return nil, &NotLoadedError{edge: "scraping_selector"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -41,7 +67,7 @@ func (*Site) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case site.FieldEnableJsRendering:
 			values[i] = new(sql.NullBool)
-		case site.FieldID:
+		case site.FieldID, site.FieldScrapingSelectorID:
 			values[i] = new(sql.NullInt64)
 		case site.FieldSlug, site.FieldTitle, site.FieldDescription, site.FieldURL:
 			values[i] = new(sql.NullString)
@@ -110,6 +136,12 @@ func (s *Site) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.UpdatedAt = value.Time
 			}
+		case site.FieldScrapingSelectorID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field scraping_selector_id", values[i])
+			} else if value.Valid {
+				s.ScrapingSelectorID = int(value.Int64)
+			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -121,6 +153,11 @@ func (s *Site) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (s *Site) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
+}
+
+// QueryScrapingSelector queries the "scraping_selector" edge of the Site entity.
+func (s *Site) QueryScrapingSelector() *ScrapingSelectorQuery {
+	return NewSiteClient(s.config).QueryScrapingSelector(s)
 }
 
 // Update returns a builder for updating this Site.
@@ -166,6 +203,9 @@ func (s *Site) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("scraping_selector_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.ScrapingSelectorID))
 	builder.WriteByte(')')
 	return builder.String()
 }

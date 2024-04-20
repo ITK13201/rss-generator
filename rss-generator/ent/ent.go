@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ITK13201/rss-generator/ent/post"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -74,8 +74,8 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			post.Table: post.ValidColumn,
-			site.Table: site.ValidColumn,
+			scrapingselector.Table: scrapingselector.ValidColumn,
+			site.Table:             site.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

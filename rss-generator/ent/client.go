@@ -14,7 +14,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ITK13201/rss-generator/ent/post"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 
 	stdsql "database/sql"
@@ -25,8 +26,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Post is the client for interacting with the Post builders.
-	Post *PostClient
+	// ScrapingSelector is the client for interacting with the ScrapingSelector builders.
+	ScrapingSelector *ScrapingSelectorClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 }
@@ -40,7 +41,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Post = NewPostClient(c.config)
+	c.ScrapingSelector = NewScrapingSelectorClient(c.config)
 	c.Site = NewSiteClient(c.config)
 }
 
@@ -132,10 +133,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Post:   NewPostClient(cfg),
-		Site:   NewSiteClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		ScrapingSelector: NewScrapingSelectorClient(cfg),
+		Site:             NewSiteClient(cfg),
 	}, nil
 }
 
@@ -153,17 +154,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Post:   NewPostClient(cfg),
-		Site:   NewSiteClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		ScrapingSelector: NewScrapingSelectorClient(cfg),
+		Site:             NewSiteClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Post.
+//		ScrapingSelector.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -185,22 +186,22 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Post.Use(hooks...)
+	c.ScrapingSelector.Use(hooks...)
 	c.Site.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Post.Intercept(interceptors...)
+	c.ScrapingSelector.Intercept(interceptors...)
 	c.Site.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *PostMutation:
-		return c.Post.mutate(ctx, m)
+	case *ScrapingSelectorMutation:
+		return c.ScrapingSelector.mutate(ctx, m)
 	case *SiteMutation:
 		return c.Site.mutate(ctx, m)
 	default:
@@ -208,107 +209,107 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	}
 }
 
-// PostClient is a client for the Post schema.
-type PostClient struct {
+// ScrapingSelectorClient is a client for the ScrapingSelector schema.
+type ScrapingSelectorClient struct {
 	config
 }
 
-// NewPostClient returns a client for the Post from the given config.
-func NewPostClient(c config) *PostClient {
-	return &PostClient{config: c}
+// NewScrapingSelectorClient returns a client for the ScrapingSelector from the given config.
+func NewScrapingSelectorClient(c config) *ScrapingSelectorClient {
+	return &ScrapingSelectorClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `post.Hooks(f(g(h())))`.
-func (c *PostClient) Use(hooks ...Hook) {
-	c.hooks.Post = append(c.hooks.Post, hooks...)
+// A call to `Use(f, g, h)` equals to `scrapingselector.Hooks(f(g(h())))`.
+func (c *ScrapingSelectorClient) Use(hooks ...Hook) {
+	c.hooks.ScrapingSelector = append(c.hooks.ScrapingSelector, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `post.Intercept(f(g(h())))`.
-func (c *PostClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Post = append(c.inters.Post, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `scrapingselector.Intercept(f(g(h())))`.
+func (c *ScrapingSelectorClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ScrapingSelector = append(c.inters.ScrapingSelector, interceptors...)
 }
 
-// Create returns a builder for creating a Post entity.
-func (c *PostClient) Create() *PostCreate {
-	mutation := newPostMutation(c.config, OpCreate)
-	return &PostCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a ScrapingSelector entity.
+func (c *ScrapingSelectorClient) Create() *ScrapingSelectorCreate {
+	mutation := newScrapingSelectorMutation(c.config, OpCreate)
+	return &ScrapingSelectorCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Post entities.
-func (c *PostClient) CreateBulk(builders ...*PostCreate) *PostCreateBulk {
-	return &PostCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of ScrapingSelector entities.
+func (c *ScrapingSelectorClient) CreateBulk(builders ...*ScrapingSelectorCreate) *ScrapingSelectorCreateBulk {
+	return &ScrapingSelectorCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *PostClient) MapCreateBulk(slice any, setFunc func(*PostCreate, int)) *PostCreateBulk {
+func (c *ScrapingSelectorClient) MapCreateBulk(slice any, setFunc func(*ScrapingSelectorCreate, int)) *ScrapingSelectorCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &PostCreateBulk{err: fmt.Errorf("calling to PostClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &ScrapingSelectorCreateBulk{err: fmt.Errorf("calling to ScrapingSelectorClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*PostCreate, rv.Len())
+	builders := make([]*ScrapingSelectorCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &PostCreateBulk{config: c.config, builders: builders}
+	return &ScrapingSelectorCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Post.
-func (c *PostClient) Update() *PostUpdate {
-	mutation := newPostMutation(c.config, OpUpdate)
-	return &PostUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for ScrapingSelector.
+func (c *ScrapingSelectorClient) Update() *ScrapingSelectorUpdate {
+	mutation := newScrapingSelectorMutation(c.config, OpUpdate)
+	return &ScrapingSelectorUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *PostClient) UpdateOne(po *Post) *PostUpdateOne {
-	mutation := newPostMutation(c.config, OpUpdateOne, withPost(po))
-	return &PostUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ScrapingSelectorClient) UpdateOne(ss *ScrapingSelector) *ScrapingSelectorUpdateOne {
+	mutation := newScrapingSelectorMutation(c.config, OpUpdateOne, withScrapingSelector(ss))
+	return &ScrapingSelectorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PostClient) UpdateOneID(id int) *PostUpdateOne {
-	mutation := newPostMutation(c.config, OpUpdateOne, withPostID(id))
-	return &PostUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ScrapingSelectorClient) UpdateOneID(id int) *ScrapingSelectorUpdateOne {
+	mutation := newScrapingSelectorMutation(c.config, OpUpdateOne, withScrapingSelectorID(id))
+	return &ScrapingSelectorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Post.
-func (c *PostClient) Delete() *PostDelete {
-	mutation := newPostMutation(c.config, OpDelete)
-	return &PostDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for ScrapingSelector.
+func (c *ScrapingSelectorClient) Delete() *ScrapingSelectorDelete {
+	mutation := newScrapingSelectorMutation(c.config, OpDelete)
+	return &ScrapingSelectorDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *PostClient) DeleteOne(po *Post) *PostDeleteOne {
-	return c.DeleteOneID(po.ID)
+func (c *ScrapingSelectorClient) DeleteOne(ss *ScrapingSelector) *ScrapingSelectorDeleteOne {
+	return c.DeleteOneID(ss.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PostClient) DeleteOneID(id int) *PostDeleteOne {
-	builder := c.Delete().Where(post.ID(id))
+func (c *ScrapingSelectorClient) DeleteOneID(id int) *ScrapingSelectorDeleteOne {
+	builder := c.Delete().Where(scrapingselector.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &PostDeleteOne{builder}
+	return &ScrapingSelectorDeleteOne{builder}
 }
 
-// Query returns a query builder for Post.
-func (c *PostClient) Query() *PostQuery {
-	return &PostQuery{
+// Query returns a query builder for ScrapingSelector.
+func (c *ScrapingSelectorClient) Query() *ScrapingSelectorQuery {
+	return &ScrapingSelectorQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypePost},
+		ctx:    &QueryContext{Type: TypeScrapingSelector},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Post entity by its id.
-func (c *PostClient) Get(ctx context.Context, id int) (*Post, error) {
-	return c.Query().Where(post.ID(id)).Only(ctx)
+// Get returns a ScrapingSelector entity by its id.
+func (c *ScrapingSelectorClient) Get(ctx context.Context, id int) (*ScrapingSelector, error) {
+	return c.Query().Where(scrapingselector.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PostClient) GetX(ctx context.Context, id int) *Post {
+func (c *ScrapingSelectorClient) GetX(ctx context.Context, id int) *ScrapingSelector {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -316,28 +317,44 @@ func (c *PostClient) GetX(ctx context.Context, id int) *Post {
 	return obj
 }
 
+// QuerySite queries the site edge of a ScrapingSelector.
+func (c *ScrapingSelectorClient) QuerySite(ss *ScrapingSelector) *SiteQuery {
+	query := (&SiteClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ss.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(scrapingselector.Table, scrapingselector.FieldID, id),
+			sqlgraph.To(site.Table, site.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, scrapingselector.SiteTable, scrapingselector.SiteColumn),
+		)
+		fromV = sqlgraph.Neighbors(ss.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
-func (c *PostClient) Hooks() []Hook {
-	return c.hooks.Post
+func (c *ScrapingSelectorClient) Hooks() []Hook {
+	return c.hooks.ScrapingSelector
 }
 
 // Interceptors returns the client interceptors.
-func (c *PostClient) Interceptors() []Interceptor {
-	return c.inters.Post
+func (c *ScrapingSelectorClient) Interceptors() []Interceptor {
+	return c.inters.ScrapingSelector
 }
 
-func (c *PostClient) mutate(ctx context.Context, m *PostMutation) (Value, error) {
+func (c *ScrapingSelectorClient) mutate(ctx context.Context, m *ScrapingSelectorMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&PostCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ScrapingSelectorCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&PostUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ScrapingSelectorUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&PostUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ScrapingSelectorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&PostDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ScrapingSelectorDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Post mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown ScrapingSelector mutation op: %q", m.Op())
 	}
 }
 
@@ -449,6 +466,22 @@ func (c *SiteClient) GetX(ctx context.Context, id int) *Site {
 	return obj
 }
 
+// QueryScrapingSelector queries the scraping_selector edge of a Site.
+func (c *SiteClient) QueryScrapingSelector(s *Site) *ScrapingSelectorQuery {
+	query := (&ScrapingSelectorClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, id),
+			sqlgraph.To(scrapingselector.Table, scrapingselector.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, site.ScrapingSelectorTable, site.ScrapingSelectorColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SiteClient) Hooks() []Hook {
 	return c.hooks.Site
@@ -477,10 +510,10 @@ func (c *SiteClient) mutate(ctx context.Context, m *SiteMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Post, Site []ent.Hook
+		ScrapingSelector, Site []ent.Hook
 	}
 	inters struct {
-		Post, Site []ent.Interceptor
+		ScrapingSelector, Site []ent.Interceptor
 	}
 )
 
