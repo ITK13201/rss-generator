@@ -18,7 +18,7 @@ func corsHandler() gin.HandlerFunc {
 	})
 }
 
-func NewRouter(app *Application) *gin.Engine {
+func NewRouter(publicApp *PublicApplication, privateApp *PrivateApplication) *gin.Engine {
 	router := gin.Default()
 	router.Use(corsHandler())
 
@@ -26,19 +26,27 @@ func NewRouter(app *Application) *gin.Engine {
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
-	router.GET("/test-feeds/:id", app.TestFeedController.PublicGet)
 
+	// public endpoints
+	{
+		testFeeds := router.Group("/test-feeds")
+		{
+			testFeeds.GET("/:id", publicApp.TestFeedController.Get)
+		}
+	}
+
+	// private endpoints
 	api := router.Group("/api")
 	{
 		v1 := api.Group("/v1")
 		{
 			sites := v1.Group("/sites")
 			{
-				sites.POST("", app.SiteController.Create)
+				sites.POST("", privateApp.SiteController.Create)
 			}
 			testFeeds := v1.Group("/test-feeds")
 			{
-				testFeeds.POST("", app.TestFeedController.Create)
+				testFeeds.POST("", privateApp.TestFeedController.Create)
 			}
 			feeds := v1.Group("/feeds")
 			{

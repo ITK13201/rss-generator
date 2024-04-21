@@ -10,7 +10,6 @@ import (
 
 type TestFeedInteractor interface {
 	GetSite(siteID int) (*ent.Site, error)
-	ParseFeed(f *ent.Feed) *domain.Feed
 	CreateFeed(siteID int, f *domain.Feed) (*string, error)
 }
 
@@ -32,27 +31,6 @@ func (tfi *testFeedInteractor) GetSite(siteID int) (*ent.Site, error) {
 	}
 
 	return s, nil
-}
-
-func (tfi *testFeedInteractor) ParseFeed(f *ent.Feed) *domain.Feed {
-	feed := &domain.Feed{
-		Title:       f.Title,
-		Description: f.Description,
-		Link:        f.Link,
-		PublishedAt: &f.PublishedAt,
-	}
-	feedItems := []*domain.FeedItem{}
-	for _, item := range f.Edges.FeedItems {
-		feedItem := &domain.FeedItem{
-			Title:       item.Title,
-			Description: item.Description,
-			Link:        &item.Link,
-			PublishedAt: &item.PublishedAt,
-		}
-		feedItems = append(feedItems, feedItem)
-	}
-	feed.Items = feedItems
-	return feed
 }
 
 func (tfi *testFeedInteractor) CreateFeed(siteID int, f *domain.Feed) (*string, error) {
