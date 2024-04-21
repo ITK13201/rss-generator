@@ -1,10 +1,10 @@
-package controllers
+package private
 
 import (
 	"encoding/json"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
-	"github.com/ITK13201/rss-generator/interfaces/interactors"
+	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -19,7 +19,7 @@ type siteController struct {
 	cfg            *domain.Config
 	logger         *logrus.Logger
 	sqlClient      *ent.Client
-	siteInteractor interactors.SiteInteractor
+	siteInteractor private.SiteInteractor
 }
 
 func NewSiteController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) SiteController {
@@ -27,7 +27,7 @@ func NewSiteController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent
 		cfg:            cfg,
 		logger:         logger,
 		sqlClient:      sqlClient,
-		siteInteractor: interactors.NewSiteInteractor(sqlClient),
+		siteInteractor: private.NewSiteInteractor(sqlClient),
 	}
 }
 

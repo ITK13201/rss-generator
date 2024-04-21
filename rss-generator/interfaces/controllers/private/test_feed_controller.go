@@ -1,11 +1,11 @@
-package controllers
+package private
 
 import (
 	"context"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/feed"
-	"github.com/ITK13201/rss-generator/interfaces/interactors"
+	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/ITK13201/rss-generator/internal/rss"
 	"github.com/ITK13201/rss-generator/internal/scraper"
@@ -24,7 +24,7 @@ type testFeedController struct {
 	cfg                *domain.Config
 	logger             *logrus.Logger
 	sqlClient          *ent.Client
-	testFeedInteractor interactors.TestFeedInteractor
+	testFeedInteractor private.TestFeedInteractor
 }
 
 func NewTestFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) TestFeedController {
@@ -32,7 +32,7 @@ func NewTestFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient 
 		cfg:                cfg,
 		logger:             logger,
 		sqlClient:          sqlClient,
-		testFeedInteractor: interactors.NewTestFeedInteractor(sqlClient),
+		testFeedInteractor: private.NewTestFeedInteractor(sqlClient),
 	}
 }
 

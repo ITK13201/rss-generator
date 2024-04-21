@@ -1,9 +1,9 @@
-package controllers
+package private
 
 import (
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
-	"github.com/ITK13201/rss-generator/interfaces/interactors"
+	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -16,7 +16,7 @@ type feedController struct {
 	cfg            *domain.Config
 	logger         *logrus.Logger
 	sqlClient      *ent.Client
-	feedInteractor interactors.FeedInteractor
+	feedInteractor private.FeedInteractor
 }
 
 func NewFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) FeedController {
@@ -24,7 +24,7 @@ func NewFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent
 		cfg:            cfg,
 		logger:         logger,
 		sqlClient:      sqlClient,
-		feedInteractor: interactors.NewFeedInteractor(sqlClient),
+		feedInteractor: private.NewFeedInteractor(sqlClient),
 	}
 }
 
