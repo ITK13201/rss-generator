@@ -11,38 +11,38 @@ import (
 	"net/http"
 )
 
-type FeedController interface {
+type TestFeedController interface {
 	Create(ctx *gin.Context)
 }
 
-type feedController struct {
-	cfg            *domain.Config
-	logger         *logrus.Logger
-	sqlClient      *ent.Client
-	feedInteractor interactors.FeedInteractor
+type testFeedController struct {
+	cfg                *domain.Config
+	logger             *logrus.Logger
+	sqlClient          *ent.Client
+	testFeedInteractor interactors.TestFeedInteractor
 }
 
-func NewFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) FeedController {
-	return &feedController{
-		cfg:            cfg,
-		logger:         logger,
-		sqlClient:      sqlClient,
-		feedInteractor: interactors.NewFeedInteractor(sqlClient),
+func NewTestFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) TestFeedController {
+	return &testFeedController{
+		cfg:                cfg,
+		logger:             logger,
+		sqlClient:          sqlClient,
+		testFeedInteractor: interactors.NewTestFeedInteractor(sqlClient),
 	}
 }
 
-func (fc *feedController) Create(c *gin.Context) {
+func (tfc *testFeedController) Create(c *gin.Context) {
 	var f domain.FeedCreateInput
 	err := c.Bind(&f)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	site, err := fc.feedInteractor.GetSite(f.SiteID)
+	site, err := tfc.testFeedInteractor.GetSite(f.SiteID)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 	}
-	rssUtil := scraper.NewUtil(fc.cfg, fc.logger)
+	rssUtil := scraper.NewScraper(tfc.cfg, tfc.logger)
 	_, err = rssUtil.FetchFeedElements(site.URL, site.EnableJsRendering)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())

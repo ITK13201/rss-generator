@@ -25,7 +25,6 @@ func (Site) Fields() []ent.Field {
 		field.Bool("enable_js_rendering").Default(false),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
-		field.Int("scraping_selector_id").Optional(),
 	}
 }
 
@@ -34,7 +33,7 @@ func (Site) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("scraping_selector", ScrapingSelector.Type).
 			Ref("site").
-			Unique().Field("scraping_selector_id"),
+			Unique(),
 	}
 }
 

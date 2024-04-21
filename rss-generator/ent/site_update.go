@@ -125,23 +125,17 @@ func (su *SiteUpdate) SetUpdatedAt(t time.Time) *SiteUpdate {
 	return su
 }
 
-// SetScrapingSelectorID sets the "scraping_selector_id" field.
-func (su *SiteUpdate) SetScrapingSelectorID(i int) *SiteUpdate {
-	su.mutation.SetScrapingSelectorID(i)
+// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID.
+func (su *SiteUpdate) SetScrapingSelectorID(id int) *SiteUpdate {
+	su.mutation.SetScrapingSelectorID(id)
 	return su
 }
 
-// SetNillableScrapingSelectorID sets the "scraping_selector_id" field if the given value is not nil.
-func (su *SiteUpdate) SetNillableScrapingSelectorID(i *int) *SiteUpdate {
-	if i != nil {
-		su.SetScrapingSelectorID(*i)
+// SetNillableScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID if the given value is not nil.
+func (su *SiteUpdate) SetNillableScrapingSelectorID(id *int) *SiteUpdate {
+	if id != nil {
+		su = su.SetScrapingSelectorID(*id)
 	}
-	return su
-}
-
-// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
-func (su *SiteUpdate) ClearScrapingSelectorID() *SiteUpdate {
-	su.mutation.ClearScrapingSelectorID()
 	return su
 }
 
@@ -398,23 +392,17 @@ func (suo *SiteUpdateOne) SetUpdatedAt(t time.Time) *SiteUpdateOne {
 	return suo
 }
 
-// SetScrapingSelectorID sets the "scraping_selector_id" field.
-func (suo *SiteUpdateOne) SetScrapingSelectorID(i int) *SiteUpdateOne {
-	suo.mutation.SetScrapingSelectorID(i)
+// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID.
+func (suo *SiteUpdateOne) SetScrapingSelectorID(id int) *SiteUpdateOne {
+	suo.mutation.SetScrapingSelectorID(id)
 	return suo
 }
 
-// SetNillableScrapingSelectorID sets the "scraping_selector_id" field if the given value is not nil.
-func (suo *SiteUpdateOne) SetNillableScrapingSelectorID(i *int) *SiteUpdateOne {
-	if i != nil {
-		suo.SetScrapingSelectorID(*i)
+// SetNillableScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID if the given value is not nil.
+func (suo *SiteUpdateOne) SetNillableScrapingSelectorID(id *int) *SiteUpdateOne {
+	if id != nil {
+		suo = suo.SetScrapingSelectorID(*id)
 	}
-	return suo
-}
-
-// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
-func (suo *SiteUpdateOne) ClearScrapingSelectorID() *SiteUpdateOne {
-	suo.mutation.ClearScrapingSelectorID()
 	return suo
 }
 

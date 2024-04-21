@@ -408,9 +408,7 @@ func (ssq *ScrapingSelectorQuery) loadSite(ctx context.Context, query *SiteQuery
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(site.FieldScrapingSelectorID)
-	}
+	query.withFKs = true
 	query.Where(predicate.Site(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(scrapingselector.SiteColumn), fks...))
 	}))
@@ -419,10 +417,13 @@ func (ssq *ScrapingSelectorQuery) loadSite(ctx context.Context, query *SiteQuery
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.ScrapingSelectorID
-		node, ok := nodeids[fk]
+		fk := n.scraping_selector_site
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "scraping_selector_site" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "scraping_selector_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "scraping_selector_site" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

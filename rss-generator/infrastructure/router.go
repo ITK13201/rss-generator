@@ -35,9 +35,9 @@ func NewRouter(app *Application) *gin.Engine {
 			{
 				sites.POST("", app.SiteController.Create)
 			}
-			feeds := v1.Group("/feeds")
+			testFeeds := v1.Group("/test-feeds")
 			{
-				feeds.POST("", app.FeedController.Create)
+				testFeeds.POST("", app.TestFeedController.Create)
 			}
 		}
 	}

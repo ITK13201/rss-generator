@@ -32,12 +32,11 @@ type Site struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// ScrapingSelectorID holds the value of the "scraping_selector_id" field.
-	ScrapingSelectorID int `json:"scraping_selector_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SiteQuery when eager-loading is set.
-	Edges        SiteEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges                  SiteEdges `json:"edges"`
+	scraping_selector_site *int
+	selectValues           sql.SelectValues
 }
 
 // SiteEdges holds the relations/edges for other nodes in the graph.
@@ -67,12 +66,14 @@ func (*Site) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case site.FieldEnableJsRendering:
 			values[i] = new(sql.NullBool)
-		case site.FieldID, site.FieldScrapingSelectorID:
+		case site.FieldID:
 			values[i] = new(sql.NullInt64)
 		case site.FieldSlug, site.FieldTitle, site.FieldDescription, site.FieldURL:
 			values[i] = new(sql.NullString)
 		case site.FieldCreatedAt, site.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case site.ForeignKeys[0]: // scraping_selector_site
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -136,11 +137,12 @@ func (s *Site) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.UpdatedAt = value.Time
 			}
-		case site.FieldScrapingSelectorID:
+		case site.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field scraping_selector_id", values[i])
+				return fmt.Errorf("unexpected type %T for edge-field scraping_selector_site", value)
 			} else if value.Valid {
-				s.ScrapingSelectorID = int(value.Int64)
+				s.scraping_selector_site = new(int)
+				*s.scraping_selector_site = int(value.Int64)
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -203,9 +205,6 @@ func (s *Site) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("scraping_selector_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.ScrapingSelectorID))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -1,8 +1,7 @@
 package domain
 
 type FeedCreateInput struct {
-	SiteID int  `json:"site_id"`
-	IsTest bool `json:"is_test"`
+	SiteID int `json:"site_id"`
 }
 
 type FeedCreateOutput struct {

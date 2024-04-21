@@ -12,19 +12,19 @@ import (
 	"strings"
 )
 
-type Util struct {
+type Scraper struct {
 	cfg    *domain.Config
 	logger *logrus.Logger
 }
 
-func NewUtil(cfg *domain.Config, logger *logrus.Logger) *Util {
-	return &Util{
+func NewScraper(cfg *domain.Config, logger *logrus.Logger) *Scraper {
+	return &Scraper{
 		cfg:    cfg,
 		logger: logger,
 	}
 }
 
-func (u *Util) fetchHTML(siteURL string) (*string, error) {
+func (scraper *Scraper) fetchHTML(siteURL string) (*string, error) {
 	res, err := http.Get(siteURL)
 	if err != nil {
 		return nil, err
@@ -38,9 +38,9 @@ func (u *Util) fetchHTML(siteURL string) (*string, error) {
 	return &html, nil
 }
 
-func (u *Util) fetchHTMLWithJS(siteURL string) (*string, error) {
+func (scraper *Scraper) fetchHTMLWithJS(siteURL string) (*string, error) {
 	caps := selenium.Capabilities{"browserName": "chrome"}
-	driver, err := selenium.NewRemote(caps, fmt.Sprintf(u.cfg.SeleniumServerURL))
+	driver, err := selenium.NewRemote(caps, fmt.Sprintf(scraper.cfg.SeleniumServerURL))
 	if err != nil {
 		return nil, err
 	}
@@ -62,14 +62,14 @@ func (u *Util) fetchHTMLWithJS(siteURL string) (*string, error) {
 	return &html, nil
 }
 
-func (u *Util) formatString(str string) string {
+func (scraper *Scraper) formatString(str string) string {
 	str = strings.Trim(str, "\n")
 	str = strings.Trim(str, "\r")
 	str = strings.TrimSpace(str)
 	return str
 }
 
-func (u *Util) selectFeedObjects(siteURL string, html *string) (*domain.LatestFeed, error) {
+func (scraper *Scraper) selectFeedObjects(siteURL string, html *string) (*domain.LatestFeed, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(*html))
 	if err != nil {
 		return nil, err
@@ -104,8 +104,8 @@ func (u *Util) selectFeedObjects(siteURL string, html *string) (*domain.LatestFe
 		link, _ := s.Find(linkSelector).Attr("href")
 
 		feedItem := &domain.LatestFeedItem{
-			Title:       u.formatString(title),
-			Description: u.formatString(description),
+			Title:       scraper.formatString(title),
+			Description: scraper.formatString(description),
 			Link:        link,
 		}
 		feedItems = append(feedItems, feedItem)
@@ -121,27 +121,27 @@ func (u *Util) selectFeedObjects(siteURL string, html *string) (*domain.LatestFe
 	return feed, nil
 }
 
-func (u *Util) FetchFeedElements(siteURL string, enableJSRendering bool) (*domain.LatestFeed, error) {
+func (scraper *Scraper) FetchFeedElements(siteURL string, enableJSRendering bool) (*domain.LatestFeed, error) {
 	var html *string
 	var err error
 	if enableJSRendering {
-		u.logger.Infof("fetching HTML with JS rendering from: %s", siteURL)
-		html, err = u.fetchHTMLWithJS(siteURL)
+		scraper.logger.Infof("fetching HTML with JS rendering from: %s", siteURL)
+		html, err = scraper.fetchHTMLWithJS(siteURL)
 	} else {
-		u.logger.Infof("fetching HTML simply from: %s", siteURL)
-		html, err = u.fetchHTML(siteURL)
+		scraper.logger.Infof("fetching HTML simply from: %s", siteURL)
+		html, err = scraper.fetchHTML(siteURL)
 	}
 	if err != nil {
 		return nil, err
 	}
-	u.logger.Infof("fetched HTML from: %s", siteURL)
-	u.logger.Infof("selecting feed objects: %s", siteURL)
-	feed, err := u.selectFeedObjects(siteURL, html)
+	scraper.logger.Infof("fetched HTML from: %s", siteURL)
+	scraper.logger.Infof("selecting feed objects: %s", siteURL)
+	feed, err := scraper.selectFeedObjects(siteURL, html)
 	if err != nil {
 		return nil, err
 	}
-	u.logger.Infof("selected feed objects: %s", siteURL)
+	scraper.logger.Infof("selected feed objects: %s", siteURL)
 	feedJson, _ := json.Marshal(feed)
-	u.logger.Infof("Generated Latest RSS feed: %s", feedJson)
+	scraper.logger.Infof("Generated Latest RSS feed: %s", feedJson)
 	return feed, nil
 }

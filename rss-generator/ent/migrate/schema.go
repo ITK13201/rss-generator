@@ -36,7 +36,7 @@ var (
 		{Name: "enable_js_rendering", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "scraping_selector_id", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "scraping_selector_site", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// SitesTable holds the schema information for the "sites" table.
 	SitesTable = &schema.Table{

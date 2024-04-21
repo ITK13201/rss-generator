@@ -1183,64 +1183,27 @@ func (m *SiteMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetScrapingSelectorID sets the "scraping_selector_id" field.
-func (m *SiteMutation) SetScrapingSelectorID(i int) {
-	m.scraping_selector = &i
-}
-
-// ScrapingSelectorID returns the value of the "scraping_selector_id" field in the mutation.
-func (m *SiteMutation) ScrapingSelectorID() (r int, exists bool) {
-	v := m.scraping_selector
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldScrapingSelectorID returns the old "scraping_selector_id" field's value of the Site entity.
-// If the Site object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SiteMutation) OldScrapingSelectorID(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldScrapingSelectorID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldScrapingSelectorID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldScrapingSelectorID: %w", err)
-	}
-	return oldValue.ScrapingSelectorID, nil
-}
-
-// ClearScrapingSelectorID clears the value of the "scraping_selector_id" field.
-func (m *SiteMutation) ClearScrapingSelectorID() {
-	m.scraping_selector = nil
-	m.clearedFields[site.FieldScrapingSelectorID] = struct{}{}
-}
-
-// ScrapingSelectorIDCleared returns if the "scraping_selector_id" field was cleared in this mutation.
-func (m *SiteMutation) ScrapingSelectorIDCleared() bool {
-	_, ok := m.clearedFields[site.FieldScrapingSelectorID]
-	return ok
-}
-
-// ResetScrapingSelectorID resets all changes to the "scraping_selector_id" field.
-func (m *SiteMutation) ResetScrapingSelectorID() {
-	m.scraping_selector = nil
-	delete(m.clearedFields, site.FieldScrapingSelectorID)
+// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by id.
+func (m *SiteMutation) SetScrapingSelectorID(id int) {
+	m.scraping_selector = &id
 }
 
 // ClearScrapingSelector clears the "scraping_selector" edge to the ScrapingSelector entity.
 func (m *SiteMutation) ClearScrapingSelector() {
 	m.clearedscraping_selector = true
-	m.clearedFields[site.FieldScrapingSelectorID] = struct{}{}
 }
 
 // ScrapingSelectorCleared reports if the "scraping_selector" edge to the ScrapingSelector entity was cleared.
 func (m *SiteMutation) ScrapingSelectorCleared() bool {
-	return m.ScrapingSelectorIDCleared() || m.clearedscraping_selector
+	return m.clearedscraping_selector
+}
+
+// ScrapingSelectorID returns the "scraping_selector" edge ID in the mutation.
+func (m *SiteMutation) ScrapingSelectorID() (id int, exists bool) {
+	if m.scraping_selector != nil {
+		return *m.scraping_selector, true
+	}
+	return
 }
 
 // ScrapingSelectorIDs returns the "scraping_selector" edge IDs in the mutation.
@@ -1293,7 +1256,7 @@ func (m *SiteMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SiteMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.slug != nil {
 		fields = append(fields, site.FieldSlug)
 	}
@@ -1314,9 +1277,6 @@ func (m *SiteMutation) Fields() []string {
 	}
 	if m.updated_at != nil {
 		fields = append(fields, site.FieldUpdatedAt)
-	}
-	if m.scraping_selector != nil {
-		fields = append(fields, site.FieldScrapingSelectorID)
 	}
 	return fields
 }
@@ -1340,8 +1300,6 @@ func (m *SiteMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case site.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case site.FieldScrapingSelectorID:
-		return m.ScrapingSelectorID()
 	}
 	return nil, false
 }
@@ -1365,8 +1323,6 @@ func (m *SiteMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCreatedAt(ctx)
 	case site.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case site.FieldScrapingSelectorID:
-		return m.OldScrapingSelectorID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Site field %s", name)
 }
@@ -1425,13 +1381,6 @@ func (m *SiteMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
-	case site.FieldScrapingSelectorID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetScrapingSelectorID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Site field %s", name)
 }
@@ -1439,16 +1388,13 @@ func (m *SiteMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *SiteMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *SiteMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -1468,9 +1414,6 @@ func (m *SiteMutation) ClearedFields() []string {
 	if m.FieldCleared(site.FieldDescription) {
 		fields = append(fields, site.FieldDescription)
 	}
-	if m.FieldCleared(site.FieldScrapingSelectorID) {
-		fields = append(fields, site.FieldScrapingSelectorID)
-	}
 	return fields
 }
 
@@ -1487,9 +1430,6 @@ func (m *SiteMutation) ClearField(name string) error {
 	switch name {
 	case site.FieldDescription:
 		m.ClearDescription()
-		return nil
-	case site.FieldScrapingSelectorID:
-		m.ClearScrapingSelectorID()
 		return nil
 	}
 	return fmt.Errorf("unknown Site nullable field %s", name)
@@ -1519,9 +1459,6 @@ func (m *SiteMutation) ResetField(name string) error {
 		return nil
 	case site.FieldUpdatedAt:
 		m.ResetUpdatedAt()
-		return nil
-	case site.FieldScrapingSelectorID:
-		m.ResetScrapingSelectorID()
 		return nil
 	}
 	return fmt.Errorf("unknown Site field %s", name)

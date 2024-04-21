@@ -6,23 +6,23 @@ import (
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
-type FeedInteractor interface {
+type TestFeedInteractor interface {
 	GetSite(siteID int) (*ent.Site, error)
 }
 
-type feedInteractor struct {
+type testFeedInteractor struct {
 	sqlClient *ent.Client
 }
 
-func NewFeedInteractor(sqlClient *ent.Client) FeedInteractor {
-	return &feedInteractor{
+func NewTestFeedInteractor(sqlClient *ent.Client) TestFeedInteractor {
+	return &testFeedInteractor{
 		sqlClient: sqlClient,
 	}
 }
 
-func (fi *feedInteractor) GetSite(siteID int) (*ent.Site, error) {
+func (tfi *testFeedInteractor) GetSite(siteID int) (*ent.Site, error) {
 	ctx := context.Background()
-	s, err := fi.sqlClient.Site.Query().Where(site.IDEQ(siteID)).Only(ctx)
+	s, err := tfi.sqlClient.Site.Query().Where(site.IDEQ(siteID)).Only(ctx)
 	if err != nil {
 		return nil, err
 	}

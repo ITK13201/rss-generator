@@ -90,11 +90,6 @@ func UpdatedAt(v time.Time) predicate.Site {
 	return predicate.Site(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// ScrapingSelectorID applies equality check predicate on the "scraping_selector_id" field. It's identical to ScrapingSelectorIDEQ.
-func ScrapingSelectorID(v int) predicate.Site {
-	return predicate.Site(sql.FieldEQ(FieldScrapingSelectorID, v))
-}
-
 // SlugEQ applies the EQ predicate on the "slug" field.
 func SlugEQ(v string) predicate.Site {
 	return predicate.Site(sql.FieldEQ(FieldSlug, v))
@@ -453,36 +448,6 @@ func UpdatedAtLT(v time.Time) predicate.Site {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Site {
 	return predicate.Site(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// ScrapingSelectorIDEQ applies the EQ predicate on the "scraping_selector_id" field.
-func ScrapingSelectorIDEQ(v int) predicate.Site {
-	return predicate.Site(sql.FieldEQ(FieldScrapingSelectorID, v))
-}
-
-// ScrapingSelectorIDNEQ applies the NEQ predicate on the "scraping_selector_id" field.
-func ScrapingSelectorIDNEQ(v int) predicate.Site {
-	return predicate.Site(sql.FieldNEQ(FieldScrapingSelectorID, v))
-}
-
-// ScrapingSelectorIDIn applies the In predicate on the "scraping_selector_id" field.
-func ScrapingSelectorIDIn(vs ...int) predicate.Site {
-	return predicate.Site(sql.FieldIn(FieldScrapingSelectorID, vs...))
-}
-
-// ScrapingSelectorIDNotIn applies the NotIn predicate on the "scraping_selector_id" field.
-func ScrapingSelectorIDNotIn(vs ...int) predicate.Site {
-	return predicate.Site(sql.FieldNotIn(FieldScrapingSelectorID, vs...))
-}
-
-// ScrapingSelectorIDIsNil applies the IsNil predicate on the "scraping_selector_id" field.
-func ScrapingSelectorIDIsNil() predicate.Site {
-	return predicate.Site(sql.FieldIsNull(FieldScrapingSelectorID))
-}
-
-// ScrapingSelectorIDNotNil applies the NotNil predicate on the "scraping_selector_id" field.
-func ScrapingSelectorIDNotNil() predicate.Site {
-	return predicate.Site(sql.FieldNotNull(FieldScrapingSelectorID))
 }
 
 // HasScrapingSelector applies the HasEdge predicate on the "scraping_selector" edge.

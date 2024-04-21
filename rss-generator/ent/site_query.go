@@ -23,6 +23,7 @@ type SiteQuery struct {
 	inters               []Interceptor
 	predicates           []predicate.Site
 	withScrapingSelector *ScrapingSelectorQuery
+	withFKs              bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -368,11 +369,18 @@ func (sq *SiteQuery) prepareQuery(ctx context.Context) error {
 func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, error) {
 	var (
 		nodes       = []*Site{}
+		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
 		loadedTypes = [1]bool{
 			sq.withScrapingSelector != nil,
 		}
 	)
+	if sq.withScrapingSelector != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, site.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Site).scanValues(nil, columns)
 	}
@@ -404,7 +412,10 @@ func (sq *SiteQuery) loadScrapingSelector(ctx context.Context, query *ScrapingSe
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Site)
 	for i := range nodes {
-		fk := nodes[i].ScrapingSelectorID
+		if nodes[i].scraping_selector_site == nil {
+			continue
+		}
+		fk := *nodes[i].scraping_selector_site
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -421,7 +432,7 @@ func (sq *SiteQuery) loadScrapingSelector(ctx context.Context, query *ScrapingSe
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "scraping_selector_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "scraping_selector_site" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -454,9 +465,6 @@ func (sq *SiteQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != site.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if sq.withScrapingSelector != nil {
-			_spec.Node.AddColumnOnce(site.FieldScrapingSelectorID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

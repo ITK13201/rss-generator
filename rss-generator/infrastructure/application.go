@@ -8,13 +8,13 @@ import (
 )
 
 type Application struct {
-	SiteController controllers.SiteController
-	FeedController controllers.FeedController
+	SiteController     controllers.SiteController
+	TestFeedController controllers.TestFeedController
 }
 
 func NewApplication(cfg *domain.Config, logger *logrus.Logger, sqliClient *ent.Client) *Application {
 	return &Application{
-		SiteController: controllers.NewSiteController(cfg, logger, sqliClient),
-		FeedController: controllers.NewFeedController(cfg, logger, sqliClient),
+		SiteController:     controllers.NewSiteController(cfg, logger, sqliClient),
+		TestFeedController: controllers.NewTestFeedController(cfg, logger, sqliClient),
 	}
 }
