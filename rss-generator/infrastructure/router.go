@@ -26,6 +26,7 @@ func NewRouter(app *Application) *gin.Engine {
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
+	router.GET("/test-feeds/:id", app.TestFeedController.PublicGet)
 
 	api := router.Group("/api")
 	{
@@ -38,7 +39,6 @@ func NewRouter(app *Application) *gin.Engine {
 			testFeeds := v1.Group("/test-feeds")
 			{
 				testFeeds.POST("", app.TestFeedController.Create)
-				testFeeds.GET("/:id", app.TestFeedController.Show)
 			}
 			feeds := v1.Group("/feeds")
 			{

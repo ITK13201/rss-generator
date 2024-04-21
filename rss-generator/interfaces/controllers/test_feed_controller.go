@@ -17,7 +17,7 @@ import (
 
 type TestFeedController interface {
 	Create(ctx *gin.Context)
-	Show(ctx *gin.Context)
+	PublicGet(ctx *gin.Context)
 }
 
 type testFeedController struct {
@@ -64,7 +64,7 @@ func (tfc *testFeedController) Create(c *gin.Context) {
 	})
 }
 
-func (tfc *testFeedController) Show(c *gin.Context) {
+func (tfc *testFeedController) PublicGet(c *gin.Context) {
 	ctx := context.Background()
 
 	feedID := c.Param("id")
