@@ -32,18 +32,18 @@ func NewTestFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient 
 }
 
 func (tfc *testFeedController) Create(c *gin.Context) {
-	var f domain.FeedCreateInput
-	err := c.Bind(&f)
+	var input domain.TestFeedCreateInput
+	err := c.Bind(&input)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	site, err := tfc.testFeedInteractor.GetSite(f.SiteID)
+	site, err := tfc.testFeedInteractor.GetSite(input.SiteID)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 	}
 	rssUtil := scraper.NewScraper(tfc.cfg, tfc.logger)
-	_, err = rssUtil.FetchFeedElements(site.URL, site.EnableJsRendering)
+	_, err = rssUtil.FetchFeedElements(site.URL, site.EnableJsRendering, input.Selectors)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 	}
