@@ -38,7 +38,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "site" package.
 	SiteInverseTable = "sites"
 	// SiteColumn is the table column denoting the site relation/edge.
-	SiteColumn = "scraping_selector_site"
+	SiteColumn = "site_id"
 )
 
 // Columns holds all SQL columns for scrapingselector fields.

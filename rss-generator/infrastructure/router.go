@@ -38,6 +38,11 @@ func NewRouter(app *Application) *gin.Engine {
 			testFeeds := v1.Group("/test-feeds")
 			{
 				testFeeds.POST("", app.TestFeedController.Create)
+				testFeeds.GET("/:id", app.TestFeedController.Show)
+			}
+			feeds := v1.Group("/feeds")
+			{
+				feeds.GET("")
 			}
 		}
 	}

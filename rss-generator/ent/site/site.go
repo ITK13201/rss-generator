@@ -30,6 +30,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeScrapingSelector holds the string denoting the scraping_selector edge name in mutations.
 	EdgeScrapingSelector = "scraping_selector"
+	// EdgeFeeds holds the string denoting the feeds edge name in mutations.
+	EdgeFeeds = "feeds"
 	// Table holds the table name of the site in the database.
 	Table = "sites"
 	// ScrapingSelectorTable is the table that holds the scraping_selector relation/edge.
@@ -38,7 +40,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "scrapingselector" package.
 	ScrapingSelectorInverseTable = "scraping_selectors"
 	// ScrapingSelectorColumn is the table column denoting the scraping_selector relation/edge.
-	ScrapingSelectorColumn = "scraping_selector_site"
+	ScrapingSelectorColumn = "site_id"
+	// FeedsTable is the table that holds the feeds relation/edge.
+	FeedsTable = "feeds"
+	// FeedsInverseTable is the table name for the Feed entity.
+	// It exists in this package in order to avoid circular dependency with the "feed" package.
+	FeedsInverseTable = "feeds"
+	// FeedsColumn is the table column denoting the feeds relation/edge.
+	FeedsColumn = "site_id"
 )
 
 // Columns holds all SQL columns for site fields.
@@ -56,7 +65,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "sites"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"scraping_selector_site",
+	"site_id",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -140,10 +149,31 @@ func ByScrapingSelectorField(field string, opts ...sql.OrderTermOption) OrderOpt
 		sqlgraph.OrderByNeighborTerms(s, newScrapingSelectorStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByFeedsCount orders the results by feeds count.
+func ByFeedsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newFeedsStep(), opts...)
+	}
+}
+
+// ByFeeds orders the results by feeds terms.
+func ByFeeds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFeedsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newScrapingSelectorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ScrapingSelectorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, ScrapingSelectorTable, ScrapingSelectorColumn),
+	)
+}
+func newFeedsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FeedsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, FeedsTable, FeedsColumn),
 	)
 }

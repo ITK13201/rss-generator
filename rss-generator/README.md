@@ -27,7 +27,13 @@ docker compose exec rss-generator goose.sh down
 If you would like to create the "Hoge" schema, you can do so with the following command.
 
 ```shell
-docker compose exec backend go run -mod=mod entgo.io/ent/cmd/ent new Hoge
+docker compose exec rss-generator go run -mod=mod entgo.io/ent/cmd/ent new Hoge
+```
+
+#### Describe schema
+
+```shell
+docker compose exec rss-generator go run -mod=mod entgo.io/ent/cmd/ent describe ./ent/schema
 ```
 
 #### Modify Models
@@ -36,7 +42,7 @@ Only the directory under [./ent/schema](./ent/schema) needs to be changed.
 After the change, you can update the model as follows.
 
 ```shell
-docker compose exec backend go generate .
+docker compose exec rss-generator go generate .
 ```
 
 ### Package
@@ -46,6 +52,6 @@ docker compose exec backend go generate .
 You can install the package with the following command.
 
 ```shell
-docker compose exec backend go get -u <package name>
+docker compose exec rss-generator go get -u <package name>
 docker compose build rss-generator
 ```

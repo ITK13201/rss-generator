@@ -31,7 +31,7 @@ func (ScrapingSelector) Fields() []ent.Field {
 // Edges of the ScrapingSelector.
 func (ScrapingSelector) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("site", Site.Type).Unique().Required(),
+		edge.To("site", Site.Type).StorageKey(edge.Column("site_id")).Required().Unique(),
 	}
 }
 

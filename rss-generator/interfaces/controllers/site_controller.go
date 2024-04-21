@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/interfaces/interactors"
@@ -49,9 +50,9 @@ func (sc *siteController) Create(c *gin.Context) {
 		Slug:  site.Slug,
 		Title: site.Title,
 	}
+	dataJson, _ := json.Marshal(data)
 	sc.logger.WithFields(logrus.Fields{
-		"data": data,
+		"data": string(dataJson),
 	}).Info("site created")
-	rest.RespondOKWithData(c, data)
-	return
+	rest.RespondOKWithData(c, &data)
 }

@@ -69,7 +69,7 @@ func (scraper *Scraper) formatString(str string) string {
 	return str
 }
 
-func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selectors *domain.ScrapingSelectors) (*domain.LatestFeed, error) {
+func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selectors *domain.ScrapingSelectors) (*domain.Feed, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(*html))
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selector
 
 	selection := doc.Find(selector)
 
-	feedItems := []*domain.LatestFeedItem{}
+	feedItems := []*domain.FeedItem{}
 	selection.Find(innerSelector).Each(func(i int, s *goquery.Selection) {
 		var title string
 		s.Find(titleSelector).Each(func(i int, s *goquery.Selection) {
@@ -95,27 +95,23 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selector
 			tmp.Find("*").Remove()
 			title = tmp.Text()
 		})
-		var description *string
-		if descriptionSelector != nil {
-			s.Find(*descriptionSelector).Each(func(i int, s *goquery.Selection) {
-				tmp := s.Clone()
-				tmp.Find("*").Remove()
-				*description = tmp.Text()
-			})
-		}
+		var description string
+		s.Find(descriptionSelector).Each(func(i int, s *goquery.Selection) {
+			tmp := s.Clone()
+			tmp.Find("*").Remove()
+			description = tmp.Text()
+		})
 
 		var link *string
 		if linkSelector != nil {
-			*link, _ = s.Find(*linkSelector).Attr("href")
+			linkStr, _ := s.Find(*linkSelector).Attr("href")
+			link = &linkStr
 		}
 
 		formattedTitle := scraper.formatString(title)
-		var formattedDescription *string
-		if description != nil {
-			*formattedDescription = scraper.formatString(*description)
-		}
+		formattedDescription := scraper.formatString(description)
 
-		feedItem := &domain.LatestFeedItem{
+		feedItem := &domain.FeedItem{
 			Title:       formattedTitle,
 			Description: formattedDescription,
 			Link:        link,
@@ -123,7 +119,7 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selector
 		feedItems = append(feedItems, feedItem)
 	})
 
-	feed := &domain.LatestFeed{
+	feed := &domain.Feed{
 		Title:       siteTitle,
 		Description: siteDescription,
 		Link:        siteLink,
@@ -133,7 +129,7 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selector
 	return feed, nil
 }
 
-func (scraper *Scraper) FetchFeedElements(siteURL string, enableJSRendering bool, selectors *domain.ScrapingSelectors) (*domain.LatestFeed, error) {
+func (scraper *Scraper) FetchFeedElements(siteURL string, enableJSRendering bool, selectors *domain.ScrapingSelectors) (*domain.Feed, error) {
 	var html *string
 	var err error
 	if enableJSRendering {

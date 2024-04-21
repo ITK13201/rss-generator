@@ -28,6 +28,7 @@ func (si *siteInteractor) Create(site *domain.SitesCreateInput) (*ent.Site, erro
 		SetTitle(site.Title).
 		SetNillableDescription(site.Description).
 		SetURL(site.URL).
+		SetEnableJsRendering(site.EnableJSRendering).
 		Save(ctx)
 	if err != nil {
 		return nil, err

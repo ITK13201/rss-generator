@@ -10,11 +10,14 @@ import (
 	"reflect"
 
 	"github.com/ITK13201/rss-generator/ent/migrate"
+	"github.com/google/uuid"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/ITK13201/rss-generator/ent/feed"
+	"github.com/ITK13201/rss-generator/ent/feeditem"
 	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 
@@ -26,6 +29,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Feed is the client for interacting with the Feed builders.
+	Feed *FeedClient
+	// FeedItem is the client for interacting with the FeedItem builders.
+	FeedItem *FeedItemClient
 	// ScrapingSelector is the client for interacting with the ScrapingSelector builders.
 	ScrapingSelector *ScrapingSelectorClient
 	// Site is the client for interacting with the Site builders.
@@ -41,6 +48,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Feed = NewFeedClient(c.config)
+	c.FeedItem = NewFeedItemClient(c.config)
 	c.ScrapingSelector = NewScrapingSelectorClient(c.config)
 	c.Site = NewSiteClient(c.config)
 }
@@ -135,6 +144,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:              ctx,
 		config:           cfg,
+		Feed:             NewFeedClient(cfg),
+		FeedItem:         NewFeedItemClient(cfg),
 		ScrapingSelector: NewScrapingSelectorClient(cfg),
 		Site:             NewSiteClient(cfg),
 	}, nil
@@ -156,6 +167,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:              ctx,
 		config:           cfg,
+		Feed:             NewFeedClient(cfg),
+		FeedItem:         NewFeedItemClient(cfg),
 		ScrapingSelector: NewScrapingSelectorClient(cfg),
 		Site:             NewSiteClient(cfg),
 	}, nil
@@ -164,7 +177,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		ScrapingSelector.
+//		Feed.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -186,6 +199,8 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Feed.Use(hooks...)
+	c.FeedItem.Use(hooks...)
 	c.ScrapingSelector.Use(hooks...)
 	c.Site.Use(hooks...)
 }
@@ -193,6 +208,8 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Feed.Intercept(interceptors...)
+	c.FeedItem.Intercept(interceptors...)
 	c.ScrapingSelector.Intercept(interceptors...)
 	c.Site.Intercept(interceptors...)
 }
@@ -200,12 +217,330 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *FeedMutation:
+		return c.Feed.mutate(ctx, m)
+	case *FeedItemMutation:
+		return c.FeedItem.mutate(ctx, m)
 	case *ScrapingSelectorMutation:
 		return c.ScrapingSelector.mutate(ctx, m)
 	case *SiteMutation:
 		return c.Site.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// FeedClient is a client for the Feed schema.
+type FeedClient struct {
+	config
+}
+
+// NewFeedClient returns a client for the Feed from the given config.
+func NewFeedClient(c config) *FeedClient {
+	return &FeedClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `feed.Hooks(f(g(h())))`.
+func (c *FeedClient) Use(hooks ...Hook) {
+	c.hooks.Feed = append(c.hooks.Feed, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `feed.Intercept(f(g(h())))`.
+func (c *FeedClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Feed = append(c.inters.Feed, interceptors...)
+}
+
+// Create returns a builder for creating a Feed entity.
+func (c *FeedClient) Create() *FeedCreate {
+	mutation := newFeedMutation(c.config, OpCreate)
+	return &FeedCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Feed entities.
+func (c *FeedClient) CreateBulk(builders ...*FeedCreate) *FeedCreateBulk {
+	return &FeedCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *FeedClient) MapCreateBulk(slice any, setFunc func(*FeedCreate, int)) *FeedCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &FeedCreateBulk{err: fmt.Errorf("calling to FeedClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*FeedCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &FeedCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Feed.
+func (c *FeedClient) Update() *FeedUpdate {
+	mutation := newFeedMutation(c.config, OpUpdate)
+	return &FeedUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FeedClient) UpdateOne(f *Feed) *FeedUpdateOne {
+	mutation := newFeedMutation(c.config, OpUpdateOne, withFeed(f))
+	return &FeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FeedClient) UpdateOneID(id uuid.UUID) *FeedUpdateOne {
+	mutation := newFeedMutation(c.config, OpUpdateOne, withFeedID(id))
+	return &FeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Feed.
+func (c *FeedClient) Delete() *FeedDelete {
+	mutation := newFeedMutation(c.config, OpDelete)
+	return &FeedDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FeedClient) DeleteOne(f *Feed) *FeedDeleteOne {
+	return c.DeleteOneID(f.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FeedClient) DeleteOneID(id uuid.UUID) *FeedDeleteOne {
+	builder := c.Delete().Where(feed.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FeedDeleteOne{builder}
+}
+
+// Query returns a query builder for Feed.
+func (c *FeedClient) Query() *FeedQuery {
+	return &FeedQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeFeed},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Feed entity by its id.
+func (c *FeedClient) Get(ctx context.Context, id uuid.UUID) (*Feed, error) {
+	return c.Query().Where(feed.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FeedClient) GetX(ctx context.Context, id uuid.UUID) *Feed {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySite queries the site edge of a Feed.
+func (c *FeedClient) QuerySite(f *Feed) *SiteQuery {
+	query := (&SiteClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := f.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feed.Table, feed.FieldID, id),
+			sqlgraph.To(site.Table, site.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, feed.SiteTable, feed.SiteColumn),
+		)
+		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFeedItems queries the feed_items edge of a Feed.
+func (c *FeedClient) QueryFeedItems(f *Feed) *FeedItemQuery {
+	query := (&FeedItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := f.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feed.Table, feed.FieldID, id),
+			sqlgraph.To(feeditem.Table, feeditem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, feed.FeedItemsTable, feed.FeedItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *FeedClient) Hooks() []Hook {
+	return c.hooks.Feed
+}
+
+// Interceptors returns the client interceptors.
+func (c *FeedClient) Interceptors() []Interceptor {
+	return c.inters.Feed
+}
+
+func (c *FeedClient) mutate(ctx context.Context, m *FeedMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FeedCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FeedUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FeedDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Feed mutation op: %q", m.Op())
+	}
+}
+
+// FeedItemClient is a client for the FeedItem schema.
+type FeedItemClient struct {
+	config
+}
+
+// NewFeedItemClient returns a client for the FeedItem from the given config.
+func NewFeedItemClient(c config) *FeedItemClient {
+	return &FeedItemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `feeditem.Hooks(f(g(h())))`.
+func (c *FeedItemClient) Use(hooks ...Hook) {
+	c.hooks.FeedItem = append(c.hooks.FeedItem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `feeditem.Intercept(f(g(h())))`.
+func (c *FeedItemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.FeedItem = append(c.inters.FeedItem, interceptors...)
+}
+
+// Create returns a builder for creating a FeedItem entity.
+func (c *FeedItemClient) Create() *FeedItemCreate {
+	mutation := newFeedItemMutation(c.config, OpCreate)
+	return &FeedItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of FeedItem entities.
+func (c *FeedItemClient) CreateBulk(builders ...*FeedItemCreate) *FeedItemCreateBulk {
+	return &FeedItemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *FeedItemClient) MapCreateBulk(slice any, setFunc func(*FeedItemCreate, int)) *FeedItemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &FeedItemCreateBulk{err: fmt.Errorf("calling to FeedItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*FeedItemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &FeedItemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for FeedItem.
+func (c *FeedItemClient) Update() *FeedItemUpdate {
+	mutation := newFeedItemMutation(c.config, OpUpdate)
+	return &FeedItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FeedItemClient) UpdateOne(fi *FeedItem) *FeedItemUpdateOne {
+	mutation := newFeedItemMutation(c.config, OpUpdateOne, withFeedItem(fi))
+	return &FeedItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FeedItemClient) UpdateOneID(id int) *FeedItemUpdateOne {
+	mutation := newFeedItemMutation(c.config, OpUpdateOne, withFeedItemID(id))
+	return &FeedItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for FeedItem.
+func (c *FeedItemClient) Delete() *FeedItemDelete {
+	mutation := newFeedItemMutation(c.config, OpDelete)
+	return &FeedItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FeedItemClient) DeleteOne(fi *FeedItem) *FeedItemDeleteOne {
+	return c.DeleteOneID(fi.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FeedItemClient) DeleteOneID(id int) *FeedItemDeleteOne {
+	builder := c.Delete().Where(feeditem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FeedItemDeleteOne{builder}
+}
+
+// Query returns a query builder for FeedItem.
+func (c *FeedItemClient) Query() *FeedItemQuery {
+	return &FeedItemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeFeedItem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a FeedItem entity by its id.
+func (c *FeedItemClient) Get(ctx context.Context, id int) (*FeedItem, error) {
+	return c.Query().Where(feeditem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FeedItemClient) GetX(ctx context.Context, id int) *FeedItem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryFeed queries the feed edge of a FeedItem.
+func (c *FeedItemClient) QueryFeed(fi *FeedItem) *FeedQuery {
+	query := (&FeedClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := fi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feeditem.Table, feeditem.FieldID, id),
+			sqlgraph.To(feed.Table, feed.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, feeditem.FeedTable, feeditem.FeedColumn),
+		)
+		fromV = sqlgraph.Neighbors(fi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *FeedItemClient) Hooks() []Hook {
+	return c.hooks.FeedItem
+}
+
+// Interceptors returns the client interceptors.
+func (c *FeedItemClient) Interceptors() []Interceptor {
+	return c.inters.FeedItem
+}
+
+func (c *FeedItemClient) mutate(ctx context.Context, m *FeedItemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FeedItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FeedItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FeedItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FeedItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown FeedItem mutation op: %q", m.Op())
 	}
 }
 
@@ -482,6 +817,22 @@ func (c *SiteClient) QueryScrapingSelector(s *Site) *ScrapingSelectorQuery {
 	return query
 }
 
+// QueryFeeds queries the feeds edge of a Site.
+func (c *SiteClient) QueryFeeds(s *Site) *FeedQuery {
+	query := (&FeedClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, id),
+			sqlgraph.To(feed.Table, feed.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, site.FeedsTable, site.FeedsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SiteClient) Hooks() []Hook {
 	return c.hooks.Site
@@ -510,10 +861,10 @@ func (c *SiteClient) mutate(ctx context.Context, m *SiteMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		ScrapingSelector, Site []ent.Hook
+		Feed, FeedItem, ScrapingSelector, Site []ent.Hook
 	}
 	inters struct {
-		ScrapingSelector, Site []ent.Interceptor
+		Feed, FeedItem, ScrapingSelector, Site []ent.Interceptor
 	}
 )
 

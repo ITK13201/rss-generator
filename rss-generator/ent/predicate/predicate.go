@@ -6,6 +6,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Feed is the predicate function for feed builders.
+type Feed func(*sql.Selector)
+
+// FeedItem is the predicate function for feeditem builders.
+type FeedItem func(*sql.Selector)
+
 // ScrapingSelector is the predicate function for scrapingselector builders.
 type ScrapingSelector func(*sql.Selector)
 

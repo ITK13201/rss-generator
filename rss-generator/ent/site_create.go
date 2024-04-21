@@ -11,8 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/google/uuid"
 )
 
 // SiteCreate is the builder for creating a Site entity.
@@ -120,6 +122,21 @@ func (sc *SiteCreate) SetNillableScrapingSelectorID(id *int) *SiteCreate {
 // SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
 func (sc *SiteCreate) SetScrapingSelector(s *ScrapingSelector) *SiteCreate {
 	return sc.SetScrapingSelectorID(s.ID)
+}
+
+// AddFeedIDs adds the "feeds" edge to the Feed entity by IDs.
+func (sc *SiteCreate) AddFeedIDs(ids ...uuid.UUID) *SiteCreate {
+	sc.mutation.AddFeedIDs(ids...)
+	return sc
+}
+
+// AddFeeds adds the "feeds" edges to the Feed entity.
+func (sc *SiteCreate) AddFeeds(f ...*Feed) *SiteCreate {
+	ids := make([]uuid.UUID, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return sc.AddFeedIDs(ids...)
 }
 
 // Mutation returns the SiteMutation object of the builder.
@@ -281,7 +298,23 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.scraping_selector_site = &nodes[0]
+		_node.site_id = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.FeedsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.FeedsTable,
+			Columns: []string{site.FeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

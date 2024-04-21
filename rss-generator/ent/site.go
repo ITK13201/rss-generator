@@ -34,18 +34,20 @@ type Site struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SiteQuery when eager-loading is set.
-	Edges                  SiteEdges `json:"edges"`
-	scraping_selector_site *int
-	selectValues           sql.SelectValues
+	Edges        SiteEdges `json:"edges"`
+	site_id      *int
+	selectValues sql.SelectValues
 }
 
 // SiteEdges holds the relations/edges for other nodes in the graph.
 type SiteEdges struct {
 	// ScrapingSelector holds the value of the scraping_selector edge.
 	ScrapingSelector *ScrapingSelector `json:"scraping_selector,omitempty"`
+	// Feeds holds the value of the feeds edge.
+	Feeds []*Feed `json:"feeds,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ScrapingSelectorOrErr returns the ScrapingSelector value or an error if the edge
@@ -57,6 +59,15 @@ func (e SiteEdges) ScrapingSelectorOrErr() (*ScrapingSelector, error) {
 		return nil, &NotFoundError{label: scrapingselector.Label}
 	}
 	return nil, &NotLoadedError{edge: "scraping_selector"}
+}
+
+// FeedsOrErr returns the Feeds value or an error if the edge
+// was not loaded in eager-loading.
+func (e SiteEdges) FeedsOrErr() ([]*Feed, error) {
+	if e.loadedTypes[1] {
+		return e.Feeds, nil
+	}
+	return nil, &NotLoadedError{edge: "feeds"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -72,7 +83,7 @@ func (*Site) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case site.FieldCreatedAt, site.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case site.ForeignKeys[0]: // scraping_selector_site
+		case site.ForeignKeys[0]: // site_id
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -139,10 +150,10 @@ func (s *Site) assignValues(columns []string, values []any) error {
 			}
 		case site.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field scraping_selector_site", value)
+				return fmt.Errorf("unexpected type %T for edge-field site_id", value)
 			} else if value.Valid {
-				s.scraping_selector_site = new(int)
-				*s.scraping_selector_site = int(value.Int64)
+				s.site_id = new(int)
+				*s.site_id = int(value.Int64)
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -160,6 +171,11 @@ func (s *Site) Value(name string) (ent.Value, error) {
 // QueryScrapingSelector queries the "scraping_selector" edge of the Site entity.
 func (s *Site) QueryScrapingSelector() *ScrapingSelectorQuery {
 	return NewSiteClient(s.config).QueryScrapingSelector(s)
+}
+
+// QueryFeeds queries the "feeds" edge of the Site entity.
+func (s *Site) QueryFeeds() *FeedQuery {
+	return NewSiteClient(s.config).QueryFeeds(s)
 }
 
 // Update returns a builder for updating this Site.

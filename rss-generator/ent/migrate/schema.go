@@ -9,6 +9,57 @@ import (
 )
 
 var (
+	// FeedsColumns holds the columns for the "feeds" table.
+	FeedsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "title", Type: field.TypeString, Size: 1023},
+		{Name: "description", Type: field.TypeString, Size: 2047},
+		{Name: "link", Type: field.TypeString, Size: 2047},
+		{Name: "published_at", Type: field.TypeTime},
+		{Name: "is_test", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "site_id", Type: field.TypeInt},
+	}
+	// FeedsTable holds the schema information for the "feeds" table.
+	FeedsTable = &schema.Table{
+		Name:       "feeds",
+		Columns:    FeedsColumns,
+		PrimaryKey: []*schema.Column{FeedsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "feeds_sites_site",
+				Columns:    []*schema.Column{FeedsColumns[8]},
+				RefColumns: []*schema.Column{SitesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// FeedItemsColumns holds the columns for the "feed_items" table.
+	FeedItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString, Size: 1023},
+		{Name: "description", Type: field.TypeString, Size: 2047},
+		{Name: "link", Type: field.TypeString, Nullable: true, Size: 2047},
+		{Name: "published_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "feed_id", Type: field.TypeUUID},
+	}
+	// FeedItemsTable holds the schema information for the "feed_items" table.
+	FeedItemsTable = &schema.Table{
+		Name:       "feed_items",
+		Columns:    FeedItemsColumns,
+		PrimaryKey: []*schema.Column{FeedItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "feed_items_feeds_feed",
+				Columns:    []*schema.Column{FeedItemsColumns[7]},
+				RefColumns: []*schema.Column{FeedsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// ScrapingSelectorsColumns holds the columns for the "scraping_selectors" table.
 	ScrapingSelectorsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -36,7 +87,7 @@ var (
 		{Name: "enable_js_rendering", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "scraping_selector_site", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "site_id", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// SitesTable holds the schema information for the "sites" table.
 	SitesTable = &schema.Table{
@@ -54,12 +105,22 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		FeedsTable,
+		FeedItemsTable,
 		ScrapingSelectorsTable,
 		SitesTable,
 	}
 )
 
 func init() {
+	FeedsTable.ForeignKeys[0].RefTable = SitesTable
+	FeedsTable.Annotation = &entsql.Annotation{
+		Table: "feeds",
+	}
+	FeedItemsTable.ForeignKeys[0].RefTable = FeedsTable
+	FeedItemsTable.Annotation = &entsql.Annotation{
+		Table: "feed_items",
+	}
 	ScrapingSelectorsTable.Annotation = &entsql.Annotation{
 		Table: "scraping_selectors",
 	}

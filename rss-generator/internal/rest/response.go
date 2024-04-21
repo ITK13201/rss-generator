@@ -30,8 +30,8 @@ func RespondOKWithData(c *gin.Context, data interface{}) {
 		body = gin.H{}
 	} else {
 		dataJson, err := json.Marshal(data)
-		if err != nil {
-			body = gin.H{"data": dataJson}
+		if err == nil {
+			body = gin.H{"data": string(dataJson)}
 		} else {
 			err = fmt.Errorf("JSON Marshal Error: %w", err)
 			RespondMessage(c, http.StatusInternalServerError, err.Error())
