@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type ScrapingSelectors struct {
 	Selector            string  `json:"selector"`
@@ -25,8 +27,9 @@ type Feed struct {
 	PublishedAt *time.Time `json:"published_at"`
 }
 
-type FeedGetInput struct {
-	SiteID int `json:"site_id"`
+type FeedCreateInput struct {
+	SiteID    int               `json:"site_id"`
+	Selectors ScrapingSelectors `json:"selectors"`
 }
 
 type FeedGetOutput struct {

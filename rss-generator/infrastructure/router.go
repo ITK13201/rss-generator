@@ -33,6 +33,10 @@ func NewRouter(publicApp *PublicApplication, privateApp *PrivateApplication) *gi
 		{
 			testFeeds.GET("/:id", publicApp.TestFeedController.Get)
 		}
+		feeds := router.Group("/feeds")
+		{
+			feeds.GET("/:id", publicApp.FeedController.GetByID)
+		}
 	}
 
 	// private endpoints
@@ -50,7 +54,7 @@ func NewRouter(publicApp *PublicApplication, privateApp *PrivateApplication) *gi
 			}
 			feeds := v1.Group("/feeds")
 			{
-				feeds.GET("")
+				feeds.POST("", privateApp.FeedController.Create)
 			}
 		}
 	}
