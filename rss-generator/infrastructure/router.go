@@ -47,6 +47,7 @@ func NewRouter(publicApp *PublicApplication, privateApp *PrivateApplication) *gi
 			sites := v1.Group("/sites")
 			{
 				sites.POST("", privateApp.SiteController.Create)
+				sites.DELETE("/:slug", privateApp.SiteController.Delete)
 			}
 			testFeeds := v1.Group("/test-feeds")
 			{
@@ -55,6 +56,7 @@ func NewRouter(publicApp *PublicApplication, privateApp *PrivateApplication) *gi
 			feeds := v1.Group("/feeds")
 			{
 				feeds.POST("", privateApp.FeedController.Create)
+				feeds.DELETE("/:id", privateApp.FeedController.Delete)
 			}
 		}
 	}

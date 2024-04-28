@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
+	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,7 @@ import (
 
 type SiteController interface {
 	Create(ctx *gin.Context)
+	Delete(ctx *gin.Context)
 }
 
 type siteController struct {
@@ -55,4 +57,32 @@ func (sc *siteController) Create(c *gin.Context) {
 		"data": string(dataJson),
 	}).Info("site created")
 	rest.RespondOKWithData(c, &data)
+}
+
+func (sc *siteController) Delete(c *gin.Context) {
+	slug := c.Param("slug")
+	s, err := sc.sqlClient.Site.Query().Where(site.SlugEQ(slug)).Only(c.Request.Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			rest.RespondMessage(c, http.StatusNotFound, err.Error())
+			return
+		} else {
+			sc.logger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"slug":  slug,
+			}).Error("site query failed")
+			rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+	err = sc.sqlClient.Site.DeleteOne(s).Exec(c.Request.Context())
+	if err != nil {
+		sc.logger.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"slug":  slug,
+		}).Error("site delete failed")
+		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	rest.RespondOKWithData(c, gin.H{"slug": slug})
 }

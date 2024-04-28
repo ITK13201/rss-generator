@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
+	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/ITK13201/rss-generator/internal/scraper"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type FeedController interface {
 	Create(ctx *gin.Context)
+	Delete(ctx *gin.Context)
 }
 
 type feedController struct {
@@ -63,4 +66,34 @@ func (fc *feedController) Create(c *gin.Context) {
 	rest.RespondOKWithData(c, gin.H{
 		"feed_id": feedID,
 	})
+}
+func (fc *feedController) Delete(c *gin.Context) {
+	id := c.Param("id")
+	idUUID, err := uuid.FromBytes([]byte(id))
+	if err != nil {
+		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
+	}
+	f, err := fc.sqlClient.Feed.Query().Where(feed.IDEQ(idUUID)).Only(c.Request.Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			rest.RespondMessage(c, http.StatusNotFound, err.Error())
+			return
+		} else {
+			fc.logger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"id":    id,
+			}).Error("feed query failed")
+			rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+	err = fc.sqlClient.Feed.DeleteOne(f).Exec(c.Request.Context())
+	if err != nil {
+		fc.logger.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"id":    id,
+		}).Error("feed delete failed")
+		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+	}
+	rest.RespondOKWithData(c, gin.H{"feed_id": id})
 }
