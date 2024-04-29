@@ -17,3 +17,9 @@ type ScrapingSetting func(*sql.Selector)
 
 // Site is the predicate function for site builders.
 type Site func(*sql.Selector)
+
+// TestFeed is the predicate function for testfeed builders.
+type TestFeed func(*sql.Selector)
+
+// TestFeedItem is the predicate function for testfeeditem builders.
+type TestFeedItem func(*sql.Selector)

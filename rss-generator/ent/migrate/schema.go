@@ -16,7 +16,6 @@ var (
 		{Name: "description", Type: field.TypeString, Size: 2047},
 		{Name: "link", Type: field.TypeString, Size: 2047},
 		{Name: "published_at", Type: field.TypeTime},
-		{Name: "is_test", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "site_id", Type: field.TypeInt},
@@ -29,7 +28,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "feeds_sites_site",
-				Columns:    []*schema.Column{FeedsColumns[8]},
+				Columns:    []*schema.Column{FeedsColumns[7]},
 				RefColumns: []*schema.Column{SitesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -103,12 +102,64 @@ var (
 		Columns:    SitesColumns,
 		PrimaryKey: []*schema.Column{SitesColumns[0]},
 	}
+	// TestFeedsColumns holds the columns for the "test_feeds" table.
+	TestFeedsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "title", Type: field.TypeString, Size: 1023},
+		{Name: "description", Type: field.TypeString, Size: 2047},
+		{Name: "link", Type: field.TypeString, Size: 2047},
+		{Name: "published_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "site_id", Type: field.TypeInt},
+	}
+	// TestFeedsTable holds the schema information for the "test_feeds" table.
+	TestFeedsTable = &schema.Table{
+		Name:       "test_feeds",
+		Columns:    TestFeedsColumns,
+		PrimaryKey: []*schema.Column{TestFeedsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_feeds_sites_site",
+				Columns:    []*schema.Column{TestFeedsColumns[7]},
+				RefColumns: []*schema.Column{SitesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// TestFeedItemsColumns holds the columns for the "test_feed_items" table.
+	TestFeedItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString, Size: 1023},
+		{Name: "description", Type: field.TypeString, Size: 2047},
+		{Name: "link", Type: field.TypeString, Nullable: true, Size: 2047},
+		{Name: "published_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "test_feed_id", Type: field.TypeUUID},
+	}
+	// TestFeedItemsTable holds the schema information for the "test_feed_items" table.
+	TestFeedItemsTable = &schema.Table{
+		Name:       "test_feed_items",
+		Columns:    TestFeedItemsColumns,
+		PrimaryKey: []*schema.Column{TestFeedItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_feed_items_test_feeds_test_feed",
+				Columns:    []*schema.Column{TestFeedItemsColumns[7]},
+				RefColumns: []*schema.Column{TestFeedsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		FeedsTable,
 		FeedItemsTable,
 		ScrapingSettingsTable,
 		SitesTable,
+		TestFeedsTable,
+		TestFeedItemsTable,
 	}
 )
 
@@ -127,5 +178,13 @@ func init() {
 	}
 	SitesTable.Annotation = &entsql.Annotation{
 		Table: "sites",
+	}
+	TestFeedsTable.ForeignKeys[0].RefTable = SitesTable
+	TestFeedsTable.Annotation = &entsql.Annotation{
+		Table: "test_feeds",
+	}
+	TestFeedItemsTable.ForeignKeys[0].RefTable = TestFeedsTable
+	TestFeedItemsTable.Annotation = &entsql.Annotation{
+		Table: "test_feed_items",
 	}
 }

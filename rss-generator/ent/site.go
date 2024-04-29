@@ -43,9 +43,11 @@ type SiteEdges struct {
 	ScrapingSettings []*ScrapingSetting `json:"scraping_settings,omitempty"`
 	// Feeds holds the value of the feeds edge.
 	Feeds []*Feed `json:"feeds,omitempty"`
+	// TestFeeds holds the value of the test_feeds edge.
+	TestFeeds []*TestFeed `json:"test_feeds,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ScrapingSettingsOrErr returns the ScrapingSettings value or an error if the edge
@@ -64,6 +66,15 @@ func (e SiteEdges) FeedsOrErr() ([]*Feed, error) {
 		return e.Feeds, nil
 	}
 	return nil, &NotLoadedError{edge: "feeds"}
+}
+
+// TestFeedsOrErr returns the TestFeeds value or an error if the edge
+// was not loaded in eager-loading.
+func (e SiteEdges) TestFeedsOrErr() ([]*TestFeed, error) {
+	if e.loadedTypes[2] {
+		return e.TestFeeds, nil
+	}
+	return nil, &NotLoadedError{edge: "test_feeds"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -163,6 +174,11 @@ func (s *Site) QueryScrapingSettings() *ScrapingSettingQuery {
 // QueryFeeds queries the "feeds" edge of the Site entity.
 func (s *Site) QueryFeeds() *FeedQuery {
 	return NewSiteClient(s.config).QueryFeeds(s)
+}
+
+// QueryTestFeeds queries the "test_feeds" edge of the Site entity.
+func (s *Site) QueryTestFeeds() *TestFeedQuery {
+	return NewSiteClient(s.config).QueryTestFeeds(s)
 }
 
 // Update returns a builder for updating this Site.

@@ -22,6 +22,10 @@ type Tx struct {
 	ScrapingSetting *ScrapingSettingClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
+	// TestFeed is the client for interacting with the TestFeed builders.
+	TestFeed *TestFeedClient
+	// TestFeedItem is the client for interacting with the TestFeedItem builders.
+	TestFeedItem *TestFeedItemClient
 
 	// lazily loaded.
 	client     *Client
@@ -157,6 +161,8 @@ func (tx *Tx) init() {
 	tx.FeedItem = NewFeedItemClient(tx.config)
 	tx.ScrapingSetting = NewScrapingSettingClient(tx.config)
 	tx.Site = NewSiteClient(tx.config)
+	tx.TestFeed = NewTestFeedClient(tx.config)
+	tx.TestFeedItem = NewTestFeedItemClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

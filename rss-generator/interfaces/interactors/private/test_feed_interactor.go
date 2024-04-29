@@ -36,19 +36,18 @@ func (tfi *testFeedInteractor) GetSite(siteID int) (*ent.Site, error) {
 func (tfi *testFeedInteractor) CreateFeed(siteID int, f *domain.Feed) (*string, error) {
 	ctx := context.Background()
 	now := time.Now()
-	feed, err := tfi.sqlClient.Feed.Create().
+	feed, err := tfi.sqlClient.TestFeed.Create().
 		SetSiteID(siteID).
 		SetTitle(f.Title).
 		SetDescription(f.Description).
 		SetLink(f.Link).
 		SetPublishedAt(now).
-		SetIsTest(true).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-	_, err = tfi.sqlClient.FeedItem.MapCreateBulk(f.Items, func(fic *ent.FeedItemCreate, i int) {
-		fic.SetFeed(feed).
+	_, err = tfi.sqlClient.TestFeedItem.MapCreateBulk(f.Items, func(fic *ent.TestFeedItemCreate, i int) {
+		fic.SetTestFeed(feed).
 			SetTitle(f.Items[i].Title).
 			SetDescription(f.Items[i].Description).
 			SetLink(*f.Items[i].Link).

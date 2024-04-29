@@ -16,6 +16,8 @@ import (
 	"github.com/ITK13201/rss-generator/ent/predicate"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
+	"github.com/ITK13201/rss-generator/ent/testfeeditem"
 	"github.com/google/uuid"
 )
 
@@ -32,6 +34,8 @@ const (
 	TypeFeedItem        = "FeedItem"
 	TypeScrapingSetting = "ScrapingSetting"
 	TypeSite            = "Site"
+	TypeTestFeed        = "TestFeed"
+	TypeTestFeedItem    = "TestFeedItem"
 )
 
 // FeedMutation represents an operation that mutates the Feed nodes in the graph.
@@ -44,7 +48,6 @@ type FeedMutation struct {
 	description       *string
 	link              *string
 	published_at      *time.Time
-	is_test           *bool
 	created_at        *time.Time
 	updated_at        *time.Time
 	clearedFields     map[string]struct{}
@@ -306,42 +309,6 @@ func (m *FeedMutation) ResetPublishedAt() {
 	m.published_at = nil
 }
 
-// SetIsTest sets the "is_test" field.
-func (m *FeedMutation) SetIsTest(b bool) {
-	m.is_test = &b
-}
-
-// IsTest returns the value of the "is_test" field in the mutation.
-func (m *FeedMutation) IsTest() (r bool, exists bool) {
-	v := m.is_test
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsTest returns the old "is_test" field's value of the Feed entity.
-// If the Feed object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeedMutation) OldIsTest(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsTest is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsTest requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsTest: %w", err)
-	}
-	return oldValue.IsTest, nil
-}
-
-// ResetIsTest resets all changes to the "is_test" field.
-func (m *FeedMutation) ResetIsTest() {
-	m.is_test = nil
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (m *FeedMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -541,7 +508,7 @@ func (m *FeedMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *FeedMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 6)
 	if m.title != nil {
 		fields = append(fields, feed.FieldTitle)
 	}
@@ -553,9 +520,6 @@ func (m *FeedMutation) Fields() []string {
 	}
 	if m.published_at != nil {
 		fields = append(fields, feed.FieldPublishedAt)
-	}
-	if m.is_test != nil {
-		fields = append(fields, feed.FieldIsTest)
 	}
 	if m.created_at != nil {
 		fields = append(fields, feed.FieldCreatedAt)
@@ -579,8 +543,6 @@ func (m *FeedMutation) Field(name string) (ent.Value, bool) {
 		return m.Link()
 	case feed.FieldPublishedAt:
 		return m.PublishedAt()
-	case feed.FieldIsTest:
-		return m.IsTest()
 	case feed.FieldCreatedAt:
 		return m.CreatedAt()
 	case feed.FieldUpdatedAt:
@@ -602,8 +564,6 @@ func (m *FeedMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldLink(ctx)
 	case feed.FieldPublishedAt:
 		return m.OldPublishedAt(ctx)
-	case feed.FieldIsTest:
-		return m.OldIsTest(ctx)
 	case feed.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case feed.FieldUpdatedAt:
@@ -644,13 +604,6 @@ func (m *FeedMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPublishedAt(v)
-		return nil
-	case feed.FieldIsTest:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsTest(v)
 		return nil
 	case feed.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -726,9 +679,6 @@ func (m *FeedMutation) ResetField(name string) error {
 		return nil
 	case feed.FieldPublishedAt:
 		m.ResetPublishedAt()
-		return nil
-	case feed.FieldIsTest:
-		m.ResetIsTest()
 		return nil
 	case feed.FieldCreatedAt:
 		m.ResetCreatedAt()
@@ -2317,6 +2267,9 @@ type SiteMutation struct {
 	feeds                    map[uuid.UUID]struct{}
 	removedfeeds             map[uuid.UUID]struct{}
 	clearedfeeds             bool
+	test_feeds               map[uuid.UUID]struct{}
+	removedtest_feeds        map[uuid.UUID]struct{}
+	clearedtest_feeds        bool
 	done                     bool
 	oldValue                 func(context.Context) (*Site, error)
 	predicates               []predicate.Site
@@ -2799,6 +2752,60 @@ func (m *SiteMutation) ResetFeeds() {
 	m.removedfeeds = nil
 }
 
+// AddTestFeedIDs adds the "test_feeds" edge to the TestFeed entity by ids.
+func (m *SiteMutation) AddTestFeedIDs(ids ...uuid.UUID) {
+	if m.test_feeds == nil {
+		m.test_feeds = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.test_feeds[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTestFeeds clears the "test_feeds" edge to the TestFeed entity.
+func (m *SiteMutation) ClearTestFeeds() {
+	m.clearedtest_feeds = true
+}
+
+// TestFeedsCleared reports if the "test_feeds" edge to the TestFeed entity was cleared.
+func (m *SiteMutation) TestFeedsCleared() bool {
+	return m.clearedtest_feeds
+}
+
+// RemoveTestFeedIDs removes the "test_feeds" edge to the TestFeed entity by IDs.
+func (m *SiteMutation) RemoveTestFeedIDs(ids ...uuid.UUID) {
+	if m.removedtest_feeds == nil {
+		m.removedtest_feeds = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.test_feeds, ids[i])
+		m.removedtest_feeds[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTestFeeds returns the removed IDs of the "test_feeds" edge to the TestFeed entity.
+func (m *SiteMutation) RemovedTestFeedsIDs() (ids []uuid.UUID) {
+	for id := range m.removedtest_feeds {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TestFeedsIDs returns the "test_feeds" edge IDs in the mutation.
+func (m *SiteMutation) TestFeedsIDs() (ids []uuid.UUID) {
+	for id := range m.test_feeds {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTestFeeds resets all changes to the "test_feeds" edge.
+func (m *SiteMutation) ResetTestFeeds() {
+	m.test_feeds = nil
+	m.clearedtest_feeds = false
+	m.removedtest_feeds = nil
+}
+
 // Where appends a list predicates to the SiteMutation builder.
 func (m *SiteMutation) Where(ps ...predicate.Site) {
 	m.predicates = append(m.predicates, ps...)
@@ -3043,12 +3050,15 @@ func (m *SiteMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SiteMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.scraping_settings != nil {
 		edges = append(edges, site.EdgeScrapingSettings)
 	}
 	if m.feeds != nil {
 		edges = append(edges, site.EdgeFeeds)
+	}
+	if m.test_feeds != nil {
+		edges = append(edges, site.EdgeTestFeeds)
 	}
 	return edges
 }
@@ -3069,18 +3079,27 @@ func (m *SiteMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case site.EdgeTestFeeds:
+		ids := make([]ent.Value, 0, len(m.test_feeds))
+		for id := range m.test_feeds {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SiteMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedscraping_settings != nil {
 		edges = append(edges, site.EdgeScrapingSettings)
 	}
 	if m.removedfeeds != nil {
 		edges = append(edges, site.EdgeFeeds)
+	}
+	if m.removedtest_feeds != nil {
+		edges = append(edges, site.EdgeTestFeeds)
 	}
 	return edges
 }
@@ -3101,18 +3120,27 @@ func (m *SiteMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case site.EdgeTestFeeds:
+		ids := make([]ent.Value, 0, len(m.removedtest_feeds))
+		for id := range m.removedtest_feeds {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SiteMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedscraping_settings {
 		edges = append(edges, site.EdgeScrapingSettings)
 	}
 	if m.clearedfeeds {
 		edges = append(edges, site.EdgeFeeds)
+	}
+	if m.clearedtest_feeds {
+		edges = append(edges, site.EdgeTestFeeds)
 	}
 	return edges
 }
@@ -3125,6 +3153,8 @@ func (m *SiteMutation) EdgeCleared(name string) bool {
 		return m.clearedscraping_settings
 	case site.EdgeFeeds:
 		return m.clearedfeeds
+	case site.EdgeTestFeeds:
+		return m.clearedtest_feeds
 	}
 	return false
 }
@@ -3147,6 +3177,1454 @@ func (m *SiteMutation) ResetEdge(name string) error {
 	case site.EdgeFeeds:
 		m.ResetFeeds()
 		return nil
+	case site.EdgeTestFeeds:
+		m.ResetTestFeeds()
+		return nil
 	}
 	return fmt.Errorf("unknown Site edge %s", name)
+}
+
+// TestFeedMutation represents an operation that mutates the TestFeed nodes in the graph.
+type TestFeedMutation struct {
+	config
+	op                     Op
+	typ                    string
+	id                     *uuid.UUID
+	title                  *string
+	description            *string
+	link                   *string
+	published_at           *time.Time
+	created_at             *time.Time
+	updated_at             *time.Time
+	clearedFields          map[string]struct{}
+	site                   *int
+	clearedsite            bool
+	test_feed_items        map[int]struct{}
+	removedtest_feed_items map[int]struct{}
+	clearedtest_feed_items bool
+	done                   bool
+	oldValue               func(context.Context) (*TestFeed, error)
+	predicates             []predicate.TestFeed
+}
+
+var _ ent.Mutation = (*TestFeedMutation)(nil)
+
+// testfeedOption allows management of the mutation configuration using functional options.
+type testfeedOption func(*TestFeedMutation)
+
+// newTestFeedMutation creates new mutation for the TestFeed entity.
+func newTestFeedMutation(c config, op Op, opts ...testfeedOption) *TestFeedMutation {
+	m := &TestFeedMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTestFeed,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTestFeedID sets the ID field of the mutation.
+func withTestFeedID(id uuid.UUID) testfeedOption {
+	return func(m *TestFeedMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TestFeed
+		)
+		m.oldValue = func(ctx context.Context) (*TestFeed, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TestFeed.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTestFeed sets the old TestFeed of the mutation.
+func withTestFeed(node *TestFeed) testfeedOption {
+	return func(m *TestFeedMutation) {
+		m.oldValue = func(context.Context) (*TestFeed, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TestFeedMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TestFeedMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TestFeed entities.
+func (m *TestFeedMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TestFeedMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TestFeedMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TestFeed.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTitle sets the "title" field.
+func (m *TestFeedMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *TestFeedMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the TestFeed entity.
+// If the TestFeed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *TestFeedMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *TestFeedMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *TestFeedMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the TestFeed entity.
+// If the TestFeed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *TestFeedMutation) ResetDescription() {
+	m.description = nil
+}
+
+// SetLink sets the "link" field.
+func (m *TestFeedMutation) SetLink(s string) {
+	m.link = &s
+}
+
+// Link returns the value of the "link" field in the mutation.
+func (m *TestFeedMutation) Link() (r string, exists bool) {
+	v := m.link
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLink returns the old "link" field's value of the TestFeed entity.
+// If the TestFeed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedMutation) OldLink(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLink is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLink requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLink: %w", err)
+	}
+	return oldValue.Link, nil
+}
+
+// ResetLink resets all changes to the "link" field.
+func (m *TestFeedMutation) ResetLink() {
+	m.link = nil
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (m *TestFeedMutation) SetPublishedAt(t time.Time) {
+	m.published_at = &t
+}
+
+// PublishedAt returns the value of the "published_at" field in the mutation.
+func (m *TestFeedMutation) PublishedAt() (r time.Time, exists bool) {
+	v := m.published_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublishedAt returns the old "published_at" field's value of the TestFeed entity.
+// If the TestFeed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedMutation) OldPublishedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublishedAt: %w", err)
+	}
+	return oldValue.PublishedAt, nil
+}
+
+// ResetPublishedAt resets all changes to the "published_at" field.
+func (m *TestFeedMutation) ResetPublishedAt() {
+	m.published_at = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *TestFeedMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TestFeedMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the TestFeed entity.
+// If the TestFeed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TestFeedMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TestFeedMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TestFeedMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the TestFeed entity.
+// If the TestFeed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TestFeedMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetSiteID sets the "site" edge to the Site entity by id.
+func (m *TestFeedMutation) SetSiteID(id int) {
+	m.site = &id
+}
+
+// ClearSite clears the "site" edge to the Site entity.
+func (m *TestFeedMutation) ClearSite() {
+	m.clearedsite = true
+}
+
+// SiteCleared reports if the "site" edge to the Site entity was cleared.
+func (m *TestFeedMutation) SiteCleared() bool {
+	return m.clearedsite
+}
+
+// SiteID returns the "site" edge ID in the mutation.
+func (m *TestFeedMutation) SiteID() (id int, exists bool) {
+	if m.site != nil {
+		return *m.site, true
+	}
+	return
+}
+
+// SiteIDs returns the "site" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// SiteID instead. It exists only for internal usage by the builders.
+func (m *TestFeedMutation) SiteIDs() (ids []int) {
+	if id := m.site; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetSite resets all changes to the "site" edge.
+func (m *TestFeedMutation) ResetSite() {
+	m.site = nil
+	m.clearedsite = false
+}
+
+// AddTestFeedItemIDs adds the "test_feed_items" edge to the TestFeedItem entity by ids.
+func (m *TestFeedMutation) AddTestFeedItemIDs(ids ...int) {
+	if m.test_feed_items == nil {
+		m.test_feed_items = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.test_feed_items[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTestFeedItems clears the "test_feed_items" edge to the TestFeedItem entity.
+func (m *TestFeedMutation) ClearTestFeedItems() {
+	m.clearedtest_feed_items = true
+}
+
+// TestFeedItemsCleared reports if the "test_feed_items" edge to the TestFeedItem entity was cleared.
+func (m *TestFeedMutation) TestFeedItemsCleared() bool {
+	return m.clearedtest_feed_items
+}
+
+// RemoveTestFeedItemIDs removes the "test_feed_items" edge to the TestFeedItem entity by IDs.
+func (m *TestFeedMutation) RemoveTestFeedItemIDs(ids ...int) {
+	if m.removedtest_feed_items == nil {
+		m.removedtest_feed_items = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.test_feed_items, ids[i])
+		m.removedtest_feed_items[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTestFeedItems returns the removed IDs of the "test_feed_items" edge to the TestFeedItem entity.
+func (m *TestFeedMutation) RemovedTestFeedItemsIDs() (ids []int) {
+	for id := range m.removedtest_feed_items {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TestFeedItemsIDs returns the "test_feed_items" edge IDs in the mutation.
+func (m *TestFeedMutation) TestFeedItemsIDs() (ids []int) {
+	for id := range m.test_feed_items {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTestFeedItems resets all changes to the "test_feed_items" edge.
+func (m *TestFeedMutation) ResetTestFeedItems() {
+	m.test_feed_items = nil
+	m.clearedtest_feed_items = false
+	m.removedtest_feed_items = nil
+}
+
+// Where appends a list predicates to the TestFeedMutation builder.
+func (m *TestFeedMutation) Where(ps ...predicate.TestFeed) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TestFeedMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TestFeedMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TestFeed, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TestFeedMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TestFeedMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TestFeed).
+func (m *TestFeedMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TestFeedMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.title != nil {
+		fields = append(fields, testfeed.FieldTitle)
+	}
+	if m.description != nil {
+		fields = append(fields, testfeed.FieldDescription)
+	}
+	if m.link != nil {
+		fields = append(fields, testfeed.FieldLink)
+	}
+	if m.published_at != nil {
+		fields = append(fields, testfeed.FieldPublishedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, testfeed.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, testfeed.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TestFeedMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case testfeed.FieldTitle:
+		return m.Title()
+	case testfeed.FieldDescription:
+		return m.Description()
+	case testfeed.FieldLink:
+		return m.Link()
+	case testfeed.FieldPublishedAt:
+		return m.PublishedAt()
+	case testfeed.FieldCreatedAt:
+		return m.CreatedAt()
+	case testfeed.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TestFeedMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case testfeed.FieldTitle:
+		return m.OldTitle(ctx)
+	case testfeed.FieldDescription:
+		return m.OldDescription(ctx)
+	case testfeed.FieldLink:
+		return m.OldLink(ctx)
+	case testfeed.FieldPublishedAt:
+		return m.OldPublishedAt(ctx)
+	case testfeed.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case testfeed.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown TestFeed field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TestFeedMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case testfeed.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case testfeed.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case testfeed.FieldLink:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLink(v)
+		return nil
+	case testfeed.FieldPublishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublishedAt(v)
+		return nil
+	case testfeed.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case testfeed.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeed field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TestFeedMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TestFeedMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TestFeedMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown TestFeed numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TestFeedMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TestFeedMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TestFeedMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown TestFeed nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TestFeedMutation) ResetField(name string) error {
+	switch name {
+	case testfeed.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case testfeed.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case testfeed.FieldLink:
+		m.ResetLink()
+		return nil
+	case testfeed.FieldPublishedAt:
+		m.ResetPublishedAt()
+		return nil
+	case testfeed.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case testfeed.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeed field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TestFeedMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.site != nil {
+		edges = append(edges, testfeed.EdgeSite)
+	}
+	if m.test_feed_items != nil {
+		edges = append(edges, testfeed.EdgeTestFeedItems)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TestFeedMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case testfeed.EdgeSite:
+		if id := m.site; id != nil {
+			return []ent.Value{*id}
+		}
+	case testfeed.EdgeTestFeedItems:
+		ids := make([]ent.Value, 0, len(m.test_feed_items))
+		for id := range m.test_feed_items {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TestFeedMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedtest_feed_items != nil {
+		edges = append(edges, testfeed.EdgeTestFeedItems)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TestFeedMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case testfeed.EdgeTestFeedItems:
+		ids := make([]ent.Value, 0, len(m.removedtest_feed_items))
+		for id := range m.removedtest_feed_items {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TestFeedMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedsite {
+		edges = append(edges, testfeed.EdgeSite)
+	}
+	if m.clearedtest_feed_items {
+		edges = append(edges, testfeed.EdgeTestFeedItems)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TestFeedMutation) EdgeCleared(name string) bool {
+	switch name {
+	case testfeed.EdgeSite:
+		return m.clearedsite
+	case testfeed.EdgeTestFeedItems:
+		return m.clearedtest_feed_items
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TestFeedMutation) ClearEdge(name string) error {
+	switch name {
+	case testfeed.EdgeSite:
+		m.ClearSite()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeed unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TestFeedMutation) ResetEdge(name string) error {
+	switch name {
+	case testfeed.EdgeSite:
+		m.ResetSite()
+		return nil
+	case testfeed.EdgeTestFeedItems:
+		m.ResetTestFeedItems()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeed edge %s", name)
+}
+
+// TestFeedItemMutation represents an operation that mutates the TestFeedItem nodes in the graph.
+type TestFeedItemMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int
+	title            *string
+	description      *string
+	link             *string
+	published_at     *time.Time
+	created_at       *time.Time
+	updated_at       *time.Time
+	clearedFields    map[string]struct{}
+	test_feed        *uuid.UUID
+	clearedtest_feed bool
+	done             bool
+	oldValue         func(context.Context) (*TestFeedItem, error)
+	predicates       []predicate.TestFeedItem
+}
+
+var _ ent.Mutation = (*TestFeedItemMutation)(nil)
+
+// testfeeditemOption allows management of the mutation configuration using functional options.
+type testfeeditemOption func(*TestFeedItemMutation)
+
+// newTestFeedItemMutation creates new mutation for the TestFeedItem entity.
+func newTestFeedItemMutation(c config, op Op, opts ...testfeeditemOption) *TestFeedItemMutation {
+	m := &TestFeedItemMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTestFeedItem,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTestFeedItemID sets the ID field of the mutation.
+func withTestFeedItemID(id int) testfeeditemOption {
+	return func(m *TestFeedItemMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TestFeedItem
+		)
+		m.oldValue = func(ctx context.Context) (*TestFeedItem, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TestFeedItem.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTestFeedItem sets the old TestFeedItem of the mutation.
+func withTestFeedItem(node *TestFeedItem) testfeeditemOption {
+	return func(m *TestFeedItemMutation) {
+		m.oldValue = func(context.Context) (*TestFeedItem, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TestFeedItemMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TestFeedItemMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TestFeedItem entities.
+func (m *TestFeedItemMutation) SetID(id int) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TestFeedItemMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TestFeedItemMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TestFeedItem.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTitle sets the "title" field.
+func (m *TestFeedItemMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *TestFeedItemMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the TestFeedItem entity.
+// If the TestFeedItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedItemMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *TestFeedItemMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *TestFeedItemMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *TestFeedItemMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the TestFeedItem entity.
+// If the TestFeedItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedItemMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *TestFeedItemMutation) ResetDescription() {
+	m.description = nil
+}
+
+// SetLink sets the "link" field.
+func (m *TestFeedItemMutation) SetLink(s string) {
+	m.link = &s
+}
+
+// Link returns the value of the "link" field in the mutation.
+func (m *TestFeedItemMutation) Link() (r string, exists bool) {
+	v := m.link
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLink returns the old "link" field's value of the TestFeedItem entity.
+// If the TestFeedItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedItemMutation) OldLink(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLink is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLink requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLink: %w", err)
+	}
+	return oldValue.Link, nil
+}
+
+// ClearLink clears the value of the "link" field.
+func (m *TestFeedItemMutation) ClearLink() {
+	m.link = nil
+	m.clearedFields[testfeeditem.FieldLink] = struct{}{}
+}
+
+// LinkCleared returns if the "link" field was cleared in this mutation.
+func (m *TestFeedItemMutation) LinkCleared() bool {
+	_, ok := m.clearedFields[testfeeditem.FieldLink]
+	return ok
+}
+
+// ResetLink resets all changes to the "link" field.
+func (m *TestFeedItemMutation) ResetLink() {
+	m.link = nil
+	delete(m.clearedFields, testfeeditem.FieldLink)
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (m *TestFeedItemMutation) SetPublishedAt(t time.Time) {
+	m.published_at = &t
+}
+
+// PublishedAt returns the value of the "published_at" field in the mutation.
+func (m *TestFeedItemMutation) PublishedAt() (r time.Time, exists bool) {
+	v := m.published_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublishedAt returns the old "published_at" field's value of the TestFeedItem entity.
+// If the TestFeedItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedItemMutation) OldPublishedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublishedAt: %w", err)
+	}
+	return oldValue.PublishedAt, nil
+}
+
+// ResetPublishedAt resets all changes to the "published_at" field.
+func (m *TestFeedItemMutation) ResetPublishedAt() {
+	m.published_at = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *TestFeedItemMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TestFeedItemMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the TestFeedItem entity.
+// If the TestFeedItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedItemMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TestFeedItemMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TestFeedItemMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TestFeedItemMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the TestFeedItem entity.
+// If the TestFeedItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestFeedItemMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TestFeedItemMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetTestFeedID sets the "test_feed" edge to the TestFeed entity by id.
+func (m *TestFeedItemMutation) SetTestFeedID(id uuid.UUID) {
+	m.test_feed = &id
+}
+
+// ClearTestFeed clears the "test_feed" edge to the TestFeed entity.
+func (m *TestFeedItemMutation) ClearTestFeed() {
+	m.clearedtest_feed = true
+}
+
+// TestFeedCleared reports if the "test_feed" edge to the TestFeed entity was cleared.
+func (m *TestFeedItemMutation) TestFeedCleared() bool {
+	return m.clearedtest_feed
+}
+
+// TestFeedID returns the "test_feed" edge ID in the mutation.
+func (m *TestFeedItemMutation) TestFeedID() (id uuid.UUID, exists bool) {
+	if m.test_feed != nil {
+		return *m.test_feed, true
+	}
+	return
+}
+
+// TestFeedIDs returns the "test_feed" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// TestFeedID instead. It exists only for internal usage by the builders.
+func (m *TestFeedItemMutation) TestFeedIDs() (ids []uuid.UUID) {
+	if id := m.test_feed; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetTestFeed resets all changes to the "test_feed" edge.
+func (m *TestFeedItemMutation) ResetTestFeed() {
+	m.test_feed = nil
+	m.clearedtest_feed = false
+}
+
+// Where appends a list predicates to the TestFeedItemMutation builder.
+func (m *TestFeedItemMutation) Where(ps ...predicate.TestFeedItem) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TestFeedItemMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TestFeedItemMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TestFeedItem, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TestFeedItemMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TestFeedItemMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TestFeedItem).
+func (m *TestFeedItemMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TestFeedItemMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.title != nil {
+		fields = append(fields, testfeeditem.FieldTitle)
+	}
+	if m.description != nil {
+		fields = append(fields, testfeeditem.FieldDescription)
+	}
+	if m.link != nil {
+		fields = append(fields, testfeeditem.FieldLink)
+	}
+	if m.published_at != nil {
+		fields = append(fields, testfeeditem.FieldPublishedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, testfeeditem.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, testfeeditem.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TestFeedItemMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case testfeeditem.FieldTitle:
+		return m.Title()
+	case testfeeditem.FieldDescription:
+		return m.Description()
+	case testfeeditem.FieldLink:
+		return m.Link()
+	case testfeeditem.FieldPublishedAt:
+		return m.PublishedAt()
+	case testfeeditem.FieldCreatedAt:
+		return m.CreatedAt()
+	case testfeeditem.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TestFeedItemMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case testfeeditem.FieldTitle:
+		return m.OldTitle(ctx)
+	case testfeeditem.FieldDescription:
+		return m.OldDescription(ctx)
+	case testfeeditem.FieldLink:
+		return m.OldLink(ctx)
+	case testfeeditem.FieldPublishedAt:
+		return m.OldPublishedAt(ctx)
+	case testfeeditem.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case testfeeditem.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown TestFeedItem field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TestFeedItemMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case testfeeditem.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case testfeeditem.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case testfeeditem.FieldLink:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLink(v)
+		return nil
+	case testfeeditem.FieldPublishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublishedAt(v)
+		return nil
+	case testfeeditem.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case testfeeditem.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeedItem field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TestFeedItemMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TestFeedItemMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TestFeedItemMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown TestFeedItem numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TestFeedItemMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(testfeeditem.FieldLink) {
+		fields = append(fields, testfeeditem.FieldLink)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TestFeedItemMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TestFeedItemMutation) ClearField(name string) error {
+	switch name {
+	case testfeeditem.FieldLink:
+		m.ClearLink()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeedItem nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TestFeedItemMutation) ResetField(name string) error {
+	switch name {
+	case testfeeditem.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case testfeeditem.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case testfeeditem.FieldLink:
+		m.ResetLink()
+		return nil
+	case testfeeditem.FieldPublishedAt:
+		m.ResetPublishedAt()
+		return nil
+	case testfeeditem.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case testfeeditem.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeedItem field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TestFeedItemMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.test_feed != nil {
+		edges = append(edges, testfeeditem.EdgeTestFeed)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TestFeedItemMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case testfeeditem.EdgeTestFeed:
+		if id := m.test_feed; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TestFeedItemMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TestFeedItemMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TestFeedItemMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedtest_feed {
+		edges = append(edges, testfeeditem.EdgeTestFeed)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TestFeedItemMutation) EdgeCleared(name string) bool {
+	switch name {
+	case testfeeditem.EdgeTestFeed:
+		return m.clearedtest_feed
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TestFeedItemMutation) ClearEdge(name string) error {
+	switch name {
+	case testfeeditem.EdgeTestFeed:
+		m.ClearTestFeed()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeedItem unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TestFeedItemMutation) ResetEdge(name string) error {
+	switch name {
+	case testfeeditem.EdgeTestFeed:
+		m.ResetTestFeed()
+		return nil
+	}
+	return fmt.Errorf("unknown TestFeedItem edge %s", name)
 }

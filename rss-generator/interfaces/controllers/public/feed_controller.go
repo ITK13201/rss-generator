@@ -46,8 +46,8 @@ func (fc *feedController) GetByID(c *gin.Context) {
 		return
 	}
 	parsedFeed := fc.FeedInteractor.ParseFeed(f)
-	rssGenerator := rss.NewRssGenerator(fc.cfg, fc.logger)
-	rssXML, err := rssGenerator.Generate(parsedFeed)
+	rssUtil := rss.NewRssUtil(fc.cfg, fc.logger)
+	rssXML, err := rssUtil.Generate(parsedFeed)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
 		return

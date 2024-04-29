@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	config domain.Config
+	Config domain.Config
 
 	rootCmd = &cobra.Command{
 		Use:   "rss-generator",
@@ -35,12 +35,12 @@ func init() {
 }
 
 func initConfig() error {
-	err := env.Parse(&config)
+	err := env.Parse(&Config)
 	if err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
 
-	err = env.Parse(&config.Database)
+	err = env.Parse(&Config.Database)
 	if err != nil {
 		return fmt.Errorf("failed to parse database config: %w", err)
 	}

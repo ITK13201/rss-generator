@@ -15,6 +15,7 @@ import (
 	"github.com/ITK13201/rss-generator/ent/predicate"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
 	"github.com/google/uuid"
 )
 
@@ -157,6 +158,21 @@ func (su *SiteUpdate) AddFeeds(f ...*Feed) *SiteUpdate {
 	return su.AddFeedIDs(ids...)
 }
 
+// AddTestFeedIDs adds the "test_feeds" edge to the TestFeed entity by IDs.
+func (su *SiteUpdate) AddTestFeedIDs(ids ...uuid.UUID) *SiteUpdate {
+	su.mutation.AddTestFeedIDs(ids...)
+	return su
+}
+
+// AddTestFeeds adds the "test_feeds" edges to the TestFeed entity.
+func (su *SiteUpdate) AddTestFeeds(t ...*TestFeed) *SiteUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return su.AddTestFeedIDs(ids...)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (su *SiteUpdate) Mutation() *SiteMutation {
 	return su.mutation
@@ -202,6 +218,27 @@ func (su *SiteUpdate) RemoveFeeds(f ...*Feed) *SiteUpdate {
 		ids[i] = f[i].ID
 	}
 	return su.RemoveFeedIDs(ids...)
+}
+
+// ClearTestFeeds clears all "test_feeds" edges to the TestFeed entity.
+func (su *SiteUpdate) ClearTestFeeds() *SiteUpdate {
+	su.mutation.ClearTestFeeds()
+	return su
+}
+
+// RemoveTestFeedIDs removes the "test_feeds" edge to TestFeed entities by IDs.
+func (su *SiteUpdate) RemoveTestFeedIDs(ids ...uuid.UUID) *SiteUpdate {
+	su.mutation.RemoveTestFeedIDs(ids...)
+	return su
+}
+
+// RemoveTestFeeds removes "test_feeds" edges to TestFeed entities.
+func (su *SiteUpdate) RemoveTestFeeds(t ...*TestFeed) *SiteUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return su.RemoveTestFeedIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -386,6 +423,51 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.TestFeedsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedTestFeedsIDs(); len(nodes) > 0 && !su.mutation.TestFeedsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.TestFeedsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{site.Label}
@@ -532,6 +614,21 @@ func (suo *SiteUpdateOne) AddFeeds(f ...*Feed) *SiteUpdateOne {
 	return suo.AddFeedIDs(ids...)
 }
 
+// AddTestFeedIDs adds the "test_feeds" edge to the TestFeed entity by IDs.
+func (suo *SiteUpdateOne) AddTestFeedIDs(ids ...uuid.UUID) *SiteUpdateOne {
+	suo.mutation.AddTestFeedIDs(ids...)
+	return suo
+}
+
+// AddTestFeeds adds the "test_feeds" edges to the TestFeed entity.
+func (suo *SiteUpdateOne) AddTestFeeds(t ...*TestFeed) *SiteUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return suo.AddTestFeedIDs(ids...)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (suo *SiteUpdateOne) Mutation() *SiteMutation {
 	return suo.mutation
@@ -577,6 +674,27 @@ func (suo *SiteUpdateOne) RemoveFeeds(f ...*Feed) *SiteUpdateOne {
 		ids[i] = f[i].ID
 	}
 	return suo.RemoveFeedIDs(ids...)
+}
+
+// ClearTestFeeds clears all "test_feeds" edges to the TestFeed entity.
+func (suo *SiteUpdateOne) ClearTestFeeds() *SiteUpdateOne {
+	suo.mutation.ClearTestFeeds()
+	return suo
+}
+
+// RemoveTestFeedIDs removes the "test_feeds" edge to TestFeed entities by IDs.
+func (suo *SiteUpdateOne) RemoveTestFeedIDs(ids ...uuid.UUID) *SiteUpdateOne {
+	suo.mutation.RemoveTestFeedIDs(ids...)
+	return suo
+}
+
+// RemoveTestFeeds removes "test_feeds" edges to TestFeed entities.
+func (suo *SiteUpdateOne) RemoveTestFeeds(t ...*TestFeed) *SiteUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return suo.RemoveTestFeedIDs(ids...)
 }
 
 // Where appends a list predicates to the SiteUpdate builder.
@@ -784,6 +902,51 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.TestFeedsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedTestFeedsIDs(); len(nodes) > 0 && !suo.mutation.TestFeedsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.TestFeedsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

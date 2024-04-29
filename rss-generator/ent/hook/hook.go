@@ -57,6 +57,30 @@ func (f SiteFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SiteMutation", m)
 }
 
+// The TestFeedFunc type is an adapter to allow the use of ordinary
+// function as TestFeed mutator.
+type TestFeedFunc func(context.Context, *ent.TestFeedMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestFeedFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestFeedMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestFeedMutation", m)
+}
+
+// The TestFeedItemFunc type is an adapter to allow the use of ordinary
+// function as TestFeedItem mutator.
+type TestFeedItemFunc func(context.Context, *ent.TestFeedItemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestFeedItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestFeedItemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestFeedItemMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

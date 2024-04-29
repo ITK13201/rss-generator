@@ -20,6 +20,8 @@ import (
 	"github.com/ITK13201/rss-generator/ent/feeditem"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
+	"github.com/ITK13201/rss-generator/ent/testfeeditem"
 
 	stdsql "database/sql"
 )
@@ -37,6 +39,10 @@ type Client struct {
 	ScrapingSetting *ScrapingSettingClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
+	// TestFeed is the client for interacting with the TestFeed builders.
+	TestFeed *TestFeedClient
+	// TestFeedItem is the client for interacting with the TestFeedItem builders.
+	TestFeedItem *TestFeedItemClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -52,6 +58,8 @@ func (c *Client) init() {
 	c.FeedItem = NewFeedItemClient(c.config)
 	c.ScrapingSetting = NewScrapingSettingClient(c.config)
 	c.Site = NewSiteClient(c.config)
+	c.TestFeed = NewTestFeedClient(c.config)
+	c.TestFeedItem = NewTestFeedItemClient(c.config)
 }
 
 type (
@@ -148,6 +156,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		FeedItem:        NewFeedItemClient(cfg),
 		ScrapingSetting: NewScrapingSettingClient(cfg),
 		Site:            NewSiteClient(cfg),
+		TestFeed:        NewTestFeedClient(cfg),
+		TestFeedItem:    NewTestFeedItemClient(cfg),
 	}, nil
 }
 
@@ -171,6 +181,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		FeedItem:        NewFeedItemClient(cfg),
 		ScrapingSetting: NewScrapingSettingClient(cfg),
 		Site:            NewSiteClient(cfg),
+		TestFeed:        NewTestFeedClient(cfg),
+		TestFeedItem:    NewTestFeedItemClient(cfg),
 	}, nil
 }
 
@@ -199,19 +211,21 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Feed.Use(hooks...)
-	c.FeedItem.Use(hooks...)
-	c.ScrapingSetting.Use(hooks...)
-	c.Site.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Feed, c.FeedItem, c.ScrapingSetting, c.Site, c.TestFeed, c.TestFeedItem,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Feed.Intercept(interceptors...)
-	c.FeedItem.Intercept(interceptors...)
-	c.ScrapingSetting.Intercept(interceptors...)
-	c.Site.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Feed, c.FeedItem, c.ScrapingSetting, c.Site, c.TestFeed, c.TestFeedItem,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -225,6 +239,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ScrapingSetting.mutate(ctx, m)
 	case *SiteMutation:
 		return c.Site.mutate(ctx, m)
+	case *TestFeedMutation:
+		return c.TestFeed.mutate(ctx, m)
+	case *TestFeedItemMutation:
+		return c.TestFeedItem.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -833,6 +851,22 @@ func (c *SiteClient) QueryFeeds(s *Site) *FeedQuery {
 	return query
 }
 
+// QueryTestFeeds queries the test_feeds edge of a Site.
+func (c *SiteClient) QueryTestFeeds(s *Site) *TestFeedQuery {
+	query := (&TestFeedClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, id),
+			sqlgraph.To(testfeed.Table, testfeed.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, site.TestFeedsTable, site.TestFeedsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SiteClient) Hooks() []Hook {
 	return c.hooks.Site
@@ -858,13 +892,327 @@ func (c *SiteClient) mutate(ctx context.Context, m *SiteMutation) (Value, error)
 	}
 }
 
+// TestFeedClient is a client for the TestFeed schema.
+type TestFeedClient struct {
+	config
+}
+
+// NewTestFeedClient returns a client for the TestFeed from the given config.
+func NewTestFeedClient(c config) *TestFeedClient {
+	return &TestFeedClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testfeed.Hooks(f(g(h())))`.
+func (c *TestFeedClient) Use(hooks ...Hook) {
+	c.hooks.TestFeed = append(c.hooks.TestFeed, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testfeed.Intercept(f(g(h())))`.
+func (c *TestFeedClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestFeed = append(c.inters.TestFeed, interceptors...)
+}
+
+// Create returns a builder for creating a TestFeed entity.
+func (c *TestFeedClient) Create() *TestFeedCreate {
+	mutation := newTestFeedMutation(c.config, OpCreate)
+	return &TestFeedCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestFeed entities.
+func (c *TestFeedClient) CreateBulk(builders ...*TestFeedCreate) *TestFeedCreateBulk {
+	return &TestFeedCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestFeedClient) MapCreateBulk(slice any, setFunc func(*TestFeedCreate, int)) *TestFeedCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestFeedCreateBulk{err: fmt.Errorf("calling to TestFeedClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestFeedCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestFeedCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestFeed.
+func (c *TestFeedClient) Update() *TestFeedUpdate {
+	mutation := newTestFeedMutation(c.config, OpUpdate)
+	return &TestFeedUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestFeedClient) UpdateOne(tf *TestFeed) *TestFeedUpdateOne {
+	mutation := newTestFeedMutation(c.config, OpUpdateOne, withTestFeed(tf))
+	return &TestFeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestFeedClient) UpdateOneID(id uuid.UUID) *TestFeedUpdateOne {
+	mutation := newTestFeedMutation(c.config, OpUpdateOne, withTestFeedID(id))
+	return &TestFeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestFeed.
+func (c *TestFeedClient) Delete() *TestFeedDelete {
+	mutation := newTestFeedMutation(c.config, OpDelete)
+	return &TestFeedDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestFeedClient) DeleteOne(tf *TestFeed) *TestFeedDeleteOne {
+	return c.DeleteOneID(tf.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestFeedClient) DeleteOneID(id uuid.UUID) *TestFeedDeleteOne {
+	builder := c.Delete().Where(testfeed.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestFeedDeleteOne{builder}
+}
+
+// Query returns a query builder for TestFeed.
+func (c *TestFeedClient) Query() *TestFeedQuery {
+	return &TestFeedQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestFeed},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestFeed entity by its id.
+func (c *TestFeedClient) Get(ctx context.Context, id uuid.UUID) (*TestFeed, error) {
+	return c.Query().Where(testfeed.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestFeedClient) GetX(ctx context.Context, id uuid.UUID) *TestFeed {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySite queries the site edge of a TestFeed.
+func (c *TestFeedClient) QuerySite(tf *TestFeed) *SiteQuery {
+	query := (&SiteClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testfeed.Table, testfeed.FieldID, id),
+			sqlgraph.To(site.Table, site.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, testfeed.SiteTable, testfeed.SiteColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestFeedItems queries the test_feed_items edge of a TestFeed.
+func (c *TestFeedClient) QueryTestFeedItems(tf *TestFeed) *TestFeedItemQuery {
+	query := (&TestFeedItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testfeed.Table, testfeed.FieldID, id),
+			sqlgraph.To(testfeeditem.Table, testfeeditem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, testfeed.TestFeedItemsTable, testfeed.TestFeedItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(tf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestFeedClient) Hooks() []Hook {
+	return c.hooks.TestFeed
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestFeedClient) Interceptors() []Interceptor {
+	return c.inters.TestFeed
+}
+
+func (c *TestFeedClient) mutate(ctx context.Context, m *TestFeedMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestFeedCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestFeedUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestFeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestFeedDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestFeed mutation op: %q", m.Op())
+	}
+}
+
+// TestFeedItemClient is a client for the TestFeedItem schema.
+type TestFeedItemClient struct {
+	config
+}
+
+// NewTestFeedItemClient returns a client for the TestFeedItem from the given config.
+func NewTestFeedItemClient(c config) *TestFeedItemClient {
+	return &TestFeedItemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testfeeditem.Hooks(f(g(h())))`.
+func (c *TestFeedItemClient) Use(hooks ...Hook) {
+	c.hooks.TestFeedItem = append(c.hooks.TestFeedItem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testfeeditem.Intercept(f(g(h())))`.
+func (c *TestFeedItemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestFeedItem = append(c.inters.TestFeedItem, interceptors...)
+}
+
+// Create returns a builder for creating a TestFeedItem entity.
+func (c *TestFeedItemClient) Create() *TestFeedItemCreate {
+	mutation := newTestFeedItemMutation(c.config, OpCreate)
+	return &TestFeedItemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestFeedItem entities.
+func (c *TestFeedItemClient) CreateBulk(builders ...*TestFeedItemCreate) *TestFeedItemCreateBulk {
+	return &TestFeedItemCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestFeedItemClient) MapCreateBulk(slice any, setFunc func(*TestFeedItemCreate, int)) *TestFeedItemCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestFeedItemCreateBulk{err: fmt.Errorf("calling to TestFeedItemClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestFeedItemCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestFeedItemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestFeedItem.
+func (c *TestFeedItemClient) Update() *TestFeedItemUpdate {
+	mutation := newTestFeedItemMutation(c.config, OpUpdate)
+	return &TestFeedItemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestFeedItemClient) UpdateOne(tfi *TestFeedItem) *TestFeedItemUpdateOne {
+	mutation := newTestFeedItemMutation(c.config, OpUpdateOne, withTestFeedItem(tfi))
+	return &TestFeedItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestFeedItemClient) UpdateOneID(id int) *TestFeedItemUpdateOne {
+	mutation := newTestFeedItemMutation(c.config, OpUpdateOne, withTestFeedItemID(id))
+	return &TestFeedItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestFeedItem.
+func (c *TestFeedItemClient) Delete() *TestFeedItemDelete {
+	mutation := newTestFeedItemMutation(c.config, OpDelete)
+	return &TestFeedItemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestFeedItemClient) DeleteOne(tfi *TestFeedItem) *TestFeedItemDeleteOne {
+	return c.DeleteOneID(tfi.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestFeedItemClient) DeleteOneID(id int) *TestFeedItemDeleteOne {
+	builder := c.Delete().Where(testfeeditem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestFeedItemDeleteOne{builder}
+}
+
+// Query returns a query builder for TestFeedItem.
+func (c *TestFeedItemClient) Query() *TestFeedItemQuery {
+	return &TestFeedItemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestFeedItem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestFeedItem entity by its id.
+func (c *TestFeedItemClient) Get(ctx context.Context, id int) (*TestFeedItem, error) {
+	return c.Query().Where(testfeeditem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestFeedItemClient) GetX(ctx context.Context, id int) *TestFeedItem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTestFeed queries the test_feed edge of a TestFeedItem.
+func (c *TestFeedItemClient) QueryTestFeed(tfi *TestFeedItem) *TestFeedQuery {
+	query := (&TestFeedClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := tfi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testfeeditem.Table, testfeeditem.FieldID, id),
+			sqlgraph.To(testfeed.Table, testfeed.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, testfeeditem.TestFeedTable, testfeeditem.TestFeedColumn),
+		)
+		fromV = sqlgraph.Neighbors(tfi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestFeedItemClient) Hooks() []Hook {
+	return c.hooks.TestFeedItem
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestFeedItemClient) Interceptors() []Interceptor {
+	return c.inters.TestFeedItem
+}
+
+func (c *TestFeedItemClient) mutate(ctx context.Context, m *TestFeedItemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestFeedItemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestFeedItemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestFeedItemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestFeedItemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestFeedItem mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Feed, FeedItem, ScrapingSetting, Site []ent.Hook
+		Feed, FeedItem, ScrapingSetting, Site, TestFeed, TestFeedItem []ent.Hook
 	}
 	inters struct {
-		Feed, FeedItem, ScrapingSetting, Site []ent.Interceptor
+		Feed, FeedItem, ScrapingSetting, Site, TestFeed, TestFeedItem []ent.Interceptor
 	}
 )
 

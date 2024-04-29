@@ -15,6 +15,7 @@ import (
 	"github.com/ITK13201/rss-generator/ent/predicate"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
 )
 
 // SiteQuery is the builder for querying Site entities.
@@ -26,6 +27,7 @@ type SiteQuery struct {
 	predicates           []predicate.Site
 	withScrapingSettings *ScrapingSettingQuery
 	withFeeds            *FeedQuery
+	withTestFeeds        *TestFeedQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -99,6 +101,28 @@ func (sq *SiteQuery) QueryFeeds() *FeedQuery {
 			sqlgraph.From(site.Table, site.FieldID, selector),
 			sqlgraph.To(feed.Table, feed.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, site.FeedsTable, site.FeedsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTestFeeds chains the current query on the "test_feeds" edge.
+func (sq *SiteQuery) QueryTestFeeds() *TestFeedQuery {
+	query := (&TestFeedClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, selector),
+			sqlgraph.To(testfeed.Table, testfeed.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, site.TestFeedsTable, site.TestFeedsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -300,6 +324,7 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 		predicates:           append([]predicate.Site{}, sq.predicates...),
 		withScrapingSettings: sq.withScrapingSettings.Clone(),
 		withFeeds:            sq.withFeeds.Clone(),
+		withTestFeeds:        sq.withTestFeeds.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -325,6 +350,17 @@ func (sq *SiteQuery) WithFeeds(opts ...func(*FeedQuery)) *SiteQuery {
 		opt(query)
 	}
 	sq.withFeeds = query
+	return sq
+}
+
+// WithTestFeeds tells the query-builder to eager-load the nodes that are connected to
+// the "test_feeds" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithTestFeeds(opts ...func(*TestFeedQuery)) *SiteQuery {
+	query := (&TestFeedClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withTestFeeds = query
 	return sq
 }
 
@@ -406,9 +442,10 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	var (
 		nodes       = []*Site{}
 		_spec       = sq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			sq.withScrapingSettings != nil,
 			sq.withFeeds != nil,
+			sq.withTestFeeds != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -440,6 +477,13 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 		if err := sq.loadFeeds(ctx, query, nodes,
 			func(n *Site) { n.Edges.Feeds = []*Feed{} },
 			func(n *Site, e *Feed) { n.Edges.Feeds = append(n.Edges.Feeds, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withTestFeeds; query != nil {
+		if err := sq.loadTestFeeds(ctx, query, nodes,
+			func(n *Site) { n.Edges.TestFeeds = []*TestFeed{} },
+			func(n *Site, e *TestFeed) { n.Edges.TestFeeds = append(n.Edges.TestFeeds, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -490,6 +534,37 @@ func (sq *SiteQuery) loadFeeds(ctx context.Context, query *FeedQuery, nodes []*S
 	query.withFKs = true
 	query.Where(predicate.Feed(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(site.FeedsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.site_id
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "site_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "site_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *SiteQuery) loadTestFeeds(ctx context.Context, query *TestFeedQuery, nodes []*Site, init func(*Site), assign func(*Site, *TestFeed)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Site)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.TestFeed(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(site.TestFeedsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

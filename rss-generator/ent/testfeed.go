@@ -9,13 +9,13 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
 	"github.com/google/uuid"
 )
 
-// Feed is the model entity for the Feed schema.
-type Feed struct {
+// TestFeed is the model entity for the TestFeed schema.
+type TestFeed struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
@@ -32,18 +32,18 @@ type Feed struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the FeedQuery when eager-loading is set.
-	Edges        FeedEdges `json:"edges"`
+	// The values are being populated by the TestFeedQuery when eager-loading is set.
+	Edges        TestFeedEdges `json:"edges"`
 	site_id      *int
 	selectValues sql.SelectValues
 }
 
-// FeedEdges holds the relations/edges for other nodes in the graph.
-type FeedEdges struct {
+// TestFeedEdges holds the relations/edges for other nodes in the graph.
+type TestFeedEdges struct {
 	// Site holds the value of the site edge.
 	Site *Site `json:"site,omitempty"`
-	// FeedItems holds the value of the feed_items edge.
-	FeedItems []*FeedItem `json:"feed_items,omitempty"`
+	// TestFeedItems holds the value of the test_feed_items edge.
+	TestFeedItems []*TestFeedItem `json:"test_feed_items,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -51,7 +51,7 @@ type FeedEdges struct {
 
 // SiteOrErr returns the Site value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e FeedEdges) SiteOrErr() (*Site, error) {
+func (e TestFeedEdges) SiteOrErr() (*Site, error) {
 	if e.Site != nil {
 		return e.Site, nil
 	} else if e.loadedTypes[0] {
@@ -60,27 +60,27 @@ func (e FeedEdges) SiteOrErr() (*Site, error) {
 	return nil, &NotLoadedError{edge: "site"}
 }
 
-// FeedItemsOrErr returns the FeedItems value or an error if the edge
+// TestFeedItemsOrErr returns the TestFeedItems value or an error if the edge
 // was not loaded in eager-loading.
-func (e FeedEdges) FeedItemsOrErr() ([]*FeedItem, error) {
+func (e TestFeedEdges) TestFeedItemsOrErr() ([]*TestFeedItem, error) {
 	if e.loadedTypes[1] {
-		return e.FeedItems, nil
+		return e.TestFeedItems, nil
 	}
-	return nil, &NotLoadedError{edge: "feed_items"}
+	return nil, &NotLoadedError{edge: "test_feed_items"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Feed) scanValues(columns []string) ([]any, error) {
+func (*TestFeed) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case feed.FieldTitle, feed.FieldDescription, feed.FieldLink:
+		case testfeed.FieldTitle, testfeed.FieldDescription, testfeed.FieldLink:
 			values[i] = new(sql.NullString)
-		case feed.FieldPublishedAt, feed.FieldCreatedAt, feed.FieldUpdatedAt:
+		case testfeed.FieldPublishedAt, testfeed.FieldCreatedAt, testfeed.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case feed.FieldID:
+		case testfeed.FieldID:
 			values[i] = new(uuid.UUID)
-		case feed.ForeignKeys[0]: // site_id
+		case testfeed.ForeignKeys[0]: // site_id
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -90,128 +90,128 @@ func (*Feed) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Feed fields.
-func (f *Feed) assignValues(columns []string, values []any) error {
+// to the TestFeed fields.
+func (tf *TestFeed) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case feed.FieldID:
+		case testfeed.FieldID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				f.ID = *value
+				tf.ID = *value
 			}
-		case feed.FieldTitle:
+		case testfeed.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				f.Title = value.String
+				tf.Title = value.String
 			}
-		case feed.FieldDescription:
+		case testfeed.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				f.Description = value.String
+				tf.Description = value.String
 			}
-		case feed.FieldLink:
+		case testfeed.FieldLink:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field link", values[i])
 			} else if value.Valid {
-				f.Link = value.String
+				tf.Link = value.String
 			}
-		case feed.FieldPublishedAt:
+		case testfeed.FieldPublishedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field published_at", values[i])
 			} else if value.Valid {
-				f.PublishedAt = value.Time
+				tf.PublishedAt = value.Time
 			}
-		case feed.FieldCreatedAt:
+		case testfeed.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				f.CreatedAt = value.Time
+				tf.CreatedAt = value.Time
 			}
-		case feed.FieldUpdatedAt:
+		case testfeed.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				f.UpdatedAt = value.Time
+				tf.UpdatedAt = value.Time
 			}
-		case feed.ForeignKeys[0]:
+		case testfeed.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field site_id", value)
 			} else if value.Valid {
-				f.site_id = new(int)
-				*f.site_id = int(value.Int64)
+				tf.site_id = new(int)
+				*tf.site_id = int(value.Int64)
 			}
 		default:
-			f.selectValues.Set(columns[i], values[i])
+			tf.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Feed.
+// Value returns the ent.Value that was dynamically selected and assigned to the TestFeed.
 // This includes values selected through modifiers, order, etc.
-func (f *Feed) Value(name string) (ent.Value, error) {
-	return f.selectValues.Get(name)
+func (tf *TestFeed) Value(name string) (ent.Value, error) {
+	return tf.selectValues.Get(name)
 }
 
-// QuerySite queries the "site" edge of the Feed entity.
-func (f *Feed) QuerySite() *SiteQuery {
-	return NewFeedClient(f.config).QuerySite(f)
+// QuerySite queries the "site" edge of the TestFeed entity.
+func (tf *TestFeed) QuerySite() *SiteQuery {
+	return NewTestFeedClient(tf.config).QuerySite(tf)
 }
 
-// QueryFeedItems queries the "feed_items" edge of the Feed entity.
-func (f *Feed) QueryFeedItems() *FeedItemQuery {
-	return NewFeedClient(f.config).QueryFeedItems(f)
+// QueryTestFeedItems queries the "test_feed_items" edge of the TestFeed entity.
+func (tf *TestFeed) QueryTestFeedItems() *TestFeedItemQuery {
+	return NewTestFeedClient(tf.config).QueryTestFeedItems(tf)
 }
 
-// Update returns a builder for updating this Feed.
-// Note that you need to call Feed.Unwrap() before calling this method if this Feed
+// Update returns a builder for updating this TestFeed.
+// Note that you need to call TestFeed.Unwrap() before calling this method if this TestFeed
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (f *Feed) Update() *FeedUpdateOne {
-	return NewFeedClient(f.config).UpdateOne(f)
+func (tf *TestFeed) Update() *TestFeedUpdateOne {
+	return NewTestFeedClient(tf.config).UpdateOne(tf)
 }
 
-// Unwrap unwraps the Feed entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the TestFeed entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (f *Feed) Unwrap() *Feed {
-	_tx, ok := f.config.driver.(*txDriver)
+func (tf *TestFeed) Unwrap() *TestFeed {
+	_tx, ok := tf.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Feed is not a transactional entity")
+		panic("ent: TestFeed is not a transactional entity")
 	}
-	f.config.driver = _tx.drv
-	return f
+	tf.config.driver = _tx.drv
+	return tf
 }
 
 // String implements the fmt.Stringer.
-func (f *Feed) String() string {
+func (tf *TestFeed) String() string {
 	var builder strings.Builder
-	builder.WriteString("Feed(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", f.ID))
+	builder.WriteString("TestFeed(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", tf.ID))
 	builder.WriteString("title=")
-	builder.WriteString(f.Title)
+	builder.WriteString(tf.Title)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(f.Description)
+	builder.WriteString(tf.Description)
 	builder.WriteString(", ")
 	builder.WriteString("link=")
-	builder.WriteString(f.Link)
+	builder.WriteString(tf.Link)
 	builder.WriteString(", ")
 	builder.WriteString("published_at=")
-	builder.WriteString(f.PublishedAt.Format(time.ANSIC))
+	builder.WriteString(tf.PublishedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(f.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(tf.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(tf.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Feeds is a parsable slice of Feed.
-type Feeds []*Feed
+// TestFeeds is a parsable slice of TestFeed.
+type TestFeeds []*TestFeed

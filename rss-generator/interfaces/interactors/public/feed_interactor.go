@@ -24,7 +24,7 @@ func (fi *feedInteractor) ParseFeed(f *ent.Feed) *domain.Feed {
 		Title:       f.Title,
 		Description: f.Description,
 		Link:        f.Link,
-		PublishedAt: &f.PublishedAt,
+		PublishedAt: f.PublishedAt,
 	}
 	feedItems := []*domain.FeedItem{}
 	for _, item := range f.Edges.FeedItems {
@@ -32,7 +32,7 @@ func (fi *feedInteractor) ParseFeed(f *ent.Feed) *domain.Feed {
 			Title:       item.Title,
 			Description: item.Description,
 			Link:        &item.Link,
-			PublishedAt: &item.PublishedAt,
+			PublishedAt: item.PublishedAt,
 		}
 		feedItems = append(feedItems, feedItem)
 	}

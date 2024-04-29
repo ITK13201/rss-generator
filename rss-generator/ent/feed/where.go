@@ -76,11 +76,6 @@ func PublishedAt(v time.Time) predicate.Feed {
 	return predicate.Feed(sql.FieldEQ(FieldPublishedAt, v))
 }
 
-// IsTest applies equality check predicate on the "is_test" field. It's identical to IsTestEQ.
-func IsTest(v bool) predicate.Feed {
-	return predicate.Feed(sql.FieldEQ(FieldIsTest, v))
-}
-
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Feed {
 	return predicate.Feed(sql.FieldEQ(FieldCreatedAt, v))
@@ -324,16 +319,6 @@ func PublishedAtLT(v time.Time) predicate.Feed {
 // PublishedAtLTE applies the LTE predicate on the "published_at" field.
 func PublishedAtLTE(v time.Time) predicate.Feed {
 	return predicate.Feed(sql.FieldLTE(FieldPublishedAt, v))
-}
-
-// IsTestEQ applies the EQ predicate on the "is_test" field.
-func IsTestEQ(v bool) predicate.Feed {
-	return predicate.Feed(sql.FieldEQ(FieldIsTest, v))
-}
-
-// IsTestNEQ applies the NEQ predicate on the "is_test" field.
-func IsTestNEQ(v bool) predicate.Feed {
-	return predicate.Feed(sql.FieldNEQ(FieldIsTest, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

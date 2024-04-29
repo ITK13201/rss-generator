@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
-	"github.com/ITK13201/rss-generator/ent/feed"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/public"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/ITK13201/rss-generator/internal/rss"
@@ -43,14 +43,14 @@ func (tfc *testFeedController) Get(c *gin.Context) {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	f, err := tfc.sqlClient.Feed.Query().Where(feed.IDEQ(feedUUID)).WithSite().WithFeedItems().Only(ctx)
+	f, err := tfc.sqlClient.TestFeed.Query().Where(testfeed.IDEQ(feedUUID)).WithSite().WithTestFeedItems().Only(ctx)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	parsedFeed := tfc.testFeedInteractor.ParseFeed(f)
-	rssGenerator := rss.NewRssGenerator(tfc.cfg, tfc.logger)
-	rssXML, err := rssGenerator.Generate(parsedFeed)
+	rssUtil := rss.NewRssUtil(tfc.cfg, tfc.logger)
+	rssXML, err := rssUtil.Generate(parsedFeed)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
 		return

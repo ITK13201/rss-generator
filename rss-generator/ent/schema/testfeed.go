@@ -10,13 +10,11 @@ import (
 	"time"
 )
 
-// Feed holds the schema definition for the Feed entity.
-type Feed struct {
+type TestFeed struct {
 	ent.Schema
 }
 
-// Fields of the Feed.
-func (Feed) Fields() []ent.Field {
+func (TestFeed) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.String("title").NotEmpty().MaxLen(1023),
@@ -28,16 +26,15 @@ func (Feed) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Feed.
-func (Feed) Edges() []ent.Edge {
+func (TestFeed) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("site", Site.Type).StorageKey(edge.Column("site_id")).Required().Unique(),
-		edge.From("feed_items", FeedItem.Type).Ref("feed"),
+		edge.From("test_feed_items", TestFeedItem.Type).Ref("test_feed"),
 	}
 }
 
-func (Feed) Annotations() []schema.Annotation {
+func (TestFeed) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "feeds"},
+		entsql.Annotation{Table: "test_feeds"},
 	}
 }

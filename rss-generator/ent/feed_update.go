@@ -86,20 +86,6 @@ func (fu *FeedUpdate) SetNillablePublishedAt(t *time.Time) *FeedUpdate {
 	return fu
 }
 
-// SetIsTest sets the "is_test" field.
-func (fu *FeedUpdate) SetIsTest(b bool) *FeedUpdate {
-	fu.mutation.SetIsTest(b)
-	return fu
-}
-
-// SetNillableIsTest sets the "is_test" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableIsTest(b *bool) *FeedUpdate {
-	if b != nil {
-		fu.SetIsTest(*b)
-	}
-	return fu
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (fu *FeedUpdate) SetCreatedAt(t time.Time) *FeedUpdate {
 	fu.mutation.SetCreatedAt(t)
@@ -261,9 +247,6 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := fu.mutation.PublishedAt(); ok {
 		_spec.SetField(feed.FieldPublishedAt, field.TypeTime, value)
 	}
-	if value, ok := fu.mutation.IsTest(); ok {
-		_spec.SetField(feed.FieldIsTest, field.TypeBool, value)
-	}
 	if value, ok := fu.mutation.CreatedAt(); ok {
 		_spec.SetField(feed.FieldCreatedAt, field.TypeTime, value)
 	}
@@ -416,20 +399,6 @@ func (fuo *FeedUpdateOne) SetPublishedAt(t time.Time) *FeedUpdateOne {
 func (fuo *FeedUpdateOne) SetNillablePublishedAt(t *time.Time) *FeedUpdateOne {
 	if t != nil {
 		fuo.SetPublishedAt(*t)
-	}
-	return fuo
-}
-
-// SetIsTest sets the "is_test" field.
-func (fuo *FeedUpdateOne) SetIsTest(b bool) *FeedUpdateOne {
-	fuo.mutation.SetIsTest(b)
-	return fuo
-}
-
-// SetNillableIsTest sets the "is_test" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableIsTest(b *bool) *FeedUpdateOne {
-	if b != nil {
-		fuo.SetIsTest(*b)
 	}
 	return fuo
 }
@@ -624,9 +593,6 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 	}
 	if value, ok := fuo.mutation.PublishedAt(); ok {
 		_spec.SetField(feed.FieldPublishedAt, field.TypeTime, value)
-	}
-	if value, ok := fuo.mutation.IsTest(); ok {
-		_spec.SetField(feed.FieldIsTest, field.TypeBool, value)
 	}
 	if value, ok := fuo.mutation.CreatedAt(); ok {
 		_spec.SetField(feed.FieldCreatedAt, field.TypeTime, value)

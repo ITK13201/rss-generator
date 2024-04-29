@@ -16,6 +16,8 @@ import (
 	"github.com/ITK13201/rss-generator/ent/feeditem"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
+	"github.com/ITK13201/rss-generator/ent/testfeeditem"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -80,6 +82,8 @@ func checkColumn(table, column string) error {
 			feeditem.Table:        feeditem.ValidColumn,
 			scrapingsetting.Table: scrapingsetting.ValidColumn,
 			site.Table:            site.ValidColumn,
+			testfeed.Table:        testfeed.ValidColumn,
+			testfeeditem.Table:    testfeeditem.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

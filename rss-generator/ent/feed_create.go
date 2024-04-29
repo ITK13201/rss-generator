@@ -50,20 +50,6 @@ func (fc *FeedCreate) SetPublishedAt(t time.Time) *FeedCreate {
 	return fc
 }
 
-// SetIsTest sets the "is_test" field.
-func (fc *FeedCreate) SetIsTest(b bool) *FeedCreate {
-	fc.mutation.SetIsTest(b)
-	return fc
-}
-
-// SetNillableIsTest sets the "is_test" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableIsTest(b *bool) *FeedCreate {
-	if b != nil {
-		fc.SetIsTest(*b)
-	}
-	return fc
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (fc *FeedCreate) SetCreatedAt(t time.Time) *FeedCreate {
 	fc.mutation.SetCreatedAt(t)
@@ -167,10 +153,6 @@ func (fc *FeedCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (fc *FeedCreate) defaults() {
-	if _, ok := fc.mutation.IsTest(); !ok {
-		v := feed.DefaultIsTest
-		fc.mutation.SetIsTest(v)
-	}
 	if _, ok := fc.mutation.CreatedAt(); !ok {
 		v := feed.DefaultCreatedAt()
 		fc.mutation.SetCreatedAt(v)
@@ -213,9 +195,6 @@ func (fc *FeedCreate) check() error {
 	}
 	if _, ok := fc.mutation.PublishedAt(); !ok {
 		return &ValidationError{Name: "published_at", err: errors.New(`ent: missing required field "Feed.published_at"`)}
-	}
-	if _, ok := fc.mutation.IsTest(); !ok {
-		return &ValidationError{Name: "is_test", err: errors.New(`ent: missing required field "Feed.is_test"`)}
 	}
 	if _, ok := fc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Feed.created_at"`)}
@@ -277,10 +256,6 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 	if value, ok := fc.mutation.PublishedAt(); ok {
 		_spec.SetField(feed.FieldPublishedAt, field.TypeTime, value)
 		_node.PublishedAt = value
-	}
-	if value, ok := fc.mutation.IsTest(); ok {
-		_spec.SetField(feed.FieldIsTest, field.TypeBool, value)
-		_node.IsTest = value
 	}
 	if value, ok := fc.mutation.CreatedAt(); ok {
 		_spec.SetField(feed.FieldCreatedAt, field.TypeTime, value)
@@ -423,18 +398,6 @@ func (u *FeedUpsert) UpdatePublishedAt() *FeedUpsert {
 	return u
 }
 
-// SetIsTest sets the "is_test" field.
-func (u *FeedUpsert) SetIsTest(v bool) *FeedUpsert {
-	u.Set(feed.FieldIsTest, v)
-	return u
-}
-
-// UpdateIsTest sets the "is_test" field to the value that was provided on create.
-func (u *FeedUpsert) UpdateIsTest() *FeedUpsert {
-	u.SetExcluded(feed.FieldIsTest)
-	return u
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (u *FeedUpsert) SetCreatedAt(v time.Time) *FeedUpsert {
 	u.Set(feed.FieldCreatedAt, v)
@@ -560,20 +523,6 @@ func (u *FeedUpsertOne) SetPublishedAt(v time.Time) *FeedUpsertOne {
 func (u *FeedUpsertOne) UpdatePublishedAt() *FeedUpsertOne {
 	return u.Update(func(s *FeedUpsert) {
 		s.UpdatePublishedAt()
-	})
-}
-
-// SetIsTest sets the "is_test" field.
-func (u *FeedUpsertOne) SetIsTest(v bool) *FeedUpsertOne {
-	return u.Update(func(s *FeedUpsert) {
-		s.SetIsTest(v)
-	})
-}
-
-// UpdateIsTest sets the "is_test" field to the value that was provided on create.
-func (u *FeedUpsertOne) UpdateIsTest() *FeedUpsertOne {
-	return u.Update(func(s *FeedUpsert) {
-		s.UpdateIsTest()
 	})
 }
 
@@ -873,20 +822,6 @@ func (u *FeedUpsertBulk) SetPublishedAt(v time.Time) *FeedUpsertBulk {
 func (u *FeedUpsertBulk) UpdatePublishedAt() *FeedUpsertBulk {
 	return u.Update(func(s *FeedUpsert) {
 		s.UpdatePublishedAt()
-	})
-}
-
-// SetIsTest sets the "is_test" field.
-func (u *FeedUpsertBulk) SetIsTest(v bool) *FeedUpsertBulk {
-	return u.Update(func(s *FeedUpsert) {
-		s.SetIsTest(v)
-	})
-}
-
-// UpdateIsTest sets the "is_test" field to the value that was provided on create.
-func (u *FeedUpsertBulk) UpdateIsTest() *FeedUpsertBulk {
-	return u.Update(func(s *FeedUpsert) {
-		s.UpdateIsTest()
 	})
 }
 

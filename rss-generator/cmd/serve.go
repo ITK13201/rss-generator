@@ -20,7 +20,7 @@ var serveCmd = &cobra.Command{
 	Short: "Run api server",
 	Long:  "Run api server",
 	Run: func(cmd *cobra.Command, args []string) {
-		serve(&config)
+		serve(&Config)
 	},
 }
 

@@ -10,6 +10,8 @@ import (
 	"github.com/ITK13201/rss-generator/ent/schema"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
+	"github.com/ITK13201/rss-generator/ent/testfeeditem"
 	"github.com/google/uuid"
 )
 
@@ -73,16 +75,12 @@ func init() {
 			return nil
 		}
 	}()
-	// feedDescIsTest is the schema descriptor for is_test field.
-	feedDescIsTest := feedFields[5].Descriptor()
-	// feed.DefaultIsTest holds the default value on creation for the is_test field.
-	feed.DefaultIsTest = feedDescIsTest.Default.(bool)
 	// feedDescCreatedAt is the schema descriptor for created_at field.
-	feedDescCreatedAt := feedFields[6].Descriptor()
+	feedDescCreatedAt := feedFields[5].Descriptor()
 	// feed.DefaultCreatedAt holds the default value on creation for the created_at field.
 	feed.DefaultCreatedAt = feedDescCreatedAt.Default.(func() time.Time)
 	// feedDescUpdatedAt is the schema descriptor for updated_at field.
-	feedDescUpdatedAt := feedFields[7].Descriptor()
+	feedDescUpdatedAt := feedFields[6].Descriptor()
 	// feed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	feed.DefaultUpdatedAt = feedDescUpdatedAt.Default.(func() time.Time)
 	// feed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -195,4 +193,126 @@ func init() {
 	site.DefaultUpdatedAt = siteDescUpdatedAt.Default.(func() time.Time)
 	// site.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	site.UpdateDefaultUpdatedAt = siteDescUpdatedAt.UpdateDefault.(func() time.Time)
+	testfeedFields := schema.TestFeed{}.Fields()
+	_ = testfeedFields
+	// testfeedDescTitle is the schema descriptor for title field.
+	testfeedDescTitle := testfeedFields[1].Descriptor()
+	// testfeed.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	testfeed.TitleValidator = func() func(string) error {
+		validators := testfeedDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// testfeedDescDescription is the schema descriptor for description field.
+	testfeedDescDescription := testfeedFields[2].Descriptor()
+	// testfeed.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	testfeed.DescriptionValidator = func() func(string) error {
+		validators := testfeedDescDescription.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(description string) error {
+			for _, fn := range fns {
+				if err := fn(description); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// testfeedDescLink is the schema descriptor for link field.
+	testfeedDescLink := testfeedFields[3].Descriptor()
+	// testfeed.LinkValidator is a validator for the "link" field. It is called by the builders before save.
+	testfeed.LinkValidator = func() func(string) error {
+		validators := testfeedDescLink.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(link string) error {
+			for _, fn := range fns {
+				if err := fn(link); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// testfeedDescCreatedAt is the schema descriptor for created_at field.
+	testfeedDescCreatedAt := testfeedFields[5].Descriptor()
+	// testfeed.DefaultCreatedAt holds the default value on creation for the created_at field.
+	testfeed.DefaultCreatedAt = testfeedDescCreatedAt.Default.(func() time.Time)
+	// testfeedDescUpdatedAt is the schema descriptor for updated_at field.
+	testfeedDescUpdatedAt := testfeedFields[6].Descriptor()
+	// testfeed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	testfeed.DefaultUpdatedAt = testfeedDescUpdatedAt.Default.(func() time.Time)
+	// testfeed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	testfeed.UpdateDefaultUpdatedAt = testfeedDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// testfeedDescID is the schema descriptor for id field.
+	testfeedDescID := testfeedFields[0].Descriptor()
+	// testfeed.DefaultID holds the default value on creation for the id field.
+	testfeed.DefaultID = testfeedDescID.Default.(func() uuid.UUID)
+	testfeeditemFields := schema.TestFeedItem{}.Fields()
+	_ = testfeeditemFields
+	// testfeeditemDescTitle is the schema descriptor for title field.
+	testfeeditemDescTitle := testfeeditemFields[1].Descriptor()
+	// testfeeditem.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	testfeeditem.TitleValidator = func() func(string) error {
+		validators := testfeeditemDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// testfeeditemDescDescription is the schema descriptor for description field.
+	testfeeditemDescDescription := testfeeditemFields[2].Descriptor()
+	// testfeeditem.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	testfeeditem.DescriptionValidator = func() func(string) error {
+		validators := testfeeditemDescDescription.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(description string) error {
+			for _, fn := range fns {
+				if err := fn(description); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// testfeeditemDescLink is the schema descriptor for link field.
+	testfeeditemDescLink := testfeeditemFields[3].Descriptor()
+	// testfeeditem.LinkValidator is a validator for the "link" field. It is called by the builders before save.
+	testfeeditem.LinkValidator = testfeeditemDescLink.Validators[0].(func(string) error)
+	// testfeeditemDescCreatedAt is the schema descriptor for created_at field.
+	testfeeditemDescCreatedAt := testfeeditemFields[5].Descriptor()
+	// testfeeditem.DefaultCreatedAt holds the default value on creation for the created_at field.
+	testfeeditem.DefaultCreatedAt = testfeeditemDescCreatedAt.Default.(func() time.Time)
+	// testfeeditemDescUpdatedAt is the schema descriptor for updated_at field.
+	testfeeditemDescUpdatedAt := testfeeditemFields[6].Descriptor()
+	// testfeeditem.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	testfeeditem.DefaultUpdatedAt = testfeeditemDescUpdatedAt.Default.(func() time.Time)
+	// testfeeditem.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	testfeeditem.UpdateDefaultUpdatedAt = testfeeditemDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

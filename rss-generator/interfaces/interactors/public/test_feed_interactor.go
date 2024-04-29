@@ -6,7 +6,7 @@ import (
 )
 
 type TestFeedInteractor interface {
-	ParseFeed(f *ent.Feed) *domain.Feed
+	ParseFeed(f *ent.TestFeed) *domain.Feed
 }
 
 type testFeedInteractor struct {
@@ -19,20 +19,20 @@ func NewTestFeedInteractor(sqlClient *ent.Client) TestFeedInteractor {
 	}
 }
 
-func (tfi *testFeedInteractor) ParseFeed(f *ent.Feed) *domain.Feed {
+func (tfi *testFeedInteractor) ParseFeed(f *ent.TestFeed) *domain.Feed {
 	feed := &domain.Feed{
 		Title:       f.Title,
 		Description: f.Description,
 		Link:        f.Link,
-		PublishedAt: &f.PublishedAt,
+		PublishedAt: f.PublishedAt,
 	}
 	feedItems := []*domain.FeedItem{}
-	for _, item := range f.Edges.FeedItems {
+	for _, item := range f.Edges.TestFeedItems {
 		feedItem := &domain.FeedItem{
 			Title:       item.Title,
 			Description: item.Description,
 			Link:        &item.Link,
-			PublishedAt: &item.PublishedAt,
+			PublishedAt: item.PublishedAt,
 		}
 		feedItems = append(feedItems, feedItem)
 	}

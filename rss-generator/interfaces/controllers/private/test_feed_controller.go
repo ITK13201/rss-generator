@@ -3,7 +3,6 @@ package private
 import (
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
-	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/ITK13201/rss-generator/internal/rest"
@@ -37,9 +36,6 @@ func (tfc *testFeedController) Create(c *gin.Context) {
 	site_slug := c.Param("site_slug")
 	siteModel, err := tfc.sqlClient.Site.Query().
 		Where(site.SlugEQ(site_slug)).
-		WithFeeds(func(fq *ent.FeedQuery) {
-			fq.Where(feed.IsTestEQ(false))
-		}).
 		WithScrapingSettings().
 		Only(c.Request.Context())
 	if err != nil {

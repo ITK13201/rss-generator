@@ -32,6 +32,8 @@ const (
 	EdgeScrapingSettings = "scraping_settings"
 	// EdgeFeeds holds the string denoting the feeds edge name in mutations.
 	EdgeFeeds = "feeds"
+	// EdgeTestFeeds holds the string denoting the test_feeds edge name in mutations.
+	EdgeTestFeeds = "test_feeds"
 	// Table holds the table name of the site in the database.
 	Table = "sites"
 	// ScrapingSettingsTable is the table that holds the scraping_settings relation/edge.
@@ -48,6 +50,13 @@ const (
 	FeedsInverseTable = "feeds"
 	// FeedsColumn is the table column denoting the feeds relation/edge.
 	FeedsColumn = "site_id"
+	// TestFeedsTable is the table that holds the test_feeds relation/edge.
+	TestFeedsTable = "test_feeds"
+	// TestFeedsInverseTable is the table name for the TestFeed entity.
+	// It exists in this package in order to avoid circular dependency with the "testfeed" package.
+	TestFeedsInverseTable = "test_feeds"
+	// TestFeedsColumn is the table column denoting the test_feeds relation/edge.
+	TestFeedsColumn = "site_id"
 )
 
 // Columns holds all SQL columns for site fields.
@@ -159,6 +168,20 @@ func ByFeeds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newFeedsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTestFeedsCount orders the results by test_feeds count.
+func ByTestFeedsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestFeedsStep(), opts...)
+	}
+}
+
+// ByTestFeeds orders the results by test_feeds terms.
+func ByTestFeeds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestFeedsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newScrapingSettingsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -171,5 +194,12 @@ func newFeedsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(FeedsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, true, FeedsTable, FeedsColumn),
+	)
+}
+func newTestFeedsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestFeedsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TestFeedsTable, TestFeedsColumn),
 	)
 }

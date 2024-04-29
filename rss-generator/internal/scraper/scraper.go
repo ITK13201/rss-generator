@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Scraper struct {
@@ -70,6 +71,8 @@ func (scraper *Scraper) formatString(str string) string {
 }
 
 func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scrapingSetting *domain.ScrapingSetting) (*domain.Feed, error) {
+	now := time.Now()
+
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(*html))
 	if err != nil {
 		return nil, err
@@ -115,6 +118,7 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scraping
 			Title:       formattedTitle,
 			Description: formattedDescription,
 			Link:        link,
+			PublishedAt: now,
 		}
 		feedItems = append(feedItems, feedItem)
 	})
@@ -124,6 +128,7 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scraping
 		Description: siteDescription,
 		Link:        siteLink,
 		Items:       feedItems,
+		PublishedAt: now,
 	}
 
 	return feed, nil

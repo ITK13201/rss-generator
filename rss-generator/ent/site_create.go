@@ -14,6 +14,7 @@ import (
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
+	"github.com/ITK13201/rss-generator/ent/testfeed"
 	"github.com/google/uuid"
 )
 
@@ -133,6 +134,21 @@ func (sc *SiteCreate) AddFeeds(f ...*Feed) *SiteCreate {
 		ids[i] = f[i].ID
 	}
 	return sc.AddFeedIDs(ids...)
+}
+
+// AddTestFeedIDs adds the "test_feeds" edge to the TestFeed entity by IDs.
+func (sc *SiteCreate) AddTestFeedIDs(ids ...uuid.UUID) *SiteCreate {
+	sc.mutation.AddTestFeedIDs(ids...)
+	return sc
+}
+
+// AddTestFeeds adds the "test_feeds" edges to the TestFeed entity.
+func (sc *SiteCreate) AddTestFeeds(t ...*TestFeed) *SiteCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return sc.AddTestFeedIDs(ids...)
 }
 
 // Mutation returns the SiteMutation object of the builder.
@@ -305,6 +321,22 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.TestFeedsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.TestFeedsTable,
+			Columns: []string{site.TestFeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testfeed.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
