@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE scraping_selectors
+CREATE TABLE scraping_settings
 (
     id                   INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
     site_id              INTEGER                NOT NULL UNIQUE,
@@ -11,7 +11,7 @@ CREATE TABLE scraping_selectors
     link_selector        VARCHAR(1023),
     created_at           DATETIME               NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at           DATETIME               NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_scraping_selectors_site_id
+    CONSTRAINT fk_scraping_settings_site_id
         FOREIGN KEY (site_id)
             REFERENCES sites (id)
             ON DELETE CASCADE
@@ -20,5 +20,5 @@ CREATE TABLE scraping_selectors
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS scraping_selectors;
+DROP TABLE IF EXISTS scraping_settings;
 -- +goose StatementEnd

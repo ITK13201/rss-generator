@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,56 +11,57 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/predicate"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
-// ScrapingSelectorQuery is the builder for querying ScrapingSelector entities.
-type ScrapingSelectorQuery struct {
+// ScrapingSettingQuery is the builder for querying ScrapingSetting entities.
+type ScrapingSettingQuery struct {
 	config
 	ctx        *QueryContext
-	order      []scrapingselector.OrderOption
+	order      []scrapingsetting.OrderOption
 	inters     []Interceptor
-	predicates []predicate.ScrapingSelector
+	predicates []predicate.ScrapingSetting
 	withSite   *SiteQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the ScrapingSelectorQuery builder.
-func (ssq *ScrapingSelectorQuery) Where(ps ...predicate.ScrapingSelector) *ScrapingSelectorQuery {
+// Where adds a new predicate for the ScrapingSettingQuery builder.
+func (ssq *ScrapingSettingQuery) Where(ps ...predicate.ScrapingSetting) *ScrapingSettingQuery {
 	ssq.predicates = append(ssq.predicates, ps...)
 	return ssq
 }
 
 // Limit the number of records to be returned by this query.
-func (ssq *ScrapingSelectorQuery) Limit(limit int) *ScrapingSelectorQuery {
+func (ssq *ScrapingSettingQuery) Limit(limit int) *ScrapingSettingQuery {
 	ssq.ctx.Limit = &limit
 	return ssq
 }
 
 // Offset to start from.
-func (ssq *ScrapingSelectorQuery) Offset(offset int) *ScrapingSelectorQuery {
+func (ssq *ScrapingSettingQuery) Offset(offset int) *ScrapingSettingQuery {
 	ssq.ctx.Offset = &offset
 	return ssq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (ssq *ScrapingSelectorQuery) Unique(unique bool) *ScrapingSelectorQuery {
+func (ssq *ScrapingSettingQuery) Unique(unique bool) *ScrapingSettingQuery {
 	ssq.ctx.Unique = &unique
 	return ssq
 }
 
 // Order specifies how the records should be ordered.
-func (ssq *ScrapingSelectorQuery) Order(o ...scrapingselector.OrderOption) *ScrapingSelectorQuery {
+func (ssq *ScrapingSettingQuery) Order(o ...scrapingsetting.OrderOption) *ScrapingSettingQuery {
 	ssq.order = append(ssq.order, o...)
 	return ssq
 }
 
 // QuerySite chains the current query on the "site" edge.
-func (ssq *ScrapingSelectorQuery) QuerySite() *SiteQuery {
+func (ssq *ScrapingSettingQuery) QuerySite() *SiteQuery {
 	query := (&SiteClient{config: ssq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := ssq.prepareQuery(ctx); err != nil {
@@ -72,9 +72,9 @@ func (ssq *ScrapingSelectorQuery) QuerySite() *SiteQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(scrapingselector.Table, scrapingselector.FieldID, selector),
+			sqlgraph.From(scrapingsetting.Table, scrapingsetting.FieldID, selector),
 			sqlgraph.To(site.Table, site.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, scrapingselector.SiteTable, scrapingselector.SiteColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, scrapingsetting.SiteTable, scrapingsetting.SiteColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(ssq.driver.Dialect(), step)
 		return fromU, nil
@@ -82,21 +82,21 @@ func (ssq *ScrapingSelectorQuery) QuerySite() *SiteQuery {
 	return query
 }
 
-// First returns the first ScrapingSelector entity from the query.
-// Returns a *NotFoundError when no ScrapingSelector was found.
-func (ssq *ScrapingSelectorQuery) First(ctx context.Context) (*ScrapingSelector, error) {
+// First returns the first ScrapingSetting entity from the query.
+// Returns a *NotFoundError when no ScrapingSetting was found.
+func (ssq *ScrapingSettingQuery) First(ctx context.Context) (*ScrapingSetting, error) {
 	nodes, err := ssq.Limit(1).All(setContextOp(ctx, ssq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{scrapingselector.Label}
+		return nil, &NotFoundError{scrapingsetting.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) FirstX(ctx context.Context) *ScrapingSelector {
+func (ssq *ScrapingSettingQuery) FirstX(ctx context.Context) *ScrapingSetting {
 	node, err := ssq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -104,22 +104,22 @@ func (ssq *ScrapingSelectorQuery) FirstX(ctx context.Context) *ScrapingSelector 
 	return node
 }
 
-// FirstID returns the first ScrapingSelector ID from the query.
-// Returns a *NotFoundError when no ScrapingSelector ID was found.
-func (ssq *ScrapingSelectorQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first ScrapingSetting ID from the query.
+// Returns a *NotFoundError when no ScrapingSetting ID was found.
+func (ssq *ScrapingSettingQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = ssq.Limit(1).IDs(setContextOp(ctx, ssq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{scrapingselector.Label}
+		err = &NotFoundError{scrapingsetting.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) FirstIDX(ctx context.Context) int {
+func (ssq *ScrapingSettingQuery) FirstIDX(ctx context.Context) int {
 	id, err := ssq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -127,10 +127,10 @@ func (ssq *ScrapingSelectorQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single ScrapingSelector entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one ScrapingSelector entity is found.
-// Returns a *NotFoundError when no ScrapingSelector entities are found.
-func (ssq *ScrapingSelectorQuery) Only(ctx context.Context) (*ScrapingSelector, error) {
+// Only returns a single ScrapingSetting entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one ScrapingSetting entity is found.
+// Returns a *NotFoundError when no ScrapingSetting entities are found.
+func (ssq *ScrapingSettingQuery) Only(ctx context.Context) (*ScrapingSetting, error) {
 	nodes, err := ssq.Limit(2).All(setContextOp(ctx, ssq.ctx, "Only"))
 	if err != nil {
 		return nil, err
@@ -139,14 +139,14 @@ func (ssq *ScrapingSelectorQuery) Only(ctx context.Context) (*ScrapingSelector, 
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{scrapingselector.Label}
+		return nil, &NotFoundError{scrapingsetting.Label}
 	default:
-		return nil, &NotSingularError{scrapingselector.Label}
+		return nil, &NotSingularError{scrapingsetting.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) OnlyX(ctx context.Context) *ScrapingSelector {
+func (ssq *ScrapingSettingQuery) OnlyX(ctx context.Context) *ScrapingSetting {
 	node, err := ssq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -154,10 +154,10 @@ func (ssq *ScrapingSelectorQuery) OnlyX(ctx context.Context) *ScrapingSelector {
 	return node
 }
 
-// OnlyID is like Only, but returns the only ScrapingSelector ID in the query.
-// Returns a *NotSingularError when more than one ScrapingSelector ID is found.
+// OnlyID is like Only, but returns the only ScrapingSetting ID in the query.
+// Returns a *NotSingularError when more than one ScrapingSetting ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (ssq *ScrapingSelectorQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (ssq *ScrapingSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = ssq.Limit(2).IDs(setContextOp(ctx, ssq.ctx, "OnlyID")); err != nil {
 		return
@@ -166,15 +166,15 @@ func (ssq *ScrapingSelectorQuery) OnlyID(ctx context.Context) (id int, err error
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{scrapingselector.Label}
+		err = &NotFoundError{scrapingsetting.Label}
 	default:
-		err = &NotSingularError{scrapingselector.Label}
+		err = &NotSingularError{scrapingsetting.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) OnlyIDX(ctx context.Context) int {
+func (ssq *ScrapingSettingQuery) OnlyIDX(ctx context.Context) int {
 	id, err := ssq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -182,18 +182,18 @@ func (ssq *ScrapingSelectorQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of ScrapingSelectors.
-func (ssq *ScrapingSelectorQuery) All(ctx context.Context) ([]*ScrapingSelector, error) {
+// All executes the query and returns a list of ScrapingSettings.
+func (ssq *ScrapingSettingQuery) All(ctx context.Context) ([]*ScrapingSetting, error) {
 	ctx = setContextOp(ctx, ssq.ctx, "All")
 	if err := ssq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*ScrapingSelector, *ScrapingSelectorQuery]()
-	return withInterceptors[[]*ScrapingSelector](ctx, ssq, qr, ssq.inters)
+	qr := querierAll[[]*ScrapingSetting, *ScrapingSettingQuery]()
+	return withInterceptors[[]*ScrapingSetting](ctx, ssq, qr, ssq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) AllX(ctx context.Context) []*ScrapingSelector {
+func (ssq *ScrapingSettingQuery) AllX(ctx context.Context) []*ScrapingSetting {
 	nodes, err := ssq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -201,20 +201,20 @@ func (ssq *ScrapingSelectorQuery) AllX(ctx context.Context) []*ScrapingSelector 
 	return nodes
 }
 
-// IDs executes the query and returns a list of ScrapingSelector IDs.
-func (ssq *ScrapingSelectorQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of ScrapingSetting IDs.
+func (ssq *ScrapingSettingQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if ssq.ctx.Unique == nil && ssq.path != nil {
 		ssq.Unique(true)
 	}
 	ctx = setContextOp(ctx, ssq.ctx, "IDs")
-	if err = ssq.Select(scrapingselector.FieldID).Scan(ctx, &ids); err != nil {
+	if err = ssq.Select(scrapingsetting.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) IDsX(ctx context.Context) []int {
+func (ssq *ScrapingSettingQuery) IDsX(ctx context.Context) []int {
 	ids, err := ssq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -223,16 +223,16 @@ func (ssq *ScrapingSelectorQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (ssq *ScrapingSelectorQuery) Count(ctx context.Context) (int, error) {
+func (ssq *ScrapingSettingQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, ssq.ctx, "Count")
 	if err := ssq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, ssq, querierCount[*ScrapingSelectorQuery](), ssq.inters)
+	return withInterceptors[int](ctx, ssq, querierCount[*ScrapingSettingQuery](), ssq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) CountX(ctx context.Context) int {
+func (ssq *ScrapingSettingQuery) CountX(ctx context.Context) int {
 	count, err := ssq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -241,7 +241,7 @@ func (ssq *ScrapingSelectorQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (ssq *ScrapingSelectorQuery) Exist(ctx context.Context) (bool, error) {
+func (ssq *ScrapingSettingQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, ssq.ctx, "Exist")
 	switch _, err := ssq.FirstID(ctx); {
 	case IsNotFound(err):
@@ -254,7 +254,7 @@ func (ssq *ScrapingSelectorQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (ssq *ScrapingSelectorQuery) ExistX(ctx context.Context) bool {
+func (ssq *ScrapingSettingQuery) ExistX(ctx context.Context) bool {
 	exist, err := ssq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -262,18 +262,18 @@ func (ssq *ScrapingSelectorQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the ScrapingSelectorQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the ScrapingSettingQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (ssq *ScrapingSelectorQuery) Clone() *ScrapingSelectorQuery {
+func (ssq *ScrapingSettingQuery) Clone() *ScrapingSettingQuery {
 	if ssq == nil {
 		return nil
 	}
-	return &ScrapingSelectorQuery{
+	return &ScrapingSettingQuery{
 		config:     ssq.config,
 		ctx:        ssq.ctx.Clone(),
-		order:      append([]scrapingselector.OrderOption{}, ssq.order...),
+		order:      append([]scrapingsetting.OrderOption{}, ssq.order...),
 		inters:     append([]Interceptor{}, ssq.inters...),
-		predicates: append([]predicate.ScrapingSelector{}, ssq.predicates...),
+		predicates: append([]predicate.ScrapingSetting{}, ssq.predicates...),
 		withSite:   ssq.withSite.Clone(),
 		// clone intermediate query.
 		sql:  ssq.sql.Clone(),
@@ -283,7 +283,7 @@ func (ssq *ScrapingSelectorQuery) Clone() *ScrapingSelectorQuery {
 
 // WithSite tells the query-builder to eager-load the nodes that are connected to
 // the "site" edge. The optional arguments are used to configure the query builder of the edge.
-func (ssq *ScrapingSelectorQuery) WithSite(opts ...func(*SiteQuery)) *ScrapingSelectorQuery {
+func (ssq *ScrapingSettingQuery) WithSite(opts ...func(*SiteQuery)) *ScrapingSettingQuery {
 	query := (&SiteClient{config: ssq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -302,15 +302,15 @@ func (ssq *ScrapingSelectorQuery) WithSite(opts ...func(*SiteQuery)) *ScrapingSe
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.ScrapingSelector.Query().
-//		GroupBy(scrapingselector.FieldSelector).
+//	client.ScrapingSetting.Query().
+//		GroupBy(scrapingsetting.FieldSelector).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (ssq *ScrapingSelectorQuery) GroupBy(field string, fields ...string) *ScrapingSelectorGroupBy {
+func (ssq *ScrapingSettingQuery) GroupBy(field string, fields ...string) *ScrapingSettingGroupBy {
 	ssq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &ScrapingSelectorGroupBy{build: ssq}
+	grbuild := &ScrapingSettingGroupBy{build: ssq}
 	grbuild.flds = &ssq.ctx.Fields
-	grbuild.label = scrapingselector.Label
+	grbuild.label = scrapingsetting.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -324,23 +324,23 @@ func (ssq *ScrapingSelectorQuery) GroupBy(field string, fields ...string) *Scrap
 //		Selector string `json:"selector,omitempty"`
 //	}
 //
-//	client.ScrapingSelector.Query().
-//		Select(scrapingselector.FieldSelector).
+//	client.ScrapingSetting.Query().
+//		Select(scrapingsetting.FieldSelector).
 //		Scan(ctx, &v)
-func (ssq *ScrapingSelectorQuery) Select(fields ...string) *ScrapingSelectorSelect {
+func (ssq *ScrapingSettingQuery) Select(fields ...string) *ScrapingSettingSelect {
 	ssq.ctx.Fields = append(ssq.ctx.Fields, fields...)
-	sbuild := &ScrapingSelectorSelect{ScrapingSelectorQuery: ssq}
-	sbuild.label = scrapingselector.Label
+	sbuild := &ScrapingSettingSelect{ScrapingSettingQuery: ssq}
+	sbuild.label = scrapingsetting.Label
 	sbuild.flds, sbuild.scan = &ssq.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a ScrapingSelectorSelect configured with the given aggregations.
-func (ssq *ScrapingSelectorQuery) Aggregate(fns ...AggregateFunc) *ScrapingSelectorSelect {
+// Aggregate returns a ScrapingSettingSelect configured with the given aggregations.
+func (ssq *ScrapingSettingQuery) Aggregate(fns ...AggregateFunc) *ScrapingSettingSelect {
 	return ssq.Select().Aggregate(fns...)
 }
 
-func (ssq *ScrapingSelectorQuery) prepareQuery(ctx context.Context) error {
+func (ssq *ScrapingSettingQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range ssq.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -352,7 +352,7 @@ func (ssq *ScrapingSelectorQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range ssq.ctx.Fields {
-		if !scrapingselector.ValidColumn(f) {
+		if !scrapingsetting.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -366,19 +366,26 @@ func (ssq *ScrapingSelectorQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (ssq *ScrapingSelectorQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ScrapingSelector, error) {
+func (ssq *ScrapingSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ScrapingSetting, error) {
 	var (
-		nodes       = []*ScrapingSelector{}
+		nodes       = []*ScrapingSetting{}
+		withFKs     = ssq.withFKs
 		_spec       = ssq.querySpec()
 		loadedTypes = [1]bool{
 			ssq.withSite != nil,
 		}
 	)
+	if ssq.withSite != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, scrapingsetting.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*ScrapingSelector).scanValues(nil, columns)
+		return (*ScrapingSetting).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &ScrapingSelector{config: ssq.config}
+		node := &ScrapingSetting{config: ssq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -394,43 +401,47 @@ func (ssq *ScrapingSelectorQuery) sqlAll(ctx context.Context, hooks ...queryHook
 	}
 	if query := ssq.withSite; query != nil {
 		if err := ssq.loadSite(ctx, query, nodes, nil,
-			func(n *ScrapingSelector, e *Site) { n.Edges.Site = e }); err != nil {
+			func(n *ScrapingSetting, e *Site) { n.Edges.Site = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (ssq *ScrapingSelectorQuery) loadSite(ctx context.Context, query *SiteQuery, nodes []*ScrapingSelector, init func(*ScrapingSelector), assign func(*ScrapingSelector, *Site)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*ScrapingSelector)
+func (ssq *ScrapingSettingQuery) loadSite(ctx context.Context, query *SiteQuery, nodes []*ScrapingSetting, init func(*ScrapingSetting), assign func(*ScrapingSetting, *Site)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*ScrapingSetting)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+		if nodes[i].site_id == nil {
+			continue
+		}
+		fk := *nodes[i].site_id
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.withFKs = true
-	query.Where(predicate.Site(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(scrapingselector.SiteColumn), fks...))
-	}))
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(site.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.site_id
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "site_id" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "site_id" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "site_id" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }
 
-func (ssq *ScrapingSelectorQuery) sqlCount(ctx context.Context) (int, error) {
+func (ssq *ScrapingSettingQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := ssq.querySpec()
 	_spec.Node.Columns = ssq.ctx.Fields
 	if len(ssq.ctx.Fields) > 0 {
@@ -439,8 +450,8 @@ func (ssq *ScrapingSelectorQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, ssq.driver, _spec)
 }
 
-func (ssq *ScrapingSelectorQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(scrapingselector.Table, scrapingselector.Columns, sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt))
+func (ssq *ScrapingSettingQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(scrapingsetting.Table, scrapingsetting.Columns, sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt))
 	_spec.From = ssq.sql
 	if unique := ssq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -449,9 +460,9 @@ func (ssq *ScrapingSelectorQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := ssq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, scrapingselector.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, scrapingsetting.FieldID)
 		for i := range fields {
-			if fields[i] != scrapingselector.FieldID {
+			if fields[i] != scrapingsetting.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -479,12 +490,12 @@ func (ssq *ScrapingSelectorQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (ssq *ScrapingSelectorQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (ssq *ScrapingSettingQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(ssq.driver.Dialect())
-	t1 := builder.Table(scrapingselector.Table)
+	t1 := builder.Table(scrapingsetting.Table)
 	columns := ssq.ctx.Fields
 	if len(columns) == 0 {
-		columns = scrapingselector.Columns
+		columns = scrapingsetting.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if ssq.sql != nil {
@@ -511,28 +522,28 @@ func (ssq *ScrapingSelectorQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// ScrapingSelectorGroupBy is the group-by builder for ScrapingSelector entities.
-type ScrapingSelectorGroupBy struct {
+// ScrapingSettingGroupBy is the group-by builder for ScrapingSetting entities.
+type ScrapingSettingGroupBy struct {
 	selector
-	build *ScrapingSelectorQuery
+	build *ScrapingSettingQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (ssgb *ScrapingSelectorGroupBy) Aggregate(fns ...AggregateFunc) *ScrapingSelectorGroupBy {
+func (ssgb *ScrapingSettingGroupBy) Aggregate(fns ...AggregateFunc) *ScrapingSettingGroupBy {
 	ssgb.fns = append(ssgb.fns, fns...)
 	return ssgb
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ssgb *ScrapingSelectorGroupBy) Scan(ctx context.Context, v any) error {
+func (ssgb *ScrapingSettingGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, ssgb.build.ctx, "GroupBy")
 	if err := ssgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*ScrapingSelectorQuery, *ScrapingSelectorGroupBy](ctx, ssgb.build, ssgb, ssgb.build.inters, v)
+	return scanWithInterceptors[*ScrapingSettingQuery, *ScrapingSettingGroupBy](ctx, ssgb.build, ssgb, ssgb.build.inters, v)
 }
 
-func (ssgb *ScrapingSelectorGroupBy) sqlScan(ctx context.Context, root *ScrapingSelectorQuery, v any) error {
+func (ssgb *ScrapingSettingGroupBy) sqlScan(ctx context.Context, root *ScrapingSettingQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(ssgb.fns))
 	for _, fn := range ssgb.fns {
@@ -559,28 +570,28 @@ func (ssgb *ScrapingSelectorGroupBy) sqlScan(ctx context.Context, root *Scraping
 	return sql.ScanSlice(rows, v)
 }
 
-// ScrapingSelectorSelect is the builder for selecting fields of ScrapingSelector entities.
-type ScrapingSelectorSelect struct {
-	*ScrapingSelectorQuery
+// ScrapingSettingSelect is the builder for selecting fields of ScrapingSetting entities.
+type ScrapingSettingSelect struct {
+	*ScrapingSettingQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (sss *ScrapingSelectorSelect) Aggregate(fns ...AggregateFunc) *ScrapingSelectorSelect {
+func (sss *ScrapingSettingSelect) Aggregate(fns ...AggregateFunc) *ScrapingSettingSelect {
 	sss.fns = append(sss.fns, fns...)
 	return sss
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (sss *ScrapingSelectorSelect) Scan(ctx context.Context, v any) error {
+func (sss *ScrapingSettingSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, sss.ctx, "Select")
 	if err := sss.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*ScrapingSelectorQuery, *ScrapingSelectorSelect](ctx, sss.ScrapingSelectorQuery, sss, sss.inters, v)
+	return scanWithInterceptors[*ScrapingSettingQuery, *ScrapingSettingSelect](ctx, sss.ScrapingSettingQuery, sss, sss.inters, v)
 }
 
-func (sss *ScrapingSelectorSelect) sqlScan(ctx context.Context, root *ScrapingSelectorQuery, v any) error {
+func (sss *ScrapingSettingSelect) sqlScan(ctx context.Context, root *ScrapingSettingQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(sss.fns))
 	for _, fn := range sss.fns {

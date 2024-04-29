@@ -28,19 +28,19 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// EdgeScrapingSelector holds the string denoting the scraping_selector edge name in mutations.
-	EdgeScrapingSelector = "scraping_selector"
+	// EdgeScrapingSettings holds the string denoting the scraping_settings edge name in mutations.
+	EdgeScrapingSettings = "scraping_settings"
 	// EdgeFeeds holds the string denoting the feeds edge name in mutations.
 	EdgeFeeds = "feeds"
 	// Table holds the table name of the site in the database.
 	Table = "sites"
-	// ScrapingSelectorTable is the table that holds the scraping_selector relation/edge.
-	ScrapingSelectorTable = "sites"
-	// ScrapingSelectorInverseTable is the table name for the ScrapingSelector entity.
-	// It exists in this package in order to avoid circular dependency with the "scrapingselector" package.
-	ScrapingSelectorInverseTable = "scraping_selectors"
-	// ScrapingSelectorColumn is the table column denoting the scraping_selector relation/edge.
-	ScrapingSelectorColumn = "site_id"
+	// ScrapingSettingsTable is the table that holds the scraping_settings relation/edge.
+	ScrapingSettingsTable = "scraping_settings"
+	// ScrapingSettingsInverseTable is the table name for the ScrapingSetting entity.
+	// It exists in this package in order to avoid circular dependency with the "scrapingsetting" package.
+	ScrapingSettingsInverseTable = "scraping_settings"
+	// ScrapingSettingsColumn is the table column denoting the scraping_settings relation/edge.
+	ScrapingSettingsColumn = "site_id"
 	// FeedsTable is the table that holds the feeds relation/edge.
 	FeedsTable = "feeds"
 	// FeedsInverseTable is the table name for the Feed entity.
@@ -62,21 +62,10 @@ var Columns = []string{
 	FieldUpdatedAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "sites"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"site_id",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -143,10 +132,17 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByScrapingSelectorField orders the results by scraping_selector field.
-func ByScrapingSelectorField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByScrapingSettingsCount orders the results by scraping_settings count.
+func ByScrapingSettingsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newScrapingSelectorStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newScrapingSettingsStep(), opts...)
+	}
+}
+
+// ByScrapingSettings orders the results by scraping_settings terms.
+func ByScrapingSettings(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newScrapingSettingsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -163,11 +159,11 @@ func ByFeeds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newFeedsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newScrapingSelectorStep() *sqlgraph.Step {
+func newScrapingSettingsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ScrapingSelectorInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, ScrapingSelectorTable, ScrapingSelectorColumn),
+		sqlgraph.To(ScrapingSettingsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, ScrapingSettingsTable, ScrapingSettingsColumn),
 	)
 }
 func newFeedsStep() *sqlgraph.Step {

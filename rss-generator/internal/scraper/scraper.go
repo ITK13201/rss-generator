@@ -69,7 +69,7 @@ func (scraper *Scraper) formatString(str string) string {
 	return str
 }
 
-func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selectors *domain.ScrapingSelectors) (*domain.Feed, error) {
+func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scrapingSetting *domain.ScrapingSetting) (*domain.Feed, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(*html))
 	if err != nil {
 		return nil, err
@@ -79,11 +79,11 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selector
 	siteDescription, _ := doc.Find("meta[name='description']").Attr("content")
 	siteLink := siteURL
 
-	selector := selectors.Selector
-	innerSelector := selectors.InnerSelector
-	titleSelector := selectors.TitleSelector
-	descriptionSelector := selectors.DescriptionSelector
-	linkSelector := selectors.LinkSelector
+	selector := scrapingSetting.Selector
+	innerSelector := scrapingSetting.InnerSelector
+	titleSelector := scrapingSetting.TitleSelector
+	descriptionSelector := scrapingSetting.DescriptionSelector
+	linkSelector := scrapingSetting.LinkSelector
 
 	selection := doc.Find(selector)
 
@@ -129,7 +129,7 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, selector
 	return feed, nil
 }
 
-func (scraper *Scraper) FetchFeedElements(siteURL string, enableJSRendering bool, selectors *domain.ScrapingSelectors) (*domain.Feed, error) {
+func (scraper *Scraper) FetchFeedElements(siteURL string, enableJSRendering bool, scrapingSetting *domain.ScrapingSetting) (*domain.Feed, error) {
 	var html *string
 	var err error
 	if enableJSRendering {
@@ -144,7 +144,7 @@ func (scraper *Scraper) FetchFeedElements(siteURL string, enableJSRendering bool
 	}
 	scraper.logger.Infof("fetched HTML from: %s", siteURL)
 	scraper.logger.Infof("selecting feed objects: %s", siteURL)
-	feed, err := scraper.selectFeedObjects(siteURL, html, selectors)
+	feed, err := scraper.selectFeedObjects(siteURL, html, scrapingSetting)
 	if err != nil {
 		return nil, err
 	}

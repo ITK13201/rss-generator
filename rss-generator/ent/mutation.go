@@ -14,7 +14,7 @@ import (
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/feeditem"
 	"github.com/ITK13201/rss-generator/ent/predicate"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/google/uuid"
 )
@@ -28,10 +28,10 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeFeed             = "Feed"
-	TypeFeedItem         = "FeedItem"
-	TypeScrapingSelector = "ScrapingSelector"
-	TypeSite             = "Site"
+	TypeFeed            = "Feed"
+	TypeFeedItem        = "FeedItem"
+	TypeScrapingSetting = "ScrapingSetting"
+	TypeSite            = "Site"
 )
 
 // FeedMutation represents an operation that mutates the Feed nodes in the graph.
@@ -1533,8 +1533,8 @@ func (m *FeedItemMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown FeedItem edge %s", name)
 }
 
-// ScrapingSelectorMutation represents an operation that mutates the ScrapingSelector nodes in the graph.
-type ScrapingSelectorMutation struct {
+// ScrapingSettingMutation represents an operation that mutates the ScrapingSetting nodes in the graph.
+type ScrapingSettingMutation struct {
 	config
 	op                   Op
 	typ                  string
@@ -1550,21 +1550,21 @@ type ScrapingSelectorMutation struct {
 	site                 *int
 	clearedsite          bool
 	done                 bool
-	oldValue             func(context.Context) (*ScrapingSelector, error)
-	predicates           []predicate.ScrapingSelector
+	oldValue             func(context.Context) (*ScrapingSetting, error)
+	predicates           []predicate.ScrapingSetting
 }
 
-var _ ent.Mutation = (*ScrapingSelectorMutation)(nil)
+var _ ent.Mutation = (*ScrapingSettingMutation)(nil)
 
-// scrapingselectorOption allows management of the mutation configuration using functional options.
-type scrapingselectorOption func(*ScrapingSelectorMutation)
+// scrapingsettingOption allows management of the mutation configuration using functional options.
+type scrapingsettingOption func(*ScrapingSettingMutation)
 
-// newScrapingSelectorMutation creates new mutation for the ScrapingSelector entity.
-func newScrapingSelectorMutation(c config, op Op, opts ...scrapingselectorOption) *ScrapingSelectorMutation {
-	m := &ScrapingSelectorMutation{
+// newScrapingSettingMutation creates new mutation for the ScrapingSetting entity.
+func newScrapingSettingMutation(c config, op Op, opts ...scrapingsettingOption) *ScrapingSettingMutation {
+	m := &ScrapingSettingMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeScrapingSelector,
+		typ:           TypeScrapingSetting,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -1573,20 +1573,20 @@ func newScrapingSelectorMutation(c config, op Op, opts ...scrapingselectorOption
 	return m
 }
 
-// withScrapingSelectorID sets the ID field of the mutation.
-func withScrapingSelectorID(id int) scrapingselectorOption {
-	return func(m *ScrapingSelectorMutation) {
+// withScrapingSettingID sets the ID field of the mutation.
+func withScrapingSettingID(id int) scrapingsettingOption {
+	return func(m *ScrapingSettingMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *ScrapingSelector
+			value *ScrapingSetting
 		)
-		m.oldValue = func(ctx context.Context) (*ScrapingSelector, error) {
+		m.oldValue = func(ctx context.Context) (*ScrapingSetting, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().ScrapingSelector.Get(ctx, id)
+					value, err = m.Client().ScrapingSetting.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -1595,10 +1595,10 @@ func withScrapingSelectorID(id int) scrapingselectorOption {
 	}
 }
 
-// withScrapingSelector sets the old ScrapingSelector of the mutation.
-func withScrapingSelector(node *ScrapingSelector) scrapingselectorOption {
-	return func(m *ScrapingSelectorMutation) {
-		m.oldValue = func(context.Context) (*ScrapingSelector, error) {
+// withScrapingSetting sets the old ScrapingSetting of the mutation.
+func withScrapingSetting(node *ScrapingSetting) scrapingsettingOption {
+	return func(m *ScrapingSettingMutation) {
+		m.oldValue = func(context.Context) (*ScrapingSetting, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -1607,7 +1607,7 @@ func withScrapingSelector(node *ScrapingSelector) scrapingselectorOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m ScrapingSelectorMutation) Client() *Client {
+func (m ScrapingSettingMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -1615,7 +1615,7 @@ func (m ScrapingSelectorMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m ScrapingSelectorMutation) Tx() (*Tx, error) {
+func (m ScrapingSettingMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -1625,14 +1625,14 @@ func (m ScrapingSelectorMutation) Tx() (*Tx, error) {
 }
 
 // SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of ScrapingSelector entities.
-func (m *ScrapingSelectorMutation) SetID(id int) {
+// operation is only accepted on creation of ScrapingSetting entities.
+func (m *ScrapingSettingMutation) SetID(id int) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ScrapingSelectorMutation) ID() (id int, exists bool) {
+func (m *ScrapingSettingMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1643,7 +1643,7 @@ func (m *ScrapingSelectorMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ScrapingSelectorMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ScrapingSettingMutation) IDs(ctx context.Context) ([]int, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -1652,19 +1652,19 @@ func (m *ScrapingSelectorMutation) IDs(ctx context.Context) ([]int, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().ScrapingSelector.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().ScrapingSetting.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
 // SetSelector sets the "selector" field.
-func (m *ScrapingSelectorMutation) SetSelector(s string) {
+func (m *ScrapingSettingMutation) SetSelector(s string) {
 	m.selector = &s
 }
 
 // Selector returns the value of the "selector" field in the mutation.
-func (m *ScrapingSelectorMutation) Selector() (r string, exists bool) {
+func (m *ScrapingSettingMutation) Selector() (r string, exists bool) {
 	v := m.selector
 	if v == nil {
 		return
@@ -1672,10 +1672,10 @@ func (m *ScrapingSelectorMutation) Selector() (r string, exists bool) {
 	return *v, true
 }
 
-// OldSelector returns the old "selector" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldSelector returns the old "selector" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldSelector(ctx context.Context) (v string, err error) {
+func (m *ScrapingSettingMutation) OldSelector(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSelector is only allowed on UpdateOne operations")
 	}
@@ -1690,17 +1690,17 @@ func (m *ScrapingSelectorMutation) OldSelector(ctx context.Context) (v string, e
 }
 
 // ResetSelector resets all changes to the "selector" field.
-func (m *ScrapingSelectorMutation) ResetSelector() {
+func (m *ScrapingSettingMutation) ResetSelector() {
 	m.selector = nil
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (m *ScrapingSelectorMutation) SetInnerSelector(s string) {
+func (m *ScrapingSettingMutation) SetInnerSelector(s string) {
 	m.inner_selector = &s
 }
 
 // InnerSelector returns the value of the "inner_selector" field in the mutation.
-func (m *ScrapingSelectorMutation) InnerSelector() (r string, exists bool) {
+func (m *ScrapingSettingMutation) InnerSelector() (r string, exists bool) {
 	v := m.inner_selector
 	if v == nil {
 		return
@@ -1708,10 +1708,10 @@ func (m *ScrapingSelectorMutation) InnerSelector() (r string, exists bool) {
 	return *v, true
 }
 
-// OldInnerSelector returns the old "inner_selector" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldInnerSelector returns the old "inner_selector" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldInnerSelector(ctx context.Context) (v string, err error) {
+func (m *ScrapingSettingMutation) OldInnerSelector(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldInnerSelector is only allowed on UpdateOne operations")
 	}
@@ -1726,17 +1726,17 @@ func (m *ScrapingSelectorMutation) OldInnerSelector(ctx context.Context) (v stri
 }
 
 // ResetInnerSelector resets all changes to the "inner_selector" field.
-func (m *ScrapingSelectorMutation) ResetInnerSelector() {
+func (m *ScrapingSettingMutation) ResetInnerSelector() {
 	m.inner_selector = nil
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (m *ScrapingSelectorMutation) SetTitleSelector(s string) {
+func (m *ScrapingSettingMutation) SetTitleSelector(s string) {
 	m.title_selector = &s
 }
 
 // TitleSelector returns the value of the "title_selector" field in the mutation.
-func (m *ScrapingSelectorMutation) TitleSelector() (r string, exists bool) {
+func (m *ScrapingSettingMutation) TitleSelector() (r string, exists bool) {
 	v := m.title_selector
 	if v == nil {
 		return
@@ -1744,10 +1744,10 @@ func (m *ScrapingSelectorMutation) TitleSelector() (r string, exists bool) {
 	return *v, true
 }
 
-// OldTitleSelector returns the old "title_selector" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldTitleSelector returns the old "title_selector" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldTitleSelector(ctx context.Context) (v string, err error) {
+func (m *ScrapingSettingMutation) OldTitleSelector(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTitleSelector is only allowed on UpdateOne operations")
 	}
@@ -1762,17 +1762,17 @@ func (m *ScrapingSelectorMutation) OldTitleSelector(ctx context.Context) (v stri
 }
 
 // ResetTitleSelector resets all changes to the "title_selector" field.
-func (m *ScrapingSelectorMutation) ResetTitleSelector() {
+func (m *ScrapingSettingMutation) ResetTitleSelector() {
 	m.title_selector = nil
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (m *ScrapingSelectorMutation) SetDescriptionSelector(s string) {
+func (m *ScrapingSettingMutation) SetDescriptionSelector(s string) {
 	m.description_selector = &s
 }
 
 // DescriptionSelector returns the value of the "description_selector" field in the mutation.
-func (m *ScrapingSelectorMutation) DescriptionSelector() (r string, exists bool) {
+func (m *ScrapingSettingMutation) DescriptionSelector() (r string, exists bool) {
 	v := m.description_selector
 	if v == nil {
 		return
@@ -1780,10 +1780,10 @@ func (m *ScrapingSelectorMutation) DescriptionSelector() (r string, exists bool)
 	return *v, true
 }
 
-// OldDescriptionSelector returns the old "description_selector" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldDescriptionSelector returns the old "description_selector" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldDescriptionSelector(ctx context.Context) (v string, err error) {
+func (m *ScrapingSettingMutation) OldDescriptionSelector(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescriptionSelector is only allowed on UpdateOne operations")
 	}
@@ -1798,30 +1798,30 @@ func (m *ScrapingSelectorMutation) OldDescriptionSelector(ctx context.Context) (
 }
 
 // ClearDescriptionSelector clears the value of the "description_selector" field.
-func (m *ScrapingSelectorMutation) ClearDescriptionSelector() {
+func (m *ScrapingSettingMutation) ClearDescriptionSelector() {
 	m.description_selector = nil
-	m.clearedFields[scrapingselector.FieldDescriptionSelector] = struct{}{}
+	m.clearedFields[scrapingsetting.FieldDescriptionSelector] = struct{}{}
 }
 
 // DescriptionSelectorCleared returns if the "description_selector" field was cleared in this mutation.
-func (m *ScrapingSelectorMutation) DescriptionSelectorCleared() bool {
-	_, ok := m.clearedFields[scrapingselector.FieldDescriptionSelector]
+func (m *ScrapingSettingMutation) DescriptionSelectorCleared() bool {
+	_, ok := m.clearedFields[scrapingsetting.FieldDescriptionSelector]
 	return ok
 }
 
 // ResetDescriptionSelector resets all changes to the "description_selector" field.
-func (m *ScrapingSelectorMutation) ResetDescriptionSelector() {
+func (m *ScrapingSettingMutation) ResetDescriptionSelector() {
 	m.description_selector = nil
-	delete(m.clearedFields, scrapingselector.FieldDescriptionSelector)
+	delete(m.clearedFields, scrapingsetting.FieldDescriptionSelector)
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (m *ScrapingSelectorMutation) SetLinkSelector(s string) {
+func (m *ScrapingSettingMutation) SetLinkSelector(s string) {
 	m.link_selector = &s
 }
 
 // LinkSelector returns the value of the "link_selector" field in the mutation.
-func (m *ScrapingSelectorMutation) LinkSelector() (r string, exists bool) {
+func (m *ScrapingSettingMutation) LinkSelector() (r string, exists bool) {
 	v := m.link_selector
 	if v == nil {
 		return
@@ -1829,10 +1829,10 @@ func (m *ScrapingSelectorMutation) LinkSelector() (r string, exists bool) {
 	return *v, true
 }
 
-// OldLinkSelector returns the old "link_selector" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldLinkSelector returns the old "link_selector" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldLinkSelector(ctx context.Context) (v string, err error) {
+func (m *ScrapingSettingMutation) OldLinkSelector(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLinkSelector is only allowed on UpdateOne operations")
 	}
@@ -1847,30 +1847,30 @@ func (m *ScrapingSelectorMutation) OldLinkSelector(ctx context.Context) (v strin
 }
 
 // ClearLinkSelector clears the value of the "link_selector" field.
-func (m *ScrapingSelectorMutation) ClearLinkSelector() {
+func (m *ScrapingSettingMutation) ClearLinkSelector() {
 	m.link_selector = nil
-	m.clearedFields[scrapingselector.FieldLinkSelector] = struct{}{}
+	m.clearedFields[scrapingsetting.FieldLinkSelector] = struct{}{}
 }
 
 // LinkSelectorCleared returns if the "link_selector" field was cleared in this mutation.
-func (m *ScrapingSelectorMutation) LinkSelectorCleared() bool {
-	_, ok := m.clearedFields[scrapingselector.FieldLinkSelector]
+func (m *ScrapingSettingMutation) LinkSelectorCleared() bool {
+	_, ok := m.clearedFields[scrapingsetting.FieldLinkSelector]
 	return ok
 }
 
 // ResetLinkSelector resets all changes to the "link_selector" field.
-func (m *ScrapingSelectorMutation) ResetLinkSelector() {
+func (m *ScrapingSettingMutation) ResetLinkSelector() {
 	m.link_selector = nil
-	delete(m.clearedFields, scrapingselector.FieldLinkSelector)
+	delete(m.clearedFields, scrapingsetting.FieldLinkSelector)
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (m *ScrapingSelectorMutation) SetCreatedAt(t time.Time) {
+func (m *ScrapingSettingMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
 }
 
 // CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *ScrapingSelectorMutation) CreatedAt() (r time.Time, exists bool) {
+func (m *ScrapingSettingMutation) CreatedAt() (r time.Time, exists bool) {
 	v := m.created_at
 	if v == nil {
 		return
@@ -1878,10 +1878,10 @@ func (m *ScrapingSelectorMutation) CreatedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldCreatedAt returns the old "created_at" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldCreatedAt returns the old "created_at" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *ScrapingSettingMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -1896,17 +1896,17 @@ func (m *ScrapingSelectorMutation) OldCreatedAt(ctx context.Context) (v time.Tim
 }
 
 // ResetCreatedAt resets all changes to the "created_at" field.
-func (m *ScrapingSelectorMutation) ResetCreatedAt() {
+func (m *ScrapingSettingMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (m *ScrapingSelectorMutation) SetUpdatedAt(t time.Time) {
+func (m *ScrapingSettingMutation) SetUpdatedAt(t time.Time) {
 	m.updated_at = &t
 }
 
 // UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *ScrapingSelectorMutation) UpdatedAt() (r time.Time, exists bool) {
+func (m *ScrapingSettingMutation) UpdatedAt() (r time.Time, exists bool) {
 	v := m.updated_at
 	if v == nil {
 		return
@@ -1914,10 +1914,10 @@ func (m *ScrapingSelectorMutation) UpdatedAt() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldUpdatedAt returns the old "updated_at" field's value of the ScrapingSelector entity.
-// If the ScrapingSelector object wasn't provided to the builder, the object is fetched from the database.
+// OldUpdatedAt returns the old "updated_at" field's value of the ScrapingSetting entity.
+// If the ScrapingSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ScrapingSelectorMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *ScrapingSettingMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
@@ -1932,27 +1932,27 @@ func (m *ScrapingSelectorMutation) OldUpdatedAt(ctx context.Context) (v time.Tim
 }
 
 // ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *ScrapingSelectorMutation) ResetUpdatedAt() {
+func (m *ScrapingSettingMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
 // SetSiteID sets the "site" edge to the Site entity by id.
-func (m *ScrapingSelectorMutation) SetSiteID(id int) {
+func (m *ScrapingSettingMutation) SetSiteID(id int) {
 	m.site = &id
 }
 
 // ClearSite clears the "site" edge to the Site entity.
-func (m *ScrapingSelectorMutation) ClearSite() {
+func (m *ScrapingSettingMutation) ClearSite() {
 	m.clearedsite = true
 }
 
 // SiteCleared reports if the "site" edge to the Site entity was cleared.
-func (m *ScrapingSelectorMutation) SiteCleared() bool {
+func (m *ScrapingSettingMutation) SiteCleared() bool {
 	return m.clearedsite
 }
 
 // SiteID returns the "site" edge ID in the mutation.
-func (m *ScrapingSelectorMutation) SiteID() (id int, exists bool) {
+func (m *ScrapingSettingMutation) SiteID() (id int, exists bool) {
 	if m.site != nil {
 		return *m.site, true
 	}
@@ -1962,7 +1962,7 @@ func (m *ScrapingSelectorMutation) SiteID() (id int, exists bool) {
 // SiteIDs returns the "site" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // SiteID instead. It exists only for internal usage by the builders.
-func (m *ScrapingSelectorMutation) SiteIDs() (ids []int) {
+func (m *ScrapingSettingMutation) SiteIDs() (ids []int) {
 	if id := m.site; id != nil {
 		ids = append(ids, *id)
 	}
@@ -1970,20 +1970,20 @@ func (m *ScrapingSelectorMutation) SiteIDs() (ids []int) {
 }
 
 // ResetSite resets all changes to the "site" edge.
-func (m *ScrapingSelectorMutation) ResetSite() {
+func (m *ScrapingSettingMutation) ResetSite() {
 	m.site = nil
 	m.clearedsite = false
 }
 
-// Where appends a list predicates to the ScrapingSelectorMutation builder.
-func (m *ScrapingSelectorMutation) Where(ps ...predicate.ScrapingSelector) {
+// Where appends a list predicates to the ScrapingSettingMutation builder.
+func (m *ScrapingSettingMutation) Where(ps ...predicate.ScrapingSetting) {
 	m.predicates = append(m.predicates, ps...)
 }
 
-// WhereP appends storage-level predicates to the ScrapingSelectorMutation builder. Using this method,
+// WhereP appends storage-level predicates to the ScrapingSettingMutation builder. Using this method,
 // users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *ScrapingSelectorMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.ScrapingSelector, len(ps))
+func (m *ScrapingSettingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ScrapingSetting, len(ps))
 	for i := range ps {
 		p[i] = ps[i]
 	}
@@ -1991,45 +1991,45 @@ func (m *ScrapingSelectorMutation) WhereP(ps ...func(*sql.Selector)) {
 }
 
 // Op returns the operation name.
-func (m *ScrapingSelectorMutation) Op() Op {
+func (m *ScrapingSettingMutation) Op() Op {
 	return m.op
 }
 
 // SetOp allows setting the mutation operation.
-func (m *ScrapingSelectorMutation) SetOp(op Op) {
+func (m *ScrapingSettingMutation) SetOp(op Op) {
 	m.op = op
 }
 
-// Type returns the node type of this mutation (ScrapingSelector).
-func (m *ScrapingSelectorMutation) Type() string {
+// Type returns the node type of this mutation (ScrapingSetting).
+func (m *ScrapingSettingMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *ScrapingSelectorMutation) Fields() []string {
+func (m *ScrapingSettingMutation) Fields() []string {
 	fields := make([]string, 0, 7)
 	if m.selector != nil {
-		fields = append(fields, scrapingselector.FieldSelector)
+		fields = append(fields, scrapingsetting.FieldSelector)
 	}
 	if m.inner_selector != nil {
-		fields = append(fields, scrapingselector.FieldInnerSelector)
+		fields = append(fields, scrapingsetting.FieldInnerSelector)
 	}
 	if m.title_selector != nil {
-		fields = append(fields, scrapingselector.FieldTitleSelector)
+		fields = append(fields, scrapingsetting.FieldTitleSelector)
 	}
 	if m.description_selector != nil {
-		fields = append(fields, scrapingselector.FieldDescriptionSelector)
+		fields = append(fields, scrapingsetting.FieldDescriptionSelector)
 	}
 	if m.link_selector != nil {
-		fields = append(fields, scrapingselector.FieldLinkSelector)
+		fields = append(fields, scrapingsetting.FieldLinkSelector)
 	}
 	if m.created_at != nil {
-		fields = append(fields, scrapingselector.FieldCreatedAt)
+		fields = append(fields, scrapingsetting.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
-		fields = append(fields, scrapingselector.FieldUpdatedAt)
+		fields = append(fields, scrapingsetting.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -2037,21 +2037,21 @@ func (m *ScrapingSelectorMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *ScrapingSelectorMutation) Field(name string) (ent.Value, bool) {
+func (m *ScrapingSettingMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case scrapingselector.FieldSelector:
+	case scrapingsetting.FieldSelector:
 		return m.Selector()
-	case scrapingselector.FieldInnerSelector:
+	case scrapingsetting.FieldInnerSelector:
 		return m.InnerSelector()
-	case scrapingselector.FieldTitleSelector:
+	case scrapingsetting.FieldTitleSelector:
 		return m.TitleSelector()
-	case scrapingselector.FieldDescriptionSelector:
+	case scrapingsetting.FieldDescriptionSelector:
 		return m.DescriptionSelector()
-	case scrapingselector.FieldLinkSelector:
+	case scrapingsetting.FieldLinkSelector:
 		return m.LinkSelector()
-	case scrapingselector.FieldCreatedAt:
+	case scrapingsetting.FieldCreatedAt:
 		return m.CreatedAt()
-	case scrapingselector.FieldUpdatedAt:
+	case scrapingsetting.FieldUpdatedAt:
 		return m.UpdatedAt()
 	}
 	return nil, false
@@ -2060,74 +2060,74 @@ func (m *ScrapingSelectorMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *ScrapingSelectorMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *ScrapingSettingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case scrapingselector.FieldSelector:
+	case scrapingsetting.FieldSelector:
 		return m.OldSelector(ctx)
-	case scrapingselector.FieldInnerSelector:
+	case scrapingsetting.FieldInnerSelector:
 		return m.OldInnerSelector(ctx)
-	case scrapingselector.FieldTitleSelector:
+	case scrapingsetting.FieldTitleSelector:
 		return m.OldTitleSelector(ctx)
-	case scrapingselector.FieldDescriptionSelector:
+	case scrapingsetting.FieldDescriptionSelector:
 		return m.OldDescriptionSelector(ctx)
-	case scrapingselector.FieldLinkSelector:
+	case scrapingsetting.FieldLinkSelector:
 		return m.OldLinkSelector(ctx)
-	case scrapingselector.FieldCreatedAt:
+	case scrapingsetting.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
-	case scrapingselector.FieldUpdatedAt:
+	case scrapingsetting.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
 	}
-	return nil, fmt.Errorf("unknown ScrapingSelector field %s", name)
+	return nil, fmt.Errorf("unknown ScrapingSetting field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ScrapingSelectorMutation) SetField(name string, value ent.Value) error {
+func (m *ScrapingSettingMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case scrapingselector.FieldSelector:
+	case scrapingsetting.FieldSelector:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSelector(v)
 		return nil
-	case scrapingselector.FieldInnerSelector:
+	case scrapingsetting.FieldInnerSelector:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetInnerSelector(v)
 		return nil
-	case scrapingselector.FieldTitleSelector:
+	case scrapingsetting.FieldTitleSelector:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTitleSelector(v)
 		return nil
-	case scrapingselector.FieldDescriptionSelector:
+	case scrapingsetting.FieldDescriptionSelector:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescriptionSelector(v)
 		return nil
-	case scrapingselector.FieldLinkSelector:
+	case scrapingsetting.FieldLinkSelector:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLinkSelector(v)
 		return nil
-	case scrapingselector.FieldCreatedAt:
+	case scrapingsetting.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
 		return nil
-	case scrapingselector.FieldUpdatedAt:
+	case scrapingsetting.FieldUpdatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -2135,108 +2135,108 @@ func (m *ScrapingSelectorMutation) SetField(name string, value ent.Value) error 
 		m.SetUpdatedAt(v)
 		return nil
 	}
-	return fmt.Errorf("unknown ScrapingSelector field %s", name)
+	return fmt.Errorf("unknown ScrapingSetting field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *ScrapingSelectorMutation) AddedFields() []string {
+func (m *ScrapingSettingMutation) AddedFields() []string {
 	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *ScrapingSelectorMutation) AddedField(name string) (ent.Value, bool) {
+func (m *ScrapingSettingMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ScrapingSelectorMutation) AddField(name string, value ent.Value) error {
+func (m *ScrapingSettingMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown ScrapingSelector numeric field %s", name)
+	return fmt.Errorf("unknown ScrapingSetting numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *ScrapingSelectorMutation) ClearedFields() []string {
+func (m *ScrapingSettingMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(scrapingselector.FieldDescriptionSelector) {
-		fields = append(fields, scrapingselector.FieldDescriptionSelector)
+	if m.FieldCleared(scrapingsetting.FieldDescriptionSelector) {
+		fields = append(fields, scrapingsetting.FieldDescriptionSelector)
 	}
-	if m.FieldCleared(scrapingselector.FieldLinkSelector) {
-		fields = append(fields, scrapingselector.FieldLinkSelector)
+	if m.FieldCleared(scrapingsetting.FieldLinkSelector) {
+		fields = append(fields, scrapingsetting.FieldLinkSelector)
 	}
 	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *ScrapingSelectorMutation) FieldCleared(name string) bool {
+func (m *ScrapingSettingMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *ScrapingSelectorMutation) ClearField(name string) error {
+func (m *ScrapingSettingMutation) ClearField(name string) error {
 	switch name {
-	case scrapingselector.FieldDescriptionSelector:
+	case scrapingsetting.FieldDescriptionSelector:
 		m.ClearDescriptionSelector()
 		return nil
-	case scrapingselector.FieldLinkSelector:
+	case scrapingsetting.FieldLinkSelector:
 		m.ClearLinkSelector()
 		return nil
 	}
-	return fmt.Errorf("unknown ScrapingSelector nullable field %s", name)
+	return fmt.Errorf("unknown ScrapingSetting nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *ScrapingSelectorMutation) ResetField(name string) error {
+func (m *ScrapingSettingMutation) ResetField(name string) error {
 	switch name {
-	case scrapingselector.FieldSelector:
+	case scrapingsetting.FieldSelector:
 		m.ResetSelector()
 		return nil
-	case scrapingselector.FieldInnerSelector:
+	case scrapingsetting.FieldInnerSelector:
 		m.ResetInnerSelector()
 		return nil
-	case scrapingselector.FieldTitleSelector:
+	case scrapingsetting.FieldTitleSelector:
 		m.ResetTitleSelector()
 		return nil
-	case scrapingselector.FieldDescriptionSelector:
+	case scrapingsetting.FieldDescriptionSelector:
 		m.ResetDescriptionSelector()
 		return nil
-	case scrapingselector.FieldLinkSelector:
+	case scrapingsetting.FieldLinkSelector:
 		m.ResetLinkSelector()
 		return nil
-	case scrapingselector.FieldCreatedAt:
+	case scrapingsetting.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
-	case scrapingselector.FieldUpdatedAt:
+	case scrapingsetting.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
 	}
-	return fmt.Errorf("unknown ScrapingSelector field %s", name)
+	return fmt.Errorf("unknown ScrapingSetting field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *ScrapingSelectorMutation) AddedEdges() []string {
+func (m *ScrapingSettingMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.site != nil {
-		edges = append(edges, scrapingselector.EdgeSite)
+		edges = append(edges, scrapingsetting.EdgeSite)
 	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *ScrapingSelectorMutation) AddedIDs(name string) []ent.Value {
+func (m *ScrapingSettingMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case scrapingselector.EdgeSite:
+	case scrapingsetting.EdgeSite:
 		if id := m.site; id != nil {
 			return []ent.Value{*id}
 		}
@@ -2245,31 +2245,31 @@ func (m *ScrapingSelectorMutation) AddedIDs(name string) []ent.Value {
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *ScrapingSelectorMutation) RemovedEdges() []string {
+func (m *ScrapingSettingMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *ScrapingSelectorMutation) RemovedIDs(name string) []ent.Value {
+func (m *ScrapingSettingMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *ScrapingSelectorMutation) ClearedEdges() []string {
+func (m *ScrapingSettingMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.clearedsite {
-		edges = append(edges, scrapingselector.EdgeSite)
+		edges = append(edges, scrapingsetting.EdgeSite)
 	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *ScrapingSelectorMutation) EdgeCleared(name string) bool {
+func (m *ScrapingSettingMutation) EdgeCleared(name string) bool {
 	switch name {
-	case scrapingselector.EdgeSite:
+	case scrapingsetting.EdgeSite:
 		return m.clearedsite
 	}
 	return false
@@ -2277,24 +2277,24 @@ func (m *ScrapingSelectorMutation) EdgeCleared(name string) bool {
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *ScrapingSelectorMutation) ClearEdge(name string) error {
+func (m *ScrapingSettingMutation) ClearEdge(name string) error {
 	switch name {
-	case scrapingselector.EdgeSite:
+	case scrapingsetting.EdgeSite:
 		m.ClearSite()
 		return nil
 	}
-	return fmt.Errorf("unknown ScrapingSelector unique edge %s", name)
+	return fmt.Errorf("unknown ScrapingSetting unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *ScrapingSelectorMutation) ResetEdge(name string) error {
+func (m *ScrapingSettingMutation) ResetEdge(name string) error {
 	switch name {
-	case scrapingselector.EdgeSite:
+	case scrapingsetting.EdgeSite:
 		m.ResetSite()
 		return nil
 	}
-	return fmt.Errorf("unknown ScrapingSelector edge %s", name)
+	return fmt.Errorf("unknown ScrapingSetting edge %s", name)
 }
 
 // SiteMutation represents an operation that mutates the Site nodes in the graph.
@@ -2311,8 +2311,9 @@ type SiteMutation struct {
 	created_at               *time.Time
 	updated_at               *time.Time
 	clearedFields            map[string]struct{}
-	scraping_selector        *int
-	clearedscraping_selector bool
+	scraping_settings        map[int]struct{}
+	removedscraping_settings map[int]struct{}
+	clearedscraping_settings bool
 	feeds                    map[uuid.UUID]struct{}
 	removedfeeds             map[uuid.UUID]struct{}
 	clearedfeeds             bool
@@ -2690,43 +2691,58 @@ func (m *SiteMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by id.
-func (m *SiteMutation) SetScrapingSelectorID(id int) {
-	m.scraping_selector = &id
+// AddScrapingSettingIDs adds the "scraping_settings" edge to the ScrapingSetting entity by ids.
+func (m *SiteMutation) AddScrapingSettingIDs(ids ...int) {
+	if m.scraping_settings == nil {
+		m.scraping_settings = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.scraping_settings[ids[i]] = struct{}{}
+	}
 }
 
-// ClearScrapingSelector clears the "scraping_selector" edge to the ScrapingSelector entity.
-func (m *SiteMutation) ClearScrapingSelector() {
-	m.clearedscraping_selector = true
+// ClearScrapingSettings clears the "scraping_settings" edge to the ScrapingSetting entity.
+func (m *SiteMutation) ClearScrapingSettings() {
+	m.clearedscraping_settings = true
 }
 
-// ScrapingSelectorCleared reports if the "scraping_selector" edge to the ScrapingSelector entity was cleared.
-func (m *SiteMutation) ScrapingSelectorCleared() bool {
-	return m.clearedscraping_selector
+// ScrapingSettingsCleared reports if the "scraping_settings" edge to the ScrapingSetting entity was cleared.
+func (m *SiteMutation) ScrapingSettingsCleared() bool {
+	return m.clearedscraping_settings
 }
 
-// ScrapingSelectorID returns the "scraping_selector" edge ID in the mutation.
-func (m *SiteMutation) ScrapingSelectorID() (id int, exists bool) {
-	if m.scraping_selector != nil {
-		return *m.scraping_selector, true
+// RemoveScrapingSettingIDs removes the "scraping_settings" edge to the ScrapingSetting entity by IDs.
+func (m *SiteMutation) RemoveScrapingSettingIDs(ids ...int) {
+	if m.removedscraping_settings == nil {
+		m.removedscraping_settings = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.scraping_settings, ids[i])
+		m.removedscraping_settings[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedScrapingSettings returns the removed IDs of the "scraping_settings" edge to the ScrapingSetting entity.
+func (m *SiteMutation) RemovedScrapingSettingsIDs() (ids []int) {
+	for id := range m.removedscraping_settings {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ScrapingSelectorIDs returns the "scraping_selector" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ScrapingSelectorID instead. It exists only for internal usage by the builders.
-func (m *SiteMutation) ScrapingSelectorIDs() (ids []int) {
-	if id := m.scraping_selector; id != nil {
-		ids = append(ids, *id)
+// ScrapingSettingsIDs returns the "scraping_settings" edge IDs in the mutation.
+func (m *SiteMutation) ScrapingSettingsIDs() (ids []int) {
+	for id := range m.scraping_settings {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetScrapingSelector resets all changes to the "scraping_selector" edge.
-func (m *SiteMutation) ResetScrapingSelector() {
-	m.scraping_selector = nil
-	m.clearedscraping_selector = false
+// ResetScrapingSettings resets all changes to the "scraping_settings" edge.
+func (m *SiteMutation) ResetScrapingSettings() {
+	m.scraping_settings = nil
+	m.clearedscraping_settings = false
+	m.removedscraping_settings = nil
 }
 
 // AddFeedIDs adds the "feeds" edge to the Feed entity by ids.
@@ -3028,8 +3044,8 @@ func (m *SiteMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SiteMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.scraping_selector != nil {
-		edges = append(edges, site.EdgeScrapingSelector)
+	if m.scraping_settings != nil {
+		edges = append(edges, site.EdgeScrapingSettings)
 	}
 	if m.feeds != nil {
 		edges = append(edges, site.EdgeFeeds)
@@ -3041,10 +3057,12 @@ func (m *SiteMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *SiteMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case site.EdgeScrapingSelector:
-		if id := m.scraping_selector; id != nil {
-			return []ent.Value{*id}
+	case site.EdgeScrapingSettings:
+		ids := make([]ent.Value, 0, len(m.scraping_settings))
+		for id := range m.scraping_settings {
+			ids = append(ids, id)
 		}
+		return ids
 	case site.EdgeFeeds:
 		ids := make([]ent.Value, 0, len(m.feeds))
 		for id := range m.feeds {
@@ -3058,6 +3076,9 @@ func (m *SiteMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SiteMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
+	if m.removedscraping_settings != nil {
+		edges = append(edges, site.EdgeScrapingSettings)
+	}
 	if m.removedfeeds != nil {
 		edges = append(edges, site.EdgeFeeds)
 	}
@@ -3068,6 +3089,12 @@ func (m *SiteMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *SiteMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case site.EdgeScrapingSettings:
+		ids := make([]ent.Value, 0, len(m.removedscraping_settings))
+		for id := range m.removedscraping_settings {
+			ids = append(ids, id)
+		}
+		return ids
 	case site.EdgeFeeds:
 		ids := make([]ent.Value, 0, len(m.removedfeeds))
 		for id := range m.removedfeeds {
@@ -3081,8 +3108,8 @@ func (m *SiteMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SiteMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedscraping_selector {
-		edges = append(edges, site.EdgeScrapingSelector)
+	if m.clearedscraping_settings {
+		edges = append(edges, site.EdgeScrapingSettings)
 	}
 	if m.clearedfeeds {
 		edges = append(edges, site.EdgeFeeds)
@@ -3094,8 +3121,8 @@ func (m *SiteMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *SiteMutation) EdgeCleared(name string) bool {
 	switch name {
-	case site.EdgeScrapingSelector:
-		return m.clearedscraping_selector
+	case site.EdgeScrapingSettings:
+		return m.clearedscraping_settings
 	case site.EdgeFeeds:
 		return m.clearedfeeds
 	}
@@ -3106,9 +3133,6 @@ func (m *SiteMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *SiteMutation) ClearEdge(name string) error {
 	switch name {
-	case site.EdgeScrapingSelector:
-		m.ClearScrapingSelector()
-		return nil
 	}
 	return fmt.Errorf("unknown Site unique edge %s", name)
 }
@@ -3117,8 +3141,8 @@ func (m *SiteMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *SiteMutation) ResetEdge(name string) error {
 	switch name {
-	case site.EdgeScrapingSelector:
-		m.ResetScrapingSelector()
+	case site.EdgeScrapingSettings:
+		m.ResetScrapingSettings()
 		return nil
 	case site.EdgeFeeds:
 		m.ResetFeeds()

@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/predicate"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -24,9 +24,8 @@ type SiteQuery struct {
 	order                []site.OrderOption
 	inters               []Interceptor
 	predicates           []predicate.Site
-	withScrapingSelector *ScrapingSelectorQuery
+	withScrapingSettings *ScrapingSettingQuery
 	withFeeds            *FeedQuery
-	withFKs              bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,9 +62,9 @@ func (sq *SiteQuery) Order(o ...site.OrderOption) *SiteQuery {
 	return sq
 }
 
-// QueryScrapingSelector chains the current query on the "scraping_selector" edge.
-func (sq *SiteQuery) QueryScrapingSelector() *ScrapingSelectorQuery {
-	query := (&ScrapingSelectorClient{config: sq.config}).Query()
+// QueryScrapingSettings chains the current query on the "scraping_settings" edge.
+func (sq *SiteQuery) QueryScrapingSettings() *ScrapingSettingQuery {
+	query := (&ScrapingSettingClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -76,8 +75,8 @@ func (sq *SiteQuery) QueryScrapingSelector() *ScrapingSelectorQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(site.Table, site.FieldID, selector),
-			sqlgraph.To(scrapingselector.Table, scrapingselector.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, site.ScrapingSelectorTable, site.ScrapingSelectorColumn),
+			sqlgraph.To(scrapingsetting.Table, scrapingsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, site.ScrapingSettingsTable, site.ScrapingSettingsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -299,7 +298,7 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 		order:                append([]site.OrderOption{}, sq.order...),
 		inters:               append([]Interceptor{}, sq.inters...),
 		predicates:           append([]predicate.Site{}, sq.predicates...),
-		withScrapingSelector: sq.withScrapingSelector.Clone(),
+		withScrapingSettings: sq.withScrapingSettings.Clone(),
 		withFeeds:            sq.withFeeds.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
@@ -307,14 +306,14 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 	}
 }
 
-// WithScrapingSelector tells the query-builder to eager-load the nodes that are connected to
-// the "scraping_selector" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SiteQuery) WithScrapingSelector(opts ...func(*ScrapingSelectorQuery)) *SiteQuery {
-	query := (&ScrapingSelectorClient{config: sq.config}).Query()
+// WithScrapingSettings tells the query-builder to eager-load the nodes that are connected to
+// the "scraping_settings" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithScrapingSettings(opts ...func(*ScrapingSettingQuery)) *SiteQuery {
+	query := (&ScrapingSettingClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withScrapingSelector = query
+	sq.withScrapingSettings = query
 	return sq
 }
 
@@ -406,19 +405,12 @@ func (sq *SiteQuery) prepareQuery(ctx context.Context) error {
 func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, error) {
 	var (
 		nodes       = []*Site{}
-		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
 		loadedTypes = [2]bool{
-			sq.withScrapingSelector != nil,
+			sq.withScrapingSettings != nil,
 			sq.withFeeds != nil,
 		}
 	)
-	if sq.withScrapingSelector != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, site.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Site).scanValues(nil, columns)
 	}
@@ -437,9 +429,10 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sq.withScrapingSelector; query != nil {
-		if err := sq.loadScrapingSelector(ctx, query, nodes, nil,
-			func(n *Site, e *ScrapingSelector) { n.Edges.ScrapingSelector = e }); err != nil {
+	if query := sq.withScrapingSettings; query != nil {
+		if err := sq.loadScrapingSettings(ctx, query, nodes,
+			func(n *Site) { n.Edges.ScrapingSettings = []*ScrapingSetting{} },
+			func(n *Site, e *ScrapingSetting) { n.Edges.ScrapingSettings = append(n.Edges.ScrapingSettings, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -453,35 +446,34 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	return nodes, nil
 }
 
-func (sq *SiteQuery) loadScrapingSelector(ctx context.Context, query *ScrapingSelectorQuery, nodes []*Site, init func(*Site), assign func(*Site, *ScrapingSelector)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Site)
+func (sq *SiteQuery) loadScrapingSettings(ctx context.Context, query *ScrapingSettingQuery, nodes []*Site, init func(*Site), assign func(*Site, *ScrapingSetting)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Site)
 	for i := range nodes {
-		if nodes[i].site_id == nil {
-			continue
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		fk := *nodes[i].site_id
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(scrapingselector.IDIn(ids...))
+	query.withFKs = true
+	query.Where(predicate.ScrapingSetting(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(site.ScrapingSettingsColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.site_id
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "site_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "site_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "site_id" returned %v for node %v`, *fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }

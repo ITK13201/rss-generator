@@ -60,8 +60,8 @@ var (
 			},
 		},
 	}
-	// ScrapingSelectorsColumns holds the columns for the "scraping_selectors" table.
-	ScrapingSelectorsColumns = []*schema.Column{
+	// ScrapingSettingsColumns holds the columns for the "scraping_settings" table.
+	ScrapingSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "selector", Type: field.TypeString},
 		{Name: "inner_selector", Type: field.TypeString},
@@ -70,12 +70,21 @@ var (
 		{Name: "link_selector", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "site_id", Type: field.TypeInt},
 	}
-	// ScrapingSelectorsTable holds the schema information for the "scraping_selectors" table.
-	ScrapingSelectorsTable = &schema.Table{
-		Name:       "scraping_selectors",
-		Columns:    ScrapingSelectorsColumns,
-		PrimaryKey: []*schema.Column{ScrapingSelectorsColumns[0]},
+	// ScrapingSettingsTable holds the schema information for the "scraping_settings" table.
+	ScrapingSettingsTable = &schema.Table{
+		Name:       "scraping_settings",
+		Columns:    ScrapingSettingsColumns,
+		PrimaryKey: []*schema.Column{ScrapingSettingsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "scraping_settings_sites_site",
+				Columns:    []*schema.Column{ScrapingSettingsColumns[8]},
+				RefColumns: []*schema.Column{SitesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// SitesColumns holds the columns for the "sites" table.
 	SitesColumns = []*schema.Column{
@@ -87,27 +96,18 @@ var (
 		{Name: "enable_js_rendering", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "site_id", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// SitesTable holds the schema information for the "sites" table.
 	SitesTable = &schema.Table{
 		Name:       "sites",
 		Columns:    SitesColumns,
 		PrimaryKey: []*schema.Column{SitesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "sites_scraping_selectors_site",
-				Columns:    []*schema.Column{SitesColumns[8]},
-				RefColumns: []*schema.Column{ScrapingSelectorsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		FeedsTable,
 		FeedItemsTable,
-		ScrapingSelectorsTable,
+		ScrapingSettingsTable,
 		SitesTable,
 	}
 )
@@ -121,10 +121,10 @@ func init() {
 	FeedItemsTable.Annotation = &entsql.Annotation{
 		Table: "feed_items",
 	}
-	ScrapingSelectorsTable.Annotation = &entsql.Annotation{
-		Table: "scraping_selectors",
+	ScrapingSettingsTable.ForeignKeys[0].RefTable = SitesTable
+	ScrapingSettingsTable.Annotation = &entsql.Annotation{
+		Table: "scraping_settings",
 	}
-	SitesTable.ForeignKeys[0].RefTable = ScrapingSelectorsTable
 	SitesTable.Annotation = &entsql.Annotation{
 		Table: "sites",
 	}

@@ -12,8 +12,8 @@ type Feed func(*sql.Selector)
 // FeedItem is the predicate function for feeditem builders.
 type FeedItem func(*sql.Selector)
 
-// ScrapingSelector is the predicate function for scrapingselector builders.
-type ScrapingSelector func(*sql.Selector)
+// ScrapingSetting is the predicate function for scrapingsetting builders.
+type ScrapingSetting func(*sql.Selector)
 
 // Site is the predicate function for site builders.
 type Site func(*sql.Selector)

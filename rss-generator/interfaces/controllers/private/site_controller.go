@@ -15,6 +15,7 @@ import (
 type SiteController interface {
 	Create(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	Update(ctx *gin.Context)
 }
 
 type siteController struct {
@@ -81,6 +82,46 @@ func (sc *siteController) Delete(c *gin.Context) {
 			"error": err.Error(),
 			"slug":  slug,
 		}).Error("site delete failed")
+		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	rest.RespondOKWithData(c, gin.H{"slug": slug})
+}
+
+func (sc *siteController) Update(c *gin.Context) {
+	slug := c.Param("slug")
+	s, err := sc.sqlClient.Site.Query().Where(site.SlugEQ(slug)).Only(c.Request.Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			rest.RespondMessage(c, http.StatusNotFound, err.Error())
+			return
+		} else {
+			sc.logger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"slug":  slug,
+			}).Error("site query failed")
+			rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+	var input domain.SitesUpdateInput
+	err = c.Bind(&input)
+	if err != nil {
+		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = sc.sqlClient.Site.UpdateOne(s).
+		SetNillableTitle(input.Title).
+		SetNillableDescription(input.Description).
+		SetNillableURL(input.URL).
+		SetNillableEnableJsRendering(input.EnableJSRendering).
+		Exec(c.Request.Context())
+	if err != nil {
+		sc.logger.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"slug":  slug,
+		}).Error("site update failed")
 		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -14,7 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/feeditem"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -76,10 +76,10 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			feed.Table:             feed.ValidColumn,
-			feeditem.Table:         feeditem.ValidColumn,
-			scrapingselector.Table: scrapingselector.ValidColumn,
-			site.Table:             site.ValidColumn,
+			feed.Table:            feed.ValidColumn,
+			feeditem.Table:        feeditem.ValidColumn,
+			scrapingsetting.Table: scrapingsetting.ValidColumn,
+			site.Table:            site.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

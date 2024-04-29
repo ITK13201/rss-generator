@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/feed"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/google/uuid"
 )
@@ -105,23 +105,19 @@ func (sc *SiteCreate) SetID(i int) *SiteCreate {
 	return sc
 }
 
-// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID.
-func (sc *SiteCreate) SetScrapingSelectorID(id int) *SiteCreate {
-	sc.mutation.SetScrapingSelectorID(id)
+// AddScrapingSettingIDs adds the "scraping_settings" edge to the ScrapingSetting entity by IDs.
+func (sc *SiteCreate) AddScrapingSettingIDs(ids ...int) *SiteCreate {
+	sc.mutation.AddScrapingSettingIDs(ids...)
 	return sc
 }
 
-// SetNillableScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID if the given value is not nil.
-func (sc *SiteCreate) SetNillableScrapingSelectorID(id *int) *SiteCreate {
-	if id != nil {
-		sc = sc.SetScrapingSelectorID(*id)
+// AddScrapingSettings adds the "scraping_settings" edges to the ScrapingSetting entity.
+func (sc *SiteCreate) AddScrapingSettings(s ...*ScrapingSetting) *SiteCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return sc
-}
-
-// SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
-func (sc *SiteCreate) SetScrapingSelector(s *ScrapingSelector) *SiteCreate {
-	return sc.SetScrapingSelectorID(s.ID)
+	return sc.AddScrapingSettingIDs(ids...)
 }
 
 // AddFeedIDs adds the "feeds" edge to the Feed entity by IDs.
@@ -284,21 +280,20 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 		_spec.SetField(site.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := sc.mutation.ScrapingSelectorIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.ScrapingSettingsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   site.ScrapingSelectorTable,
-			Columns: []string{site.ScrapingSelectorColumn},
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.site_id = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.FeedsIDs(); len(nodes) > 0 {

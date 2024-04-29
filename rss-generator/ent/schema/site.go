@@ -31,7 +31,7 @@ func (Site) Fields() []ent.Field {
 // Edges of the Site.
 func (Site) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("scraping_selector", ScrapingSelector.Type).Ref("site").Unique(),
+		edge.From("scraping_settings", ScrapingSetting.Type).Ref("site"),
 		edge.From("feeds", Feed.Type).Ref("site"),
 	}
 }

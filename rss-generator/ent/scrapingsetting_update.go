@@ -12,31 +12,31 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/predicate"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
-// ScrapingSelectorUpdate is the builder for updating ScrapingSelector entities.
-type ScrapingSelectorUpdate struct {
+// ScrapingSettingUpdate is the builder for updating ScrapingSetting entities.
+type ScrapingSettingUpdate struct {
 	config
 	hooks    []Hook
-	mutation *ScrapingSelectorMutation
+	mutation *ScrapingSettingMutation
 }
 
-// Where appends a list predicates to the ScrapingSelectorUpdate builder.
-func (ssu *ScrapingSelectorUpdate) Where(ps ...predicate.ScrapingSelector) *ScrapingSelectorUpdate {
+// Where appends a list predicates to the ScrapingSettingUpdate builder.
+func (ssu *ScrapingSettingUpdate) Where(ps ...predicate.ScrapingSetting) *ScrapingSettingUpdate {
 	ssu.mutation.Where(ps...)
 	return ssu
 }
 
 // SetSelector sets the "selector" field.
-func (ssu *ScrapingSelectorUpdate) SetSelector(s string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetSelector(s string) *ScrapingSettingUpdate {
 	ssu.mutation.SetSelector(s)
 	return ssu
 }
 
 // SetNillableSelector sets the "selector" field if the given value is not nil.
-func (ssu *ScrapingSelectorUpdate) SetNillableSelector(s *string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetNillableSelector(s *string) *ScrapingSettingUpdate {
 	if s != nil {
 		ssu.SetSelector(*s)
 	}
@@ -44,13 +44,13 @@ func (ssu *ScrapingSelectorUpdate) SetNillableSelector(s *string) *ScrapingSelec
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (ssu *ScrapingSelectorUpdate) SetInnerSelector(s string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetInnerSelector(s string) *ScrapingSettingUpdate {
 	ssu.mutation.SetInnerSelector(s)
 	return ssu
 }
 
 // SetNillableInnerSelector sets the "inner_selector" field if the given value is not nil.
-func (ssu *ScrapingSelectorUpdate) SetNillableInnerSelector(s *string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetNillableInnerSelector(s *string) *ScrapingSettingUpdate {
 	if s != nil {
 		ssu.SetInnerSelector(*s)
 	}
@@ -58,13 +58,13 @@ func (ssu *ScrapingSelectorUpdate) SetNillableInnerSelector(s *string) *Scraping
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (ssu *ScrapingSelectorUpdate) SetTitleSelector(s string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetTitleSelector(s string) *ScrapingSettingUpdate {
 	ssu.mutation.SetTitleSelector(s)
 	return ssu
 }
 
 // SetNillableTitleSelector sets the "title_selector" field if the given value is not nil.
-func (ssu *ScrapingSelectorUpdate) SetNillableTitleSelector(s *string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetNillableTitleSelector(s *string) *ScrapingSettingUpdate {
 	if s != nil {
 		ssu.SetTitleSelector(*s)
 	}
@@ -72,13 +72,13 @@ func (ssu *ScrapingSelectorUpdate) SetNillableTitleSelector(s *string) *Scraping
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (ssu *ScrapingSelectorUpdate) SetDescriptionSelector(s string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetDescriptionSelector(s string) *ScrapingSettingUpdate {
 	ssu.mutation.SetDescriptionSelector(s)
 	return ssu
 }
 
 // SetNillableDescriptionSelector sets the "description_selector" field if the given value is not nil.
-func (ssu *ScrapingSelectorUpdate) SetNillableDescriptionSelector(s *string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetNillableDescriptionSelector(s *string) *ScrapingSettingUpdate {
 	if s != nil {
 		ssu.SetDescriptionSelector(*s)
 	}
@@ -86,19 +86,19 @@ func (ssu *ScrapingSelectorUpdate) SetNillableDescriptionSelector(s *string) *Sc
 }
 
 // ClearDescriptionSelector clears the value of the "description_selector" field.
-func (ssu *ScrapingSelectorUpdate) ClearDescriptionSelector() *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) ClearDescriptionSelector() *ScrapingSettingUpdate {
 	ssu.mutation.ClearDescriptionSelector()
 	return ssu
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (ssu *ScrapingSelectorUpdate) SetLinkSelector(s string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetLinkSelector(s string) *ScrapingSettingUpdate {
 	ssu.mutation.SetLinkSelector(s)
 	return ssu
 }
 
 // SetNillableLinkSelector sets the "link_selector" field if the given value is not nil.
-func (ssu *ScrapingSelectorUpdate) SetNillableLinkSelector(s *string) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetNillableLinkSelector(s *string) *ScrapingSettingUpdate {
 	if s != nil {
 		ssu.SetLinkSelector(*s)
 	}
@@ -106,19 +106,19 @@ func (ssu *ScrapingSelectorUpdate) SetNillableLinkSelector(s *string) *ScrapingS
 }
 
 // ClearLinkSelector clears the value of the "link_selector" field.
-func (ssu *ScrapingSelectorUpdate) ClearLinkSelector() *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) ClearLinkSelector() *ScrapingSettingUpdate {
 	ssu.mutation.ClearLinkSelector()
 	return ssu
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ssu *ScrapingSelectorUpdate) SetCreatedAt(t time.Time) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetCreatedAt(t time.Time) *ScrapingSettingUpdate {
 	ssu.mutation.SetCreatedAt(t)
 	return ssu
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ssu *ScrapingSelectorUpdate) SetNillableCreatedAt(t *time.Time) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetNillableCreatedAt(t *time.Time) *ScrapingSettingUpdate {
 	if t != nil {
 		ssu.SetCreatedAt(*t)
 	}
@@ -126,41 +126,41 @@ func (ssu *ScrapingSelectorUpdate) SetNillableCreatedAt(t *time.Time) *ScrapingS
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ssu *ScrapingSelectorUpdate) SetUpdatedAt(t time.Time) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetUpdatedAt(t time.Time) *ScrapingSettingUpdate {
 	ssu.mutation.SetUpdatedAt(t)
 	return ssu
 }
 
 // SetSiteID sets the "site" edge to the Site entity by ID.
-func (ssu *ScrapingSelectorUpdate) SetSiteID(id int) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetSiteID(id int) *ScrapingSettingUpdate {
 	ssu.mutation.SetSiteID(id)
 	return ssu
 }
 
 // SetSite sets the "site" edge to the Site entity.
-func (ssu *ScrapingSelectorUpdate) SetSite(s *Site) *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) SetSite(s *Site) *ScrapingSettingUpdate {
 	return ssu.SetSiteID(s.ID)
 }
 
-// Mutation returns the ScrapingSelectorMutation object of the builder.
-func (ssu *ScrapingSelectorUpdate) Mutation() *ScrapingSelectorMutation {
+// Mutation returns the ScrapingSettingMutation object of the builder.
+func (ssu *ScrapingSettingUpdate) Mutation() *ScrapingSettingMutation {
 	return ssu.mutation
 }
 
 // ClearSite clears the "site" edge to the Site entity.
-func (ssu *ScrapingSelectorUpdate) ClearSite() *ScrapingSelectorUpdate {
+func (ssu *ScrapingSettingUpdate) ClearSite() *ScrapingSettingUpdate {
 	ssu.mutation.ClearSite()
 	return ssu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (ssu *ScrapingSelectorUpdate) Save(ctx context.Context) (int, error) {
+func (ssu *ScrapingSettingUpdate) Save(ctx context.Context) (int, error) {
 	ssu.defaults()
 	return withHooks(ctx, ssu.sqlSave, ssu.mutation, ssu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ssu *ScrapingSelectorUpdate) SaveX(ctx context.Context) int {
+func (ssu *ScrapingSettingUpdate) SaveX(ctx context.Context) int {
 	affected, err := ssu.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -169,54 +169,54 @@ func (ssu *ScrapingSelectorUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (ssu *ScrapingSelectorUpdate) Exec(ctx context.Context) error {
+func (ssu *ScrapingSettingUpdate) Exec(ctx context.Context) error {
 	_, err := ssu.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ssu *ScrapingSelectorUpdate) ExecX(ctx context.Context) {
+func (ssu *ScrapingSettingUpdate) ExecX(ctx context.Context) {
 	if err := ssu.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ssu *ScrapingSelectorUpdate) defaults() {
+func (ssu *ScrapingSettingUpdate) defaults() {
 	if _, ok := ssu.mutation.UpdatedAt(); !ok {
-		v := scrapingselector.UpdateDefaultUpdatedAt()
+		v := scrapingsetting.UpdateDefaultUpdatedAt()
 		ssu.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ssu *ScrapingSelectorUpdate) check() error {
+func (ssu *ScrapingSettingUpdate) check() error {
 	if v, ok := ssu.mutation.Selector(); ok {
-		if err := scrapingselector.SelectorValidator(v); err != nil {
-			return &ValidationError{Name: "selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.selector": %w`, err)}
+		if err := scrapingsetting.SelectorValidator(v); err != nil {
+			return &ValidationError{Name: "selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.selector": %w`, err)}
 		}
 	}
 	if v, ok := ssu.mutation.InnerSelector(); ok {
-		if err := scrapingselector.InnerSelectorValidator(v); err != nil {
-			return &ValidationError{Name: "inner_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.inner_selector": %w`, err)}
+		if err := scrapingsetting.InnerSelectorValidator(v); err != nil {
+			return &ValidationError{Name: "inner_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.inner_selector": %w`, err)}
 		}
 	}
 	if v, ok := ssu.mutation.TitleSelector(); ok {
-		if err := scrapingselector.TitleSelectorValidator(v); err != nil {
-			return &ValidationError{Name: "title_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.title_selector": %w`, err)}
+		if err := scrapingsetting.TitleSelectorValidator(v); err != nil {
+			return &ValidationError{Name: "title_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.title_selector": %w`, err)}
 		}
 	}
 	if _, ok := ssu.mutation.SiteID(); ssu.mutation.SiteCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "ScrapingSelector.site"`)
+		return errors.New(`ent: clearing a required unique edge "ScrapingSetting.site"`)
 	}
 	return nil
 }
 
-func (ssu *ScrapingSelectorUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (ssu *ScrapingSettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := ssu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(scrapingselector.Table, scrapingselector.Columns, sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(scrapingsetting.Table, scrapingsetting.Columns, sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt))
 	if ps := ssu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -225,38 +225,38 @@ func (ssu *ScrapingSelectorUpdate) sqlSave(ctx context.Context) (n int, err erro
 		}
 	}
 	if value, ok := ssu.mutation.Selector(); ok {
-		_spec.SetField(scrapingselector.FieldSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldSelector, field.TypeString, value)
 	}
 	if value, ok := ssu.mutation.InnerSelector(); ok {
-		_spec.SetField(scrapingselector.FieldInnerSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldInnerSelector, field.TypeString, value)
 	}
 	if value, ok := ssu.mutation.TitleSelector(); ok {
-		_spec.SetField(scrapingselector.FieldTitleSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldTitleSelector, field.TypeString, value)
 	}
 	if value, ok := ssu.mutation.DescriptionSelector(); ok {
-		_spec.SetField(scrapingselector.FieldDescriptionSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldDescriptionSelector, field.TypeString, value)
 	}
 	if ssu.mutation.DescriptionSelectorCleared() {
-		_spec.ClearField(scrapingselector.FieldDescriptionSelector, field.TypeString)
+		_spec.ClearField(scrapingsetting.FieldDescriptionSelector, field.TypeString)
 	}
 	if value, ok := ssu.mutation.LinkSelector(); ok {
-		_spec.SetField(scrapingselector.FieldLinkSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldLinkSelector, field.TypeString, value)
 	}
 	if ssu.mutation.LinkSelectorCleared() {
-		_spec.ClearField(scrapingselector.FieldLinkSelector, field.TypeString)
+		_spec.ClearField(scrapingsetting.FieldLinkSelector, field.TypeString)
 	}
 	if value, ok := ssu.mutation.CreatedAt(); ok {
-		_spec.SetField(scrapingselector.FieldCreatedAt, field.TypeTime, value)
+		_spec.SetField(scrapingsetting.FieldCreatedAt, field.TypeTime, value)
 	}
 	if value, ok := ssu.mutation.UpdatedAt(); ok {
-		_spec.SetField(scrapingselector.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(scrapingsetting.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if ssu.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   scrapingselector.SiteTable,
-			Columns: []string{scrapingselector.SiteColumn},
+			Table:   scrapingsetting.SiteTable,
+			Columns: []string{scrapingsetting.SiteColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt),
@@ -266,10 +266,10 @@ func (ssu *ScrapingSelectorUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if nodes := ssu.mutation.SiteIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   scrapingselector.SiteTable,
-			Columns: []string{scrapingselector.SiteColumn},
+			Table:   scrapingsetting.SiteTable,
+			Columns: []string{scrapingsetting.SiteColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt),
@@ -282,7 +282,7 @@ func (ssu *ScrapingSelectorUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, ssu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{scrapingselector.Label}
+			err = &NotFoundError{scrapingsetting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -292,22 +292,22 @@ func (ssu *ScrapingSelectorUpdate) sqlSave(ctx context.Context) (n int, err erro
 	return n, nil
 }
 
-// ScrapingSelectorUpdateOne is the builder for updating a single ScrapingSelector entity.
-type ScrapingSelectorUpdateOne struct {
+// ScrapingSettingUpdateOne is the builder for updating a single ScrapingSetting entity.
+type ScrapingSettingUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *ScrapingSelectorMutation
+	mutation *ScrapingSettingMutation
 }
 
 // SetSelector sets the "selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetSelector(s string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetSelector(s string) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetSelector(s)
 	return ssuo
 }
 
 // SetNillableSelector sets the "selector" field if the given value is not nil.
-func (ssuo *ScrapingSelectorUpdateOne) SetNillableSelector(s *string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetNillableSelector(s *string) *ScrapingSettingUpdateOne {
 	if s != nil {
 		ssuo.SetSelector(*s)
 	}
@@ -315,13 +315,13 @@ func (ssuo *ScrapingSelectorUpdateOne) SetNillableSelector(s *string) *ScrapingS
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetInnerSelector(s string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetInnerSelector(s string) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetInnerSelector(s)
 	return ssuo
 }
 
 // SetNillableInnerSelector sets the "inner_selector" field if the given value is not nil.
-func (ssuo *ScrapingSelectorUpdateOne) SetNillableInnerSelector(s *string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetNillableInnerSelector(s *string) *ScrapingSettingUpdateOne {
 	if s != nil {
 		ssuo.SetInnerSelector(*s)
 	}
@@ -329,13 +329,13 @@ func (ssuo *ScrapingSelectorUpdateOne) SetNillableInnerSelector(s *string) *Scra
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetTitleSelector(s string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetTitleSelector(s string) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetTitleSelector(s)
 	return ssuo
 }
 
 // SetNillableTitleSelector sets the "title_selector" field if the given value is not nil.
-func (ssuo *ScrapingSelectorUpdateOne) SetNillableTitleSelector(s *string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetNillableTitleSelector(s *string) *ScrapingSettingUpdateOne {
 	if s != nil {
 		ssuo.SetTitleSelector(*s)
 	}
@@ -343,13 +343,13 @@ func (ssuo *ScrapingSelectorUpdateOne) SetNillableTitleSelector(s *string) *Scra
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetDescriptionSelector(s string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetDescriptionSelector(s string) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetDescriptionSelector(s)
 	return ssuo
 }
 
 // SetNillableDescriptionSelector sets the "description_selector" field if the given value is not nil.
-func (ssuo *ScrapingSelectorUpdateOne) SetNillableDescriptionSelector(s *string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetNillableDescriptionSelector(s *string) *ScrapingSettingUpdateOne {
 	if s != nil {
 		ssuo.SetDescriptionSelector(*s)
 	}
@@ -357,19 +357,19 @@ func (ssuo *ScrapingSelectorUpdateOne) SetNillableDescriptionSelector(s *string)
 }
 
 // ClearDescriptionSelector clears the value of the "description_selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) ClearDescriptionSelector() *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) ClearDescriptionSelector() *ScrapingSettingUpdateOne {
 	ssuo.mutation.ClearDescriptionSelector()
 	return ssuo
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetLinkSelector(s string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetLinkSelector(s string) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetLinkSelector(s)
 	return ssuo
 }
 
 // SetNillableLinkSelector sets the "link_selector" field if the given value is not nil.
-func (ssuo *ScrapingSelectorUpdateOne) SetNillableLinkSelector(s *string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetNillableLinkSelector(s *string) *ScrapingSettingUpdateOne {
 	if s != nil {
 		ssuo.SetLinkSelector(*s)
 	}
@@ -377,19 +377,19 @@ func (ssuo *ScrapingSelectorUpdateOne) SetNillableLinkSelector(s *string) *Scrap
 }
 
 // ClearLinkSelector clears the value of the "link_selector" field.
-func (ssuo *ScrapingSelectorUpdateOne) ClearLinkSelector() *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) ClearLinkSelector() *ScrapingSettingUpdateOne {
 	ssuo.mutation.ClearLinkSelector()
 	return ssuo
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetCreatedAt(t time.Time) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetCreatedAt(t time.Time) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetCreatedAt(t)
 	return ssuo
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ssuo *ScrapingSelectorUpdateOne) SetNillableCreatedAt(t *time.Time) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetNillableCreatedAt(t *time.Time) *ScrapingSettingUpdateOne {
 	if t != nil {
 		ssuo.SetCreatedAt(*t)
 	}
@@ -397,54 +397,54 @@ func (ssuo *ScrapingSelectorUpdateOne) SetNillableCreatedAt(t *time.Time) *Scrap
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ssuo *ScrapingSelectorUpdateOne) SetUpdatedAt(t time.Time) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetUpdatedAt(t time.Time) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetUpdatedAt(t)
 	return ssuo
 }
 
 // SetSiteID sets the "site" edge to the Site entity by ID.
-func (ssuo *ScrapingSelectorUpdateOne) SetSiteID(id int) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetSiteID(id int) *ScrapingSettingUpdateOne {
 	ssuo.mutation.SetSiteID(id)
 	return ssuo
 }
 
 // SetSite sets the "site" edge to the Site entity.
-func (ssuo *ScrapingSelectorUpdateOne) SetSite(s *Site) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) SetSite(s *Site) *ScrapingSettingUpdateOne {
 	return ssuo.SetSiteID(s.ID)
 }
 
-// Mutation returns the ScrapingSelectorMutation object of the builder.
-func (ssuo *ScrapingSelectorUpdateOne) Mutation() *ScrapingSelectorMutation {
+// Mutation returns the ScrapingSettingMutation object of the builder.
+func (ssuo *ScrapingSettingUpdateOne) Mutation() *ScrapingSettingMutation {
 	return ssuo.mutation
 }
 
 // ClearSite clears the "site" edge to the Site entity.
-func (ssuo *ScrapingSelectorUpdateOne) ClearSite() *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) ClearSite() *ScrapingSettingUpdateOne {
 	ssuo.mutation.ClearSite()
 	return ssuo
 }
 
-// Where appends a list predicates to the ScrapingSelectorUpdate builder.
-func (ssuo *ScrapingSelectorUpdateOne) Where(ps ...predicate.ScrapingSelector) *ScrapingSelectorUpdateOne {
+// Where appends a list predicates to the ScrapingSettingUpdate builder.
+func (ssuo *ScrapingSettingUpdateOne) Where(ps ...predicate.ScrapingSetting) *ScrapingSettingUpdateOne {
 	ssuo.mutation.Where(ps...)
 	return ssuo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (ssuo *ScrapingSelectorUpdateOne) Select(field string, fields ...string) *ScrapingSelectorUpdateOne {
+func (ssuo *ScrapingSettingUpdateOne) Select(field string, fields ...string) *ScrapingSettingUpdateOne {
 	ssuo.fields = append([]string{field}, fields...)
 	return ssuo
 }
 
-// Save executes the query and returns the updated ScrapingSelector entity.
-func (ssuo *ScrapingSelectorUpdateOne) Save(ctx context.Context) (*ScrapingSelector, error) {
+// Save executes the query and returns the updated ScrapingSetting entity.
+func (ssuo *ScrapingSettingUpdateOne) Save(ctx context.Context) (*ScrapingSetting, error) {
 	ssuo.defaults()
 	return withHooks(ctx, ssuo.sqlSave, ssuo.mutation, ssuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ssuo *ScrapingSelectorUpdateOne) SaveX(ctx context.Context) *ScrapingSelector {
+func (ssuo *ScrapingSettingUpdateOne) SaveX(ctx context.Context) *ScrapingSetting {
 	node, err := ssuo.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -453,67 +453,67 @@ func (ssuo *ScrapingSelectorUpdateOne) SaveX(ctx context.Context) *ScrapingSelec
 }
 
 // Exec executes the query on the entity.
-func (ssuo *ScrapingSelectorUpdateOne) Exec(ctx context.Context) error {
+func (ssuo *ScrapingSettingUpdateOne) Exec(ctx context.Context) error {
 	_, err := ssuo.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ssuo *ScrapingSelectorUpdateOne) ExecX(ctx context.Context) {
+func (ssuo *ScrapingSettingUpdateOne) ExecX(ctx context.Context) {
 	if err := ssuo.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ssuo *ScrapingSelectorUpdateOne) defaults() {
+func (ssuo *ScrapingSettingUpdateOne) defaults() {
 	if _, ok := ssuo.mutation.UpdatedAt(); !ok {
-		v := scrapingselector.UpdateDefaultUpdatedAt()
+		v := scrapingsetting.UpdateDefaultUpdatedAt()
 		ssuo.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ssuo *ScrapingSelectorUpdateOne) check() error {
+func (ssuo *ScrapingSettingUpdateOne) check() error {
 	if v, ok := ssuo.mutation.Selector(); ok {
-		if err := scrapingselector.SelectorValidator(v); err != nil {
-			return &ValidationError{Name: "selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.selector": %w`, err)}
+		if err := scrapingsetting.SelectorValidator(v); err != nil {
+			return &ValidationError{Name: "selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.selector": %w`, err)}
 		}
 	}
 	if v, ok := ssuo.mutation.InnerSelector(); ok {
-		if err := scrapingselector.InnerSelectorValidator(v); err != nil {
-			return &ValidationError{Name: "inner_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.inner_selector": %w`, err)}
+		if err := scrapingsetting.InnerSelectorValidator(v); err != nil {
+			return &ValidationError{Name: "inner_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.inner_selector": %w`, err)}
 		}
 	}
 	if v, ok := ssuo.mutation.TitleSelector(); ok {
-		if err := scrapingselector.TitleSelectorValidator(v); err != nil {
-			return &ValidationError{Name: "title_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.title_selector": %w`, err)}
+		if err := scrapingsetting.TitleSelectorValidator(v); err != nil {
+			return &ValidationError{Name: "title_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.title_selector": %w`, err)}
 		}
 	}
 	if _, ok := ssuo.mutation.SiteID(); ssuo.mutation.SiteCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "ScrapingSelector.site"`)
+		return errors.New(`ent: clearing a required unique edge "ScrapingSetting.site"`)
 	}
 	return nil
 }
 
-func (ssuo *ScrapingSelectorUpdateOne) sqlSave(ctx context.Context) (_node *ScrapingSelector, err error) {
+func (ssuo *ScrapingSettingUpdateOne) sqlSave(ctx context.Context) (_node *ScrapingSetting, err error) {
 	if err := ssuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(scrapingselector.Table, scrapingselector.Columns, sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(scrapingsetting.Table, scrapingsetting.Columns, sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt))
 	id, ok := ssuo.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ScrapingSelector.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ScrapingSetting.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := ssuo.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, scrapingselector.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, scrapingsetting.FieldID)
 		for _, f := range fields {
-			if !scrapingselector.ValidColumn(f) {
+			if !scrapingsetting.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != scrapingselector.FieldID {
+			if f != scrapingsetting.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -526,38 +526,38 @@ func (ssuo *ScrapingSelectorUpdateOne) sqlSave(ctx context.Context) (_node *Scra
 		}
 	}
 	if value, ok := ssuo.mutation.Selector(); ok {
-		_spec.SetField(scrapingselector.FieldSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldSelector, field.TypeString, value)
 	}
 	if value, ok := ssuo.mutation.InnerSelector(); ok {
-		_spec.SetField(scrapingselector.FieldInnerSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldInnerSelector, field.TypeString, value)
 	}
 	if value, ok := ssuo.mutation.TitleSelector(); ok {
-		_spec.SetField(scrapingselector.FieldTitleSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldTitleSelector, field.TypeString, value)
 	}
 	if value, ok := ssuo.mutation.DescriptionSelector(); ok {
-		_spec.SetField(scrapingselector.FieldDescriptionSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldDescriptionSelector, field.TypeString, value)
 	}
 	if ssuo.mutation.DescriptionSelectorCleared() {
-		_spec.ClearField(scrapingselector.FieldDescriptionSelector, field.TypeString)
+		_spec.ClearField(scrapingsetting.FieldDescriptionSelector, field.TypeString)
 	}
 	if value, ok := ssuo.mutation.LinkSelector(); ok {
-		_spec.SetField(scrapingselector.FieldLinkSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldLinkSelector, field.TypeString, value)
 	}
 	if ssuo.mutation.LinkSelectorCleared() {
-		_spec.ClearField(scrapingselector.FieldLinkSelector, field.TypeString)
+		_spec.ClearField(scrapingsetting.FieldLinkSelector, field.TypeString)
 	}
 	if value, ok := ssuo.mutation.CreatedAt(); ok {
-		_spec.SetField(scrapingselector.FieldCreatedAt, field.TypeTime, value)
+		_spec.SetField(scrapingsetting.FieldCreatedAt, field.TypeTime, value)
 	}
 	if value, ok := ssuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(scrapingselector.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(scrapingsetting.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if ssuo.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   scrapingselector.SiteTable,
-			Columns: []string{scrapingselector.SiteColumn},
+			Table:   scrapingsetting.SiteTable,
+			Columns: []string{scrapingsetting.SiteColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt),
@@ -567,10 +567,10 @@ func (ssuo *ScrapingSelectorUpdateOne) sqlSave(ctx context.Context) (_node *Scra
 	}
 	if nodes := ssuo.mutation.SiteIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   scrapingselector.SiteTable,
-			Columns: []string{scrapingselector.SiteColumn},
+			Table:   scrapingsetting.SiteTable,
+			Columns: []string{scrapingsetting.SiteColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt),
@@ -581,12 +581,12 @@ func (ssuo *ScrapingSelectorUpdateOne) sqlSave(ctx context.Context) (_node *Scra
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &ScrapingSelector{config: ssuo.config}
+	_node = &ScrapingSetting{config: ssuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, ssuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{scrapingselector.Label}
+			err = &NotFoundError{scrapingsetting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

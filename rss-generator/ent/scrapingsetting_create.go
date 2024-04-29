@@ -11,44 +11,44 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
-// ScrapingSelectorCreate is the builder for creating a ScrapingSelector entity.
-type ScrapingSelectorCreate struct {
+// ScrapingSettingCreate is the builder for creating a ScrapingSetting entity.
+type ScrapingSettingCreate struct {
 	config
-	mutation *ScrapingSelectorMutation
+	mutation *ScrapingSettingMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
 }
 
 // SetSelector sets the "selector" field.
-func (ssc *ScrapingSelectorCreate) SetSelector(s string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetSelector(s string) *ScrapingSettingCreate {
 	ssc.mutation.SetSelector(s)
 	return ssc
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (ssc *ScrapingSelectorCreate) SetInnerSelector(s string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetInnerSelector(s string) *ScrapingSettingCreate {
 	ssc.mutation.SetInnerSelector(s)
 	return ssc
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (ssc *ScrapingSelectorCreate) SetTitleSelector(s string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetTitleSelector(s string) *ScrapingSettingCreate {
 	ssc.mutation.SetTitleSelector(s)
 	return ssc
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (ssc *ScrapingSelectorCreate) SetDescriptionSelector(s string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetDescriptionSelector(s string) *ScrapingSettingCreate {
 	ssc.mutation.SetDescriptionSelector(s)
 	return ssc
 }
 
 // SetNillableDescriptionSelector sets the "description_selector" field if the given value is not nil.
-func (ssc *ScrapingSelectorCreate) SetNillableDescriptionSelector(s *string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetNillableDescriptionSelector(s *string) *ScrapingSettingCreate {
 	if s != nil {
 		ssc.SetDescriptionSelector(*s)
 	}
@@ -56,13 +56,13 @@ func (ssc *ScrapingSelectorCreate) SetNillableDescriptionSelector(s *string) *Sc
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (ssc *ScrapingSelectorCreate) SetLinkSelector(s string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetLinkSelector(s string) *ScrapingSettingCreate {
 	ssc.mutation.SetLinkSelector(s)
 	return ssc
 }
 
 // SetNillableLinkSelector sets the "link_selector" field if the given value is not nil.
-func (ssc *ScrapingSelectorCreate) SetNillableLinkSelector(s *string) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetNillableLinkSelector(s *string) *ScrapingSettingCreate {
 	if s != nil {
 		ssc.SetLinkSelector(*s)
 	}
@@ -70,13 +70,13 @@ func (ssc *ScrapingSelectorCreate) SetNillableLinkSelector(s *string) *ScrapingS
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ssc *ScrapingSelectorCreate) SetCreatedAt(t time.Time) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetCreatedAt(t time.Time) *ScrapingSettingCreate {
 	ssc.mutation.SetCreatedAt(t)
 	return ssc
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ssc *ScrapingSelectorCreate) SetNillableCreatedAt(t *time.Time) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetNillableCreatedAt(t *time.Time) *ScrapingSettingCreate {
 	if t != nil {
 		ssc.SetCreatedAt(*t)
 	}
@@ -84,13 +84,13 @@ func (ssc *ScrapingSelectorCreate) SetNillableCreatedAt(t *time.Time) *ScrapingS
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ssc *ScrapingSelectorCreate) SetUpdatedAt(t time.Time) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetUpdatedAt(t time.Time) *ScrapingSettingCreate {
 	ssc.mutation.SetUpdatedAt(t)
 	return ssc
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (ssc *ScrapingSelectorCreate) SetNillableUpdatedAt(t *time.Time) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetNillableUpdatedAt(t *time.Time) *ScrapingSettingCreate {
 	if t != nil {
 		ssc.SetUpdatedAt(*t)
 	}
@@ -98,35 +98,35 @@ func (ssc *ScrapingSelectorCreate) SetNillableUpdatedAt(t *time.Time) *ScrapingS
 }
 
 // SetID sets the "id" field.
-func (ssc *ScrapingSelectorCreate) SetID(i int) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetID(i int) *ScrapingSettingCreate {
 	ssc.mutation.SetID(i)
 	return ssc
 }
 
 // SetSiteID sets the "site" edge to the Site entity by ID.
-func (ssc *ScrapingSelectorCreate) SetSiteID(id int) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetSiteID(id int) *ScrapingSettingCreate {
 	ssc.mutation.SetSiteID(id)
 	return ssc
 }
 
 // SetSite sets the "site" edge to the Site entity.
-func (ssc *ScrapingSelectorCreate) SetSite(s *Site) *ScrapingSelectorCreate {
+func (ssc *ScrapingSettingCreate) SetSite(s *Site) *ScrapingSettingCreate {
 	return ssc.SetSiteID(s.ID)
 }
 
-// Mutation returns the ScrapingSelectorMutation object of the builder.
-func (ssc *ScrapingSelectorCreate) Mutation() *ScrapingSelectorMutation {
+// Mutation returns the ScrapingSettingMutation object of the builder.
+func (ssc *ScrapingSettingCreate) Mutation() *ScrapingSettingMutation {
 	return ssc.mutation
 }
 
-// Save creates the ScrapingSelector in the database.
-func (ssc *ScrapingSelectorCreate) Save(ctx context.Context) (*ScrapingSelector, error) {
+// Save creates the ScrapingSetting in the database.
+func (ssc *ScrapingSettingCreate) Save(ctx context.Context) (*ScrapingSetting, error) {
 	ssc.defaults()
 	return withHooks(ctx, ssc.sqlSave, ssc.mutation, ssc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ssc *ScrapingSelectorCreate) SaveX(ctx context.Context) *ScrapingSelector {
+func (ssc *ScrapingSettingCreate) SaveX(ctx context.Context) *ScrapingSetting {
 	v, err := ssc.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -135,69 +135,69 @@ func (ssc *ScrapingSelectorCreate) SaveX(ctx context.Context) *ScrapingSelector 
 }
 
 // Exec executes the query.
-func (ssc *ScrapingSelectorCreate) Exec(ctx context.Context) error {
+func (ssc *ScrapingSettingCreate) Exec(ctx context.Context) error {
 	_, err := ssc.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ssc *ScrapingSelectorCreate) ExecX(ctx context.Context) {
+func (ssc *ScrapingSettingCreate) ExecX(ctx context.Context) {
 	if err := ssc.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ssc *ScrapingSelectorCreate) defaults() {
+func (ssc *ScrapingSettingCreate) defaults() {
 	if _, ok := ssc.mutation.CreatedAt(); !ok {
-		v := scrapingselector.DefaultCreatedAt()
+		v := scrapingsetting.DefaultCreatedAt()
 		ssc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := ssc.mutation.UpdatedAt(); !ok {
-		v := scrapingselector.DefaultUpdatedAt()
+		v := scrapingsetting.DefaultUpdatedAt()
 		ssc.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ssc *ScrapingSelectorCreate) check() error {
+func (ssc *ScrapingSettingCreate) check() error {
 	if _, ok := ssc.mutation.Selector(); !ok {
-		return &ValidationError{Name: "selector", err: errors.New(`ent: missing required field "ScrapingSelector.selector"`)}
+		return &ValidationError{Name: "selector", err: errors.New(`ent: missing required field "ScrapingSetting.selector"`)}
 	}
 	if v, ok := ssc.mutation.Selector(); ok {
-		if err := scrapingselector.SelectorValidator(v); err != nil {
-			return &ValidationError{Name: "selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.selector": %w`, err)}
+		if err := scrapingsetting.SelectorValidator(v); err != nil {
+			return &ValidationError{Name: "selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.selector": %w`, err)}
 		}
 	}
 	if _, ok := ssc.mutation.InnerSelector(); !ok {
-		return &ValidationError{Name: "inner_selector", err: errors.New(`ent: missing required field "ScrapingSelector.inner_selector"`)}
+		return &ValidationError{Name: "inner_selector", err: errors.New(`ent: missing required field "ScrapingSetting.inner_selector"`)}
 	}
 	if v, ok := ssc.mutation.InnerSelector(); ok {
-		if err := scrapingselector.InnerSelectorValidator(v); err != nil {
-			return &ValidationError{Name: "inner_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.inner_selector": %w`, err)}
+		if err := scrapingsetting.InnerSelectorValidator(v); err != nil {
+			return &ValidationError{Name: "inner_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.inner_selector": %w`, err)}
 		}
 	}
 	if _, ok := ssc.mutation.TitleSelector(); !ok {
-		return &ValidationError{Name: "title_selector", err: errors.New(`ent: missing required field "ScrapingSelector.title_selector"`)}
+		return &ValidationError{Name: "title_selector", err: errors.New(`ent: missing required field "ScrapingSetting.title_selector"`)}
 	}
 	if v, ok := ssc.mutation.TitleSelector(); ok {
-		if err := scrapingselector.TitleSelectorValidator(v); err != nil {
-			return &ValidationError{Name: "title_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSelector.title_selector": %w`, err)}
+		if err := scrapingsetting.TitleSelectorValidator(v); err != nil {
+			return &ValidationError{Name: "title_selector", err: fmt.Errorf(`ent: validator failed for field "ScrapingSetting.title_selector": %w`, err)}
 		}
 	}
 	if _, ok := ssc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "ScrapingSelector.created_at"`)}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "ScrapingSetting.created_at"`)}
 	}
 	if _, ok := ssc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "ScrapingSelector.updated_at"`)}
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "ScrapingSetting.updated_at"`)}
 	}
 	if _, ok := ssc.mutation.SiteID(); !ok {
-		return &ValidationError{Name: "site", err: errors.New(`ent: missing required edge "ScrapingSelector.site"`)}
+		return &ValidationError{Name: "site", err: errors.New(`ent: missing required edge "ScrapingSetting.site"`)}
 	}
 	return nil
 }
 
-func (ssc *ScrapingSelectorCreate) sqlSave(ctx context.Context) (*ScrapingSelector, error) {
+func (ssc *ScrapingSettingCreate) sqlSave(ctx context.Context) (*ScrapingSetting, error) {
 	if err := ssc.check(); err != nil {
 		return nil, err
 	}
@@ -217,10 +217,10 @@ func (ssc *ScrapingSelectorCreate) sqlSave(ctx context.Context) (*ScrapingSelect
 	return _node, nil
 }
 
-func (ssc *ScrapingSelectorCreate) createSpec() (*ScrapingSelector, *sqlgraph.CreateSpec) {
+func (ssc *ScrapingSettingCreate) createSpec() (*ScrapingSetting, *sqlgraph.CreateSpec) {
 	var (
-		_node = &ScrapingSelector{config: ssc.config}
-		_spec = sqlgraph.NewCreateSpec(scrapingselector.Table, sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt))
+		_node = &ScrapingSetting{config: ssc.config}
+		_spec = sqlgraph.NewCreateSpec(scrapingsetting.Table, sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = ssc.conflict
 	if id, ok := ssc.mutation.ID(); ok {
@@ -228,39 +228,39 @@ func (ssc *ScrapingSelectorCreate) createSpec() (*ScrapingSelector, *sqlgraph.Cr
 		_spec.ID.Value = id
 	}
 	if value, ok := ssc.mutation.Selector(); ok {
-		_spec.SetField(scrapingselector.FieldSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldSelector, field.TypeString, value)
 		_node.Selector = value
 	}
 	if value, ok := ssc.mutation.InnerSelector(); ok {
-		_spec.SetField(scrapingselector.FieldInnerSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldInnerSelector, field.TypeString, value)
 		_node.InnerSelector = value
 	}
 	if value, ok := ssc.mutation.TitleSelector(); ok {
-		_spec.SetField(scrapingselector.FieldTitleSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldTitleSelector, field.TypeString, value)
 		_node.TitleSelector = value
 	}
 	if value, ok := ssc.mutation.DescriptionSelector(); ok {
-		_spec.SetField(scrapingselector.FieldDescriptionSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldDescriptionSelector, field.TypeString, value)
 		_node.DescriptionSelector = value
 	}
 	if value, ok := ssc.mutation.LinkSelector(); ok {
-		_spec.SetField(scrapingselector.FieldLinkSelector, field.TypeString, value)
+		_spec.SetField(scrapingsetting.FieldLinkSelector, field.TypeString, value)
 		_node.LinkSelector = value
 	}
 	if value, ok := ssc.mutation.CreatedAt(); ok {
-		_spec.SetField(scrapingselector.FieldCreatedAt, field.TypeTime, value)
+		_spec.SetField(scrapingsetting.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
 	if value, ok := ssc.mutation.UpdatedAt(); ok {
-		_spec.SetField(scrapingselector.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(scrapingsetting.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
 	if nodes := ssc.mutation.SiteIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   scrapingselector.SiteTable,
-			Columns: []string{scrapingselector.SiteColumn},
+			Table:   scrapingsetting.SiteTable,
+			Columns: []string{scrapingsetting.SiteColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(site.FieldID, field.TypeInt),
@@ -269,6 +269,7 @@ func (ssc *ScrapingSelectorCreate) createSpec() (*ScrapingSelector, *sqlgraph.Cr
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.site_id = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -277,7 +278,7 @@ func (ssc *ScrapingSelectorCreate) createSpec() (*ScrapingSelector, *sqlgraph.Cr
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //		SetSelector(v).
 //		OnConflict(
 //			// Update the row with the new values
@@ -286,13 +287,13 @@ func (ssc *ScrapingSelectorCreate) createSpec() (*ScrapingSelector, *sqlgraph.Cr
 //		).
 //		// Override some of the fields with custom
 //		// update values.
-//		Update(func(u *ent.ScrapingSelectorUpsert) {
+//		Update(func(u *ent.ScrapingSettingUpsert) {
 //			SetSelector(v+v).
 //		}).
 //		Exec(ctx)
-func (ssc *ScrapingSelectorCreate) OnConflict(opts ...sql.ConflictOption) *ScrapingSelectorUpsertOne {
+func (ssc *ScrapingSettingCreate) OnConflict(opts ...sql.ConflictOption) *ScrapingSettingUpsertOne {
 	ssc.conflict = opts
-	return &ScrapingSelectorUpsertOne{
+	return &ScrapingSettingUpsertOne{
 		create: ssc,
 	}
 }
@@ -300,141 +301,141 @@ func (ssc *ScrapingSelectorCreate) OnConflict(opts ...sql.ConflictOption) *Scrap
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ssc *ScrapingSelectorCreate) OnConflictColumns(columns ...string) *ScrapingSelectorUpsertOne {
+func (ssc *ScrapingSettingCreate) OnConflictColumns(columns ...string) *ScrapingSettingUpsertOne {
 	ssc.conflict = append(ssc.conflict, sql.ConflictColumns(columns...))
-	return &ScrapingSelectorUpsertOne{
+	return &ScrapingSettingUpsertOne{
 		create: ssc,
 	}
 }
 
 type (
-	// ScrapingSelectorUpsertOne is the builder for "upsert"-ing
-	//  one ScrapingSelector node.
-	ScrapingSelectorUpsertOne struct {
-		create *ScrapingSelectorCreate
+	// ScrapingSettingUpsertOne is the builder for "upsert"-ing
+	//  one ScrapingSetting node.
+	ScrapingSettingUpsertOne struct {
+		create *ScrapingSettingCreate
 	}
 
-	// ScrapingSelectorUpsert is the "OnConflict" setter.
-	ScrapingSelectorUpsert struct {
+	// ScrapingSettingUpsert is the "OnConflict" setter.
+	ScrapingSettingUpsert struct {
 		*sql.UpdateSet
 	}
 )
 
 // SetSelector sets the "selector" field.
-func (u *ScrapingSelectorUpsert) SetSelector(v string) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldSelector, v)
+func (u *ScrapingSettingUpsert) SetSelector(v string) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldSelector, v)
 	return u
 }
 
 // UpdateSelector sets the "selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateSelector() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldSelector)
+func (u *ScrapingSettingUpsert) UpdateSelector() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldSelector)
 	return u
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (u *ScrapingSelectorUpsert) SetInnerSelector(v string) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldInnerSelector, v)
+func (u *ScrapingSettingUpsert) SetInnerSelector(v string) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldInnerSelector, v)
 	return u
 }
 
 // UpdateInnerSelector sets the "inner_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateInnerSelector() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldInnerSelector)
+func (u *ScrapingSettingUpsert) UpdateInnerSelector() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldInnerSelector)
 	return u
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (u *ScrapingSelectorUpsert) SetTitleSelector(v string) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldTitleSelector, v)
+func (u *ScrapingSettingUpsert) SetTitleSelector(v string) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldTitleSelector, v)
 	return u
 }
 
 // UpdateTitleSelector sets the "title_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateTitleSelector() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldTitleSelector)
+func (u *ScrapingSettingUpsert) UpdateTitleSelector() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldTitleSelector)
 	return u
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (u *ScrapingSelectorUpsert) SetDescriptionSelector(v string) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldDescriptionSelector, v)
+func (u *ScrapingSettingUpsert) SetDescriptionSelector(v string) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldDescriptionSelector, v)
 	return u
 }
 
 // UpdateDescriptionSelector sets the "description_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateDescriptionSelector() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldDescriptionSelector)
+func (u *ScrapingSettingUpsert) UpdateDescriptionSelector() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldDescriptionSelector)
 	return u
 }
 
 // ClearDescriptionSelector clears the value of the "description_selector" field.
-func (u *ScrapingSelectorUpsert) ClearDescriptionSelector() *ScrapingSelectorUpsert {
-	u.SetNull(scrapingselector.FieldDescriptionSelector)
+func (u *ScrapingSettingUpsert) ClearDescriptionSelector() *ScrapingSettingUpsert {
+	u.SetNull(scrapingsetting.FieldDescriptionSelector)
 	return u
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (u *ScrapingSelectorUpsert) SetLinkSelector(v string) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldLinkSelector, v)
+func (u *ScrapingSettingUpsert) SetLinkSelector(v string) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldLinkSelector, v)
 	return u
 }
 
 // UpdateLinkSelector sets the "link_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateLinkSelector() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldLinkSelector)
+func (u *ScrapingSettingUpsert) UpdateLinkSelector() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldLinkSelector)
 	return u
 }
 
 // ClearLinkSelector clears the value of the "link_selector" field.
-func (u *ScrapingSelectorUpsert) ClearLinkSelector() *ScrapingSelectorUpsert {
-	u.SetNull(scrapingselector.FieldLinkSelector)
+func (u *ScrapingSettingUpsert) ClearLinkSelector() *ScrapingSettingUpsert {
+	u.SetNull(scrapingsetting.FieldLinkSelector)
 	return u
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (u *ScrapingSelectorUpsert) SetCreatedAt(v time.Time) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldCreatedAt, v)
+func (u *ScrapingSettingUpsert) SetCreatedAt(v time.Time) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldCreatedAt, v)
 	return u
 }
 
 // UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateCreatedAt() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldCreatedAt)
+func (u *ScrapingSettingUpsert) UpdateCreatedAt() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldCreatedAt)
 	return u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (u *ScrapingSelectorUpsert) SetUpdatedAt(v time.Time) *ScrapingSelectorUpsert {
-	u.Set(scrapingselector.FieldUpdatedAt, v)
+func (u *ScrapingSettingUpsert) SetUpdatedAt(v time.Time) *ScrapingSettingUpsert {
+	u.Set(scrapingsetting.FieldUpdatedAt, v)
 	return u
 }
 
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsert) UpdateUpdatedAt() *ScrapingSelectorUpsert {
-	u.SetExcluded(scrapingselector.FieldUpdatedAt)
+func (u *ScrapingSettingUpsert) UpdateUpdatedAt() *ScrapingSettingUpsert {
+	u.SetExcluded(scrapingsetting.FieldUpdatedAt)
 	return u
 }
 
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(scrapingselector.FieldID)
+//				u.SetIgnore(scrapingsetting.FieldID)
 //			}),
 //		).
 //		Exec(ctx)
-func (u *ScrapingSelectorUpsertOne) UpdateNewValues() *ScrapingSelectorUpsertOne {
+func (u *ScrapingSettingUpsertOne) UpdateNewValues() *ScrapingSettingUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(scrapingselector.FieldID)
+			s.SetIgnore(scrapingsetting.FieldID)
 		}
 	}))
 	return u
@@ -443,159 +444,159 @@ func (u *ScrapingSelectorUpsertOne) UpdateNewValues() *ScrapingSelectorUpsertOne
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //	    OnConflict(sql.ResolveWithIgnore()).
 //	    Exec(ctx)
-func (u *ScrapingSelectorUpsertOne) Ignore() *ScrapingSelectorUpsertOne {
+func (u *ScrapingSettingUpsertOne) Ignore() *ScrapingSettingUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *ScrapingSelectorUpsertOne) DoNothing() *ScrapingSelectorUpsertOne {
+func (u *ScrapingSettingUpsertOne) DoNothing() *ScrapingSettingUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the ScrapingSelectorCreate.OnConflict
+// Update allows overriding fields `UPDATE` values. See the ScrapingSettingCreate.OnConflict
 // documentation for more info.
-func (u *ScrapingSelectorUpsertOne) Update(set func(*ScrapingSelectorUpsert)) *ScrapingSelectorUpsertOne {
+func (u *ScrapingSettingUpsertOne) Update(set func(*ScrapingSettingUpsert)) *ScrapingSettingUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&ScrapingSelectorUpsert{UpdateSet: update})
+		set(&ScrapingSettingUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
 // SetSelector sets the "selector" field.
-func (u *ScrapingSelectorUpsertOne) SetSelector(v string) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetSelector(v string) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetSelector(v)
 	})
 }
 
 // UpdateSelector sets the "selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateSelector()
 	})
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (u *ScrapingSelectorUpsertOne) SetInnerSelector(v string) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetInnerSelector(v string) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetInnerSelector(v)
 	})
 }
 
 // UpdateInnerSelector sets the "inner_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateInnerSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateInnerSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateInnerSelector()
 	})
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (u *ScrapingSelectorUpsertOne) SetTitleSelector(v string) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetTitleSelector(v string) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetTitleSelector(v)
 	})
 }
 
 // UpdateTitleSelector sets the "title_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateTitleSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateTitleSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateTitleSelector()
 	})
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (u *ScrapingSelectorUpsertOne) SetDescriptionSelector(v string) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetDescriptionSelector(v string) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetDescriptionSelector(v)
 	})
 }
 
 // UpdateDescriptionSelector sets the "description_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateDescriptionSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateDescriptionSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateDescriptionSelector()
 	})
 }
 
 // ClearDescriptionSelector clears the value of the "description_selector" field.
-func (u *ScrapingSelectorUpsertOne) ClearDescriptionSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) ClearDescriptionSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.ClearDescriptionSelector()
 	})
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (u *ScrapingSelectorUpsertOne) SetLinkSelector(v string) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetLinkSelector(v string) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetLinkSelector(v)
 	})
 }
 
 // UpdateLinkSelector sets the "link_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateLinkSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateLinkSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateLinkSelector()
 	})
 }
 
 // ClearLinkSelector clears the value of the "link_selector" field.
-func (u *ScrapingSelectorUpsertOne) ClearLinkSelector() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) ClearLinkSelector() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.ClearLinkSelector()
 	})
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (u *ScrapingSelectorUpsertOne) SetCreatedAt(v time.Time) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetCreatedAt(v time.Time) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetCreatedAt(v)
 	})
 }
 
 // UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateCreatedAt() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateCreatedAt() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateCreatedAt()
 	})
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (u *ScrapingSelectorUpsertOne) SetUpdatedAt(v time.Time) *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) SetUpdatedAt(v time.Time) *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetUpdatedAt(v)
 	})
 }
 
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertOne) UpdateUpdatedAt() *ScrapingSelectorUpsertOne {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertOne) UpdateUpdatedAt() *ScrapingSettingUpsertOne {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateUpdatedAt()
 	})
 }
 
 // Exec executes the query.
-func (u *ScrapingSelectorUpsertOne) Exec(ctx context.Context) error {
+func (u *ScrapingSettingUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for ScrapingSelectorCreate.OnConflict")
+		return errors.New("ent: missing options for ScrapingSettingCreate.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *ScrapingSelectorUpsertOne) ExecX(ctx context.Context) {
+func (u *ScrapingSettingUpsertOne) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ScrapingSelectorUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ScrapingSettingUpsertOne) ID(ctx context.Context) (id int, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -604,7 +605,7 @@ func (u *ScrapingSelectorUpsertOne) ID(ctx context.Context) (id int, err error) 
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ScrapingSelectorUpsertOne) IDX(ctx context.Context) int {
+func (u *ScrapingSettingUpsertOne) IDX(ctx context.Context) int {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -612,28 +613,28 @@ func (u *ScrapingSelectorUpsertOne) IDX(ctx context.Context) int {
 	return id
 }
 
-// ScrapingSelectorCreateBulk is the builder for creating many ScrapingSelector entities in bulk.
-type ScrapingSelectorCreateBulk struct {
+// ScrapingSettingCreateBulk is the builder for creating many ScrapingSetting entities in bulk.
+type ScrapingSettingCreateBulk struct {
 	config
 	err      error
-	builders []*ScrapingSelectorCreate
+	builders []*ScrapingSettingCreate
 	conflict []sql.ConflictOption
 }
 
-// Save creates the ScrapingSelector entities in the database.
-func (sscb *ScrapingSelectorCreateBulk) Save(ctx context.Context) ([]*ScrapingSelector, error) {
+// Save creates the ScrapingSetting entities in the database.
+func (sscb *ScrapingSettingCreateBulk) Save(ctx context.Context) ([]*ScrapingSetting, error) {
 	if sscb.err != nil {
 		return nil, sscb.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(sscb.builders))
-	nodes := make([]*ScrapingSelector, len(sscb.builders))
+	nodes := make([]*ScrapingSetting, len(sscb.builders))
 	mutators := make([]Mutator, len(sscb.builders))
 	for i := range sscb.builders {
 		func(i int, root context.Context) {
 			builder := sscb.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*ScrapingSelectorMutation)
+				mutation, ok := m.(*ScrapingSettingMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -681,7 +682,7 @@ func (sscb *ScrapingSelectorCreateBulk) Save(ctx context.Context) ([]*ScrapingSe
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (sscb *ScrapingSelectorCreateBulk) SaveX(ctx context.Context) []*ScrapingSelector {
+func (sscb *ScrapingSettingCreateBulk) SaveX(ctx context.Context) []*ScrapingSetting {
 	v, err := sscb.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -690,13 +691,13 @@ func (sscb *ScrapingSelectorCreateBulk) SaveX(ctx context.Context) []*ScrapingSe
 }
 
 // Exec executes the query.
-func (sscb *ScrapingSelectorCreateBulk) Exec(ctx context.Context) error {
+func (sscb *ScrapingSettingCreateBulk) Exec(ctx context.Context) error {
 	_, err := sscb.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sscb *ScrapingSelectorCreateBulk) ExecX(ctx context.Context) {
+func (sscb *ScrapingSettingCreateBulk) ExecX(ctx context.Context) {
 	if err := sscb.Exec(ctx); err != nil {
 		panic(err)
 	}
@@ -705,7 +706,7 @@ func (sscb *ScrapingSelectorCreateBulk) ExecX(ctx context.Context) {
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.ScrapingSelector.CreateBulk(builders...).
+//	client.ScrapingSetting.CreateBulk(builders...).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -713,13 +714,13 @@ func (sscb *ScrapingSelectorCreateBulk) ExecX(ctx context.Context) {
 //		).
 //		// Override some of the fields with custom
 //		// update values.
-//		Update(func(u *ent.ScrapingSelectorUpsert) {
+//		Update(func(u *ent.ScrapingSettingUpsert) {
 //			SetSelector(v+v).
 //		}).
 //		Exec(ctx)
-func (sscb *ScrapingSelectorCreateBulk) OnConflict(opts ...sql.ConflictOption) *ScrapingSelectorUpsertBulk {
+func (sscb *ScrapingSettingCreateBulk) OnConflict(opts ...sql.ConflictOption) *ScrapingSettingUpsertBulk {
 	sscb.conflict = opts
-	return &ScrapingSelectorUpsertBulk{
+	return &ScrapingSettingUpsertBulk{
 		create: sscb,
 	}
 }
@@ -727,39 +728,39 @@ func (sscb *ScrapingSelectorCreateBulk) OnConflict(opts ...sql.ConflictOption) *
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (sscb *ScrapingSelectorCreateBulk) OnConflictColumns(columns ...string) *ScrapingSelectorUpsertBulk {
+func (sscb *ScrapingSettingCreateBulk) OnConflictColumns(columns ...string) *ScrapingSettingUpsertBulk {
 	sscb.conflict = append(sscb.conflict, sql.ConflictColumns(columns...))
-	return &ScrapingSelectorUpsertBulk{
+	return &ScrapingSettingUpsertBulk{
 		create: sscb,
 	}
 }
 
-// ScrapingSelectorUpsertBulk is the builder for "upsert"-ing
-// a bulk of ScrapingSelector nodes.
-type ScrapingSelectorUpsertBulk struct {
-	create *ScrapingSelectorCreateBulk
+// ScrapingSettingUpsertBulk is the builder for "upsert"-ing
+// a bulk of ScrapingSetting nodes.
+type ScrapingSettingUpsertBulk struct {
+	create *ScrapingSettingCreateBulk
 }
 
 // UpdateNewValues updates the mutable fields using the new values that
 // were set on create. Using this option is equivalent to using:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(scrapingselector.FieldID)
+//				u.SetIgnore(scrapingsetting.FieldID)
 //			}),
 //		).
 //		Exec(ctx)
-func (u *ScrapingSelectorUpsertBulk) UpdateNewValues() *ScrapingSelectorUpsertBulk {
+func (u *ScrapingSettingUpsertBulk) UpdateNewValues() *ScrapingSettingUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
 			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(scrapingselector.FieldID)
+				s.SetIgnore(scrapingsetting.FieldID)
 			}
 		}
 	}))
@@ -769,160 +770,160 @@ func (u *ScrapingSelectorUpsertBulk) UpdateNewValues() *ScrapingSelectorUpsertBu
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.ScrapingSelector.Create().
+//	client.ScrapingSetting.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
-func (u *ScrapingSelectorUpsertBulk) Ignore() *ScrapingSelectorUpsertBulk {
+func (u *ScrapingSettingUpsertBulk) Ignore() *ScrapingSettingUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *ScrapingSelectorUpsertBulk) DoNothing() *ScrapingSelectorUpsertBulk {
+func (u *ScrapingSettingUpsertBulk) DoNothing() *ScrapingSettingUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the ScrapingSelectorCreateBulk.OnConflict
+// Update allows overriding fields `UPDATE` values. See the ScrapingSettingCreateBulk.OnConflict
 // documentation for more info.
-func (u *ScrapingSelectorUpsertBulk) Update(set func(*ScrapingSelectorUpsert)) *ScrapingSelectorUpsertBulk {
+func (u *ScrapingSettingUpsertBulk) Update(set func(*ScrapingSettingUpsert)) *ScrapingSettingUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&ScrapingSelectorUpsert{UpdateSet: update})
+		set(&ScrapingSettingUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
 // SetSelector sets the "selector" field.
-func (u *ScrapingSelectorUpsertBulk) SetSelector(v string) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetSelector(v string) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetSelector(v)
 	})
 }
 
 // UpdateSelector sets the "selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateSelector()
 	})
 }
 
 // SetInnerSelector sets the "inner_selector" field.
-func (u *ScrapingSelectorUpsertBulk) SetInnerSelector(v string) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetInnerSelector(v string) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetInnerSelector(v)
 	})
 }
 
 // UpdateInnerSelector sets the "inner_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateInnerSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateInnerSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateInnerSelector()
 	})
 }
 
 // SetTitleSelector sets the "title_selector" field.
-func (u *ScrapingSelectorUpsertBulk) SetTitleSelector(v string) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetTitleSelector(v string) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetTitleSelector(v)
 	})
 }
 
 // UpdateTitleSelector sets the "title_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateTitleSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateTitleSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateTitleSelector()
 	})
 }
 
 // SetDescriptionSelector sets the "description_selector" field.
-func (u *ScrapingSelectorUpsertBulk) SetDescriptionSelector(v string) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetDescriptionSelector(v string) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetDescriptionSelector(v)
 	})
 }
 
 // UpdateDescriptionSelector sets the "description_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateDescriptionSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateDescriptionSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateDescriptionSelector()
 	})
 }
 
 // ClearDescriptionSelector clears the value of the "description_selector" field.
-func (u *ScrapingSelectorUpsertBulk) ClearDescriptionSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) ClearDescriptionSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.ClearDescriptionSelector()
 	})
 }
 
 // SetLinkSelector sets the "link_selector" field.
-func (u *ScrapingSelectorUpsertBulk) SetLinkSelector(v string) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetLinkSelector(v string) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetLinkSelector(v)
 	})
 }
 
 // UpdateLinkSelector sets the "link_selector" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateLinkSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateLinkSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateLinkSelector()
 	})
 }
 
 // ClearLinkSelector clears the value of the "link_selector" field.
-func (u *ScrapingSelectorUpsertBulk) ClearLinkSelector() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) ClearLinkSelector() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.ClearLinkSelector()
 	})
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (u *ScrapingSelectorUpsertBulk) SetCreatedAt(v time.Time) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetCreatedAt(v time.Time) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetCreatedAt(v)
 	})
 }
 
 // UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateCreatedAt() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateCreatedAt() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateCreatedAt()
 	})
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (u *ScrapingSelectorUpsertBulk) SetUpdatedAt(v time.Time) *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) SetUpdatedAt(v time.Time) *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.SetUpdatedAt(v)
 	})
 }
 
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
-func (u *ScrapingSelectorUpsertBulk) UpdateUpdatedAt() *ScrapingSelectorUpsertBulk {
-	return u.Update(func(s *ScrapingSelectorUpsert) {
+func (u *ScrapingSettingUpsertBulk) UpdateUpdatedAt() *ScrapingSettingUpsertBulk {
+	return u.Update(func(s *ScrapingSettingUpsert) {
 		s.UpdateUpdatedAt()
 	})
 }
 
 // Exec executes the query.
-func (u *ScrapingSelectorUpsertBulk) Exec(ctx context.Context) error {
+func (u *ScrapingSettingUpsertBulk) Exec(ctx context.Context) error {
 	if u.create.err != nil {
 		return u.create.err
 	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ScrapingSelectorCreateBulk instead", i)
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ScrapingSettingCreateBulk instead", i)
 		}
 	}
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for ScrapingSelectorCreateBulk.OnConflict")
+		return errors.New("ent: missing options for ScrapingSettingCreateBulk.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *ScrapingSelectorUpsertBulk) ExecX(ctx context.Context) {
+func (u *ScrapingSettingUpsertBulk) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}

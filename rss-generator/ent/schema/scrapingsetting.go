@@ -9,13 +9,11 @@ import (
 	"time"
 )
 
-// ScrapingSelector holds the schema definition for the ScrapingSelector entity.
-type ScrapingSelector struct {
+type ScrapingSetting struct {
 	ent.Schema
 }
 
-// Fields of the ScrapingSelector.
-func (ScrapingSelector) Fields() []ent.Field {
+func (ScrapingSetting) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique().Immutable(),
 		field.String("selector").NotEmpty(),
@@ -29,14 +27,14 @@ func (ScrapingSelector) Fields() []ent.Field {
 }
 
 // Edges of the ScrapingSelector.
-func (ScrapingSelector) Edges() []ent.Edge {
+func (ScrapingSetting) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("site", Site.Type).StorageKey(edge.Column("site_id")).Required().Unique(),
 	}
 }
 
-func (ScrapingSelector) Annotations() []schema.Annotation {
+func (ScrapingSetting) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "scraping_selectors"},
+		entsql.Annotation{Table: "scraping_settings"},
 	}
 }

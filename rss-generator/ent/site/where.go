@@ -450,21 +450,21 @@ func UpdatedAtLTE(v time.Time) predicate.Site {
 	return predicate.Site(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
-// HasScrapingSelector applies the HasEdge predicate on the "scraping_selector" edge.
-func HasScrapingSelector() predicate.Site {
+// HasScrapingSettings applies the HasEdge predicate on the "scraping_settings" edge.
+func HasScrapingSettings() predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, ScrapingSelectorTable, ScrapingSelectorColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, ScrapingSettingsTable, ScrapingSettingsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasScrapingSelectorWith applies the HasEdge predicate on the "scraping_selector" edge with a given conditions (other predicates).
-func HasScrapingSelectorWith(preds ...predicate.ScrapingSelector) predicate.Site {
+// HasScrapingSettingsWith applies the HasEdge predicate on the "scraping_settings" edge with a given conditions (other predicates).
+func HasScrapingSettingsWith(preds ...predicate.ScrapingSetting) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {
-		step := newScrapingSelectorStep()
+		step := newScrapingSettingsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

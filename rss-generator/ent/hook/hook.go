@@ -33,16 +33,16 @@ func (f FeedItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FeedItemMutation", m)
 }
 
-// The ScrapingSelectorFunc type is an adapter to allow the use of ordinary
-// function as ScrapingSelector mutator.
-type ScrapingSelectorFunc func(context.Context, *ent.ScrapingSelectorMutation) (ent.Value, error)
+// The ScrapingSettingFunc type is an adapter to allow the use of ordinary
+// function as ScrapingSetting mutator.
+type ScrapingSettingFunc func(context.Context, *ent.ScrapingSettingMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f ScrapingSelectorFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ScrapingSelectorMutation); ok {
+func (f ScrapingSettingFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ScrapingSettingMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ScrapingSelectorMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ScrapingSettingMutation", m)
 }
 
 // The SiteFunc type is an adapter to allow the use of ordinary

@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
@@ -35,14 +34,13 @@ type Site struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SiteQuery when eager-loading is set.
 	Edges        SiteEdges `json:"edges"`
-	site_id      *int
 	selectValues sql.SelectValues
 }
 
 // SiteEdges holds the relations/edges for other nodes in the graph.
 type SiteEdges struct {
-	// ScrapingSelector holds the value of the scraping_selector edge.
-	ScrapingSelector *ScrapingSelector `json:"scraping_selector,omitempty"`
+	// ScrapingSettings holds the value of the scraping_settings edge.
+	ScrapingSettings []*ScrapingSetting `json:"scraping_settings,omitempty"`
 	// Feeds holds the value of the feeds edge.
 	Feeds []*Feed `json:"feeds,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -50,15 +48,13 @@ type SiteEdges struct {
 	loadedTypes [2]bool
 }
 
-// ScrapingSelectorOrErr returns the ScrapingSelector value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e SiteEdges) ScrapingSelectorOrErr() (*ScrapingSelector, error) {
-	if e.ScrapingSelector != nil {
-		return e.ScrapingSelector, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: scrapingselector.Label}
+// ScrapingSettingsOrErr returns the ScrapingSettings value or an error if the edge
+// was not loaded in eager-loading.
+func (e SiteEdges) ScrapingSettingsOrErr() ([]*ScrapingSetting, error) {
+	if e.loadedTypes[0] {
+		return e.ScrapingSettings, nil
 	}
-	return nil, &NotLoadedError{edge: "scraping_selector"}
+	return nil, &NotLoadedError{edge: "scraping_settings"}
 }
 
 // FeedsOrErr returns the Feeds value or an error if the edge
@@ -83,8 +79,6 @@ func (*Site) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case site.FieldCreatedAt, site.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case site.ForeignKeys[0]: // site_id
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -148,13 +142,6 @@ func (s *Site) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.UpdatedAt = value.Time
 			}
-		case site.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field site_id", value)
-			} else if value.Valid {
-				s.site_id = new(int)
-				*s.site_id = int(value.Int64)
-			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -168,9 +155,9 @@ func (s *Site) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
 }
 
-// QueryScrapingSelector queries the "scraping_selector" edge of the Site entity.
-func (s *Site) QueryScrapingSelector() *ScrapingSelectorQuery {
-	return NewSiteClient(s.config).QueryScrapingSelector(s)
+// QueryScrapingSettings queries the "scraping_settings" edge of the Site entity.
+func (s *Site) QueryScrapingSettings() *ScrapingSettingQuery {
+	return NewSiteClient(s.config).QueryScrapingSettings(s)
 }
 
 // QueryFeeds queries the "feeds" edge of the Site entity.

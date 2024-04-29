@@ -1,8 +1,7 @@
 package domain
 
 type TestFeedCreateInput struct {
-	SiteID    int               `json:"site_id"`
-	Selectors ScrapingSelectors `json:"selectors"`
+	ScrapingSetting ScrapingSetting `json:"scraping_setting"`
 }
 
 type TestFeedCreateOutput struct {

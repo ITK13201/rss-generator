@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/predicate"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/google/uuid"
 )
@@ -127,23 +127,19 @@ func (su *SiteUpdate) SetUpdatedAt(t time.Time) *SiteUpdate {
 	return su
 }
 
-// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID.
-func (su *SiteUpdate) SetScrapingSelectorID(id int) *SiteUpdate {
-	su.mutation.SetScrapingSelectorID(id)
+// AddScrapingSettingIDs adds the "scraping_settings" edge to the ScrapingSetting entity by IDs.
+func (su *SiteUpdate) AddScrapingSettingIDs(ids ...int) *SiteUpdate {
+	su.mutation.AddScrapingSettingIDs(ids...)
 	return su
 }
 
-// SetNillableScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID if the given value is not nil.
-func (su *SiteUpdate) SetNillableScrapingSelectorID(id *int) *SiteUpdate {
-	if id != nil {
-		su = su.SetScrapingSelectorID(*id)
+// AddScrapingSettings adds the "scraping_settings" edges to the ScrapingSetting entity.
+func (su *SiteUpdate) AddScrapingSettings(s ...*ScrapingSetting) *SiteUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return su
-}
-
-// SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
-func (su *SiteUpdate) SetScrapingSelector(s *ScrapingSelector) *SiteUpdate {
-	return su.SetScrapingSelectorID(s.ID)
+	return su.AddScrapingSettingIDs(ids...)
 }
 
 // AddFeedIDs adds the "feeds" edge to the Feed entity by IDs.
@@ -166,10 +162,25 @@ func (su *SiteUpdate) Mutation() *SiteMutation {
 	return su.mutation
 }
 
-// ClearScrapingSelector clears the "scraping_selector" edge to the ScrapingSelector entity.
-func (su *SiteUpdate) ClearScrapingSelector() *SiteUpdate {
-	su.mutation.ClearScrapingSelector()
+// ClearScrapingSettings clears all "scraping_settings" edges to the ScrapingSetting entity.
+func (su *SiteUpdate) ClearScrapingSettings() *SiteUpdate {
+	su.mutation.ClearScrapingSettings()
 	return su
+}
+
+// RemoveScrapingSettingIDs removes the "scraping_settings" edge to ScrapingSetting entities by IDs.
+func (su *SiteUpdate) RemoveScrapingSettingIDs(ids ...int) *SiteUpdate {
+	su.mutation.RemoveScrapingSettingIDs(ids...)
+	return su
+}
+
+// RemoveScrapingSettings removes "scraping_settings" edges to ScrapingSetting entities.
+func (su *SiteUpdate) RemoveScrapingSettings(s ...*ScrapingSetting) *SiteUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveScrapingSettingIDs(ids...)
 }
 
 // ClearFeeds clears all "feeds" edges to the Feed entity.
@@ -285,28 +296,44 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(site.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if su.mutation.ScrapingSelectorCleared() {
+	if su.mutation.ScrapingSettingsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   site.ScrapingSelectorTable,
-			Columns: []string{site.ScrapingSelectorColumn},
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.ScrapingSelectorIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.RemovedScrapingSettingsIDs(); len(nodes) > 0 && !su.mutation.ScrapingSettingsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   site.ScrapingSelectorTable,
-			Columns: []string{site.ScrapingSelectorColumn},
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ScrapingSettingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -475,23 +502,19 @@ func (suo *SiteUpdateOne) SetUpdatedAt(t time.Time) *SiteUpdateOne {
 	return suo
 }
 
-// SetScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID.
-func (suo *SiteUpdateOne) SetScrapingSelectorID(id int) *SiteUpdateOne {
-	suo.mutation.SetScrapingSelectorID(id)
+// AddScrapingSettingIDs adds the "scraping_settings" edge to the ScrapingSetting entity by IDs.
+func (suo *SiteUpdateOne) AddScrapingSettingIDs(ids ...int) *SiteUpdateOne {
+	suo.mutation.AddScrapingSettingIDs(ids...)
 	return suo
 }
 
-// SetNillableScrapingSelectorID sets the "scraping_selector" edge to the ScrapingSelector entity by ID if the given value is not nil.
-func (suo *SiteUpdateOne) SetNillableScrapingSelectorID(id *int) *SiteUpdateOne {
-	if id != nil {
-		suo = suo.SetScrapingSelectorID(*id)
+// AddScrapingSettings adds the "scraping_settings" edges to the ScrapingSetting entity.
+func (suo *SiteUpdateOne) AddScrapingSettings(s ...*ScrapingSetting) *SiteUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return suo
-}
-
-// SetScrapingSelector sets the "scraping_selector" edge to the ScrapingSelector entity.
-func (suo *SiteUpdateOne) SetScrapingSelector(s *ScrapingSelector) *SiteUpdateOne {
-	return suo.SetScrapingSelectorID(s.ID)
+	return suo.AddScrapingSettingIDs(ids...)
 }
 
 // AddFeedIDs adds the "feeds" edge to the Feed entity by IDs.
@@ -514,10 +537,25 @@ func (suo *SiteUpdateOne) Mutation() *SiteMutation {
 	return suo.mutation
 }
 
-// ClearScrapingSelector clears the "scraping_selector" edge to the ScrapingSelector entity.
-func (suo *SiteUpdateOne) ClearScrapingSelector() *SiteUpdateOne {
-	suo.mutation.ClearScrapingSelector()
+// ClearScrapingSettings clears all "scraping_settings" edges to the ScrapingSetting entity.
+func (suo *SiteUpdateOne) ClearScrapingSettings() *SiteUpdateOne {
+	suo.mutation.ClearScrapingSettings()
 	return suo
+}
+
+// RemoveScrapingSettingIDs removes the "scraping_settings" edge to ScrapingSetting entities by IDs.
+func (suo *SiteUpdateOne) RemoveScrapingSettingIDs(ids ...int) *SiteUpdateOne {
+	suo.mutation.RemoveScrapingSettingIDs(ids...)
+	return suo
+}
+
+// RemoveScrapingSettings removes "scraping_settings" edges to ScrapingSetting entities.
+func (suo *SiteUpdateOne) RemoveScrapingSettings(s ...*ScrapingSetting) *SiteUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveScrapingSettingIDs(ids...)
 }
 
 // ClearFeeds clears all "feeds" edges to the Feed entity.
@@ -663,28 +701,44 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(site.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if suo.mutation.ScrapingSelectorCleared() {
+	if suo.mutation.ScrapingSettingsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   site.ScrapingSelectorTable,
-			Columns: []string{site.ScrapingSelectorColumn},
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.ScrapingSelectorIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.RemovedScrapingSettingsIDs(); len(nodes) > 0 && !suo.mutation.ScrapingSettingsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   site.ScrapingSelectorTable,
-			Columns: []string{site.ScrapingSelectorColumn},
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(scrapingselector.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ScrapingSettingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   site.ScrapingSettingsTable,
+			Columns: []string{site.ScrapingSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(scrapingsetting.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

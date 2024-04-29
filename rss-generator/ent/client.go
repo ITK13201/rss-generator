@@ -18,7 +18,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/feeditem"
-	"github.com/ITK13201/rss-generator/ent/scrapingselector"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 
 	stdsql "database/sql"
@@ -33,8 +33,8 @@ type Client struct {
 	Feed *FeedClient
 	// FeedItem is the client for interacting with the FeedItem builders.
 	FeedItem *FeedItemClient
-	// ScrapingSelector is the client for interacting with the ScrapingSelector builders.
-	ScrapingSelector *ScrapingSelectorClient
+	// ScrapingSetting is the client for interacting with the ScrapingSetting builders.
+	ScrapingSetting *ScrapingSettingClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 }
@@ -50,7 +50,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Feed = NewFeedClient(c.config)
 	c.FeedItem = NewFeedItemClient(c.config)
-	c.ScrapingSelector = NewScrapingSelectorClient(c.config)
+	c.ScrapingSetting = NewScrapingSettingClient(c.config)
 	c.Site = NewSiteClient(c.config)
 }
 
@@ -142,12 +142,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		Feed:             NewFeedClient(cfg),
-		FeedItem:         NewFeedItemClient(cfg),
-		ScrapingSelector: NewScrapingSelectorClient(cfg),
-		Site:             NewSiteClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		Feed:            NewFeedClient(cfg),
+		FeedItem:        NewFeedItemClient(cfg),
+		ScrapingSetting: NewScrapingSettingClient(cfg),
+		Site:            NewSiteClient(cfg),
 	}, nil
 }
 
@@ -165,12 +165,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		Feed:             NewFeedClient(cfg),
-		FeedItem:         NewFeedItemClient(cfg),
-		ScrapingSelector: NewScrapingSelectorClient(cfg),
-		Site:             NewSiteClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		Feed:            NewFeedClient(cfg),
+		FeedItem:        NewFeedItemClient(cfg),
+		ScrapingSetting: NewScrapingSettingClient(cfg),
+		Site:            NewSiteClient(cfg),
 	}, nil
 }
 
@@ -201,7 +201,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Feed.Use(hooks...)
 	c.FeedItem.Use(hooks...)
-	c.ScrapingSelector.Use(hooks...)
+	c.ScrapingSetting.Use(hooks...)
 	c.Site.Use(hooks...)
 }
 
@@ -210,7 +210,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Feed.Intercept(interceptors...)
 	c.FeedItem.Intercept(interceptors...)
-	c.ScrapingSelector.Intercept(interceptors...)
+	c.ScrapingSetting.Intercept(interceptors...)
 	c.Site.Intercept(interceptors...)
 }
 
@@ -221,8 +221,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Feed.mutate(ctx, m)
 	case *FeedItemMutation:
 		return c.FeedItem.mutate(ctx, m)
-	case *ScrapingSelectorMutation:
-		return c.ScrapingSelector.mutate(ctx, m)
+	case *ScrapingSettingMutation:
+		return c.ScrapingSetting.mutate(ctx, m)
 	case *SiteMutation:
 		return c.Site.mutate(ctx, m)
 	default:
@@ -544,107 +544,107 @@ func (c *FeedItemClient) mutate(ctx context.Context, m *FeedItemMutation) (Value
 	}
 }
 
-// ScrapingSelectorClient is a client for the ScrapingSelector schema.
-type ScrapingSelectorClient struct {
+// ScrapingSettingClient is a client for the ScrapingSetting schema.
+type ScrapingSettingClient struct {
 	config
 }
 
-// NewScrapingSelectorClient returns a client for the ScrapingSelector from the given config.
-func NewScrapingSelectorClient(c config) *ScrapingSelectorClient {
-	return &ScrapingSelectorClient{config: c}
+// NewScrapingSettingClient returns a client for the ScrapingSetting from the given config.
+func NewScrapingSettingClient(c config) *ScrapingSettingClient {
+	return &ScrapingSettingClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `scrapingselector.Hooks(f(g(h())))`.
-func (c *ScrapingSelectorClient) Use(hooks ...Hook) {
-	c.hooks.ScrapingSelector = append(c.hooks.ScrapingSelector, hooks...)
+// A call to `Use(f, g, h)` equals to `scrapingsetting.Hooks(f(g(h())))`.
+func (c *ScrapingSettingClient) Use(hooks ...Hook) {
+	c.hooks.ScrapingSetting = append(c.hooks.ScrapingSetting, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `scrapingselector.Intercept(f(g(h())))`.
-func (c *ScrapingSelectorClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ScrapingSelector = append(c.inters.ScrapingSelector, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `scrapingsetting.Intercept(f(g(h())))`.
+func (c *ScrapingSettingClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ScrapingSetting = append(c.inters.ScrapingSetting, interceptors...)
 }
 
-// Create returns a builder for creating a ScrapingSelector entity.
-func (c *ScrapingSelectorClient) Create() *ScrapingSelectorCreate {
-	mutation := newScrapingSelectorMutation(c.config, OpCreate)
-	return &ScrapingSelectorCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a ScrapingSetting entity.
+func (c *ScrapingSettingClient) Create() *ScrapingSettingCreate {
+	mutation := newScrapingSettingMutation(c.config, OpCreate)
+	return &ScrapingSettingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of ScrapingSelector entities.
-func (c *ScrapingSelectorClient) CreateBulk(builders ...*ScrapingSelectorCreate) *ScrapingSelectorCreateBulk {
-	return &ScrapingSelectorCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of ScrapingSetting entities.
+func (c *ScrapingSettingClient) CreateBulk(builders ...*ScrapingSettingCreate) *ScrapingSettingCreateBulk {
+	return &ScrapingSettingCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *ScrapingSelectorClient) MapCreateBulk(slice any, setFunc func(*ScrapingSelectorCreate, int)) *ScrapingSelectorCreateBulk {
+func (c *ScrapingSettingClient) MapCreateBulk(slice any, setFunc func(*ScrapingSettingCreate, int)) *ScrapingSettingCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &ScrapingSelectorCreateBulk{err: fmt.Errorf("calling to ScrapingSelectorClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &ScrapingSettingCreateBulk{err: fmt.Errorf("calling to ScrapingSettingClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*ScrapingSelectorCreate, rv.Len())
+	builders := make([]*ScrapingSettingCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &ScrapingSelectorCreateBulk{config: c.config, builders: builders}
+	return &ScrapingSettingCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for ScrapingSelector.
-func (c *ScrapingSelectorClient) Update() *ScrapingSelectorUpdate {
-	mutation := newScrapingSelectorMutation(c.config, OpUpdate)
-	return &ScrapingSelectorUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for ScrapingSetting.
+func (c *ScrapingSettingClient) Update() *ScrapingSettingUpdate {
+	mutation := newScrapingSettingMutation(c.config, OpUpdate)
+	return &ScrapingSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ScrapingSelectorClient) UpdateOne(ss *ScrapingSelector) *ScrapingSelectorUpdateOne {
-	mutation := newScrapingSelectorMutation(c.config, OpUpdateOne, withScrapingSelector(ss))
-	return &ScrapingSelectorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ScrapingSettingClient) UpdateOne(ss *ScrapingSetting) *ScrapingSettingUpdateOne {
+	mutation := newScrapingSettingMutation(c.config, OpUpdateOne, withScrapingSetting(ss))
+	return &ScrapingSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ScrapingSelectorClient) UpdateOneID(id int) *ScrapingSelectorUpdateOne {
-	mutation := newScrapingSelectorMutation(c.config, OpUpdateOne, withScrapingSelectorID(id))
-	return &ScrapingSelectorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ScrapingSettingClient) UpdateOneID(id int) *ScrapingSettingUpdateOne {
+	mutation := newScrapingSettingMutation(c.config, OpUpdateOne, withScrapingSettingID(id))
+	return &ScrapingSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for ScrapingSelector.
-func (c *ScrapingSelectorClient) Delete() *ScrapingSelectorDelete {
-	mutation := newScrapingSelectorMutation(c.config, OpDelete)
-	return &ScrapingSelectorDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for ScrapingSetting.
+func (c *ScrapingSettingClient) Delete() *ScrapingSettingDelete {
+	mutation := newScrapingSettingMutation(c.config, OpDelete)
+	return &ScrapingSettingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ScrapingSelectorClient) DeleteOne(ss *ScrapingSelector) *ScrapingSelectorDeleteOne {
+func (c *ScrapingSettingClient) DeleteOne(ss *ScrapingSetting) *ScrapingSettingDeleteOne {
 	return c.DeleteOneID(ss.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ScrapingSelectorClient) DeleteOneID(id int) *ScrapingSelectorDeleteOne {
-	builder := c.Delete().Where(scrapingselector.ID(id))
+func (c *ScrapingSettingClient) DeleteOneID(id int) *ScrapingSettingDeleteOne {
+	builder := c.Delete().Where(scrapingsetting.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &ScrapingSelectorDeleteOne{builder}
+	return &ScrapingSettingDeleteOne{builder}
 }
 
-// Query returns a query builder for ScrapingSelector.
-func (c *ScrapingSelectorClient) Query() *ScrapingSelectorQuery {
-	return &ScrapingSelectorQuery{
+// Query returns a query builder for ScrapingSetting.
+func (c *ScrapingSettingClient) Query() *ScrapingSettingQuery {
+	return &ScrapingSettingQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeScrapingSelector},
+		ctx:    &QueryContext{Type: TypeScrapingSetting},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a ScrapingSelector entity by its id.
-func (c *ScrapingSelectorClient) Get(ctx context.Context, id int) (*ScrapingSelector, error) {
-	return c.Query().Where(scrapingselector.ID(id)).Only(ctx)
+// Get returns a ScrapingSetting entity by its id.
+func (c *ScrapingSettingClient) Get(ctx context.Context, id int) (*ScrapingSetting, error) {
+	return c.Query().Where(scrapingsetting.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ScrapingSelectorClient) GetX(ctx context.Context, id int) *ScrapingSelector {
+func (c *ScrapingSettingClient) GetX(ctx context.Context, id int) *ScrapingSetting {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -652,15 +652,15 @@ func (c *ScrapingSelectorClient) GetX(ctx context.Context, id int) *ScrapingSele
 	return obj
 }
 
-// QuerySite queries the site edge of a ScrapingSelector.
-func (c *ScrapingSelectorClient) QuerySite(ss *ScrapingSelector) *SiteQuery {
+// QuerySite queries the site edge of a ScrapingSetting.
+func (c *ScrapingSettingClient) QuerySite(ss *ScrapingSetting) *SiteQuery {
 	query := (&SiteClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ss.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(scrapingselector.Table, scrapingselector.FieldID, id),
+			sqlgraph.From(scrapingsetting.Table, scrapingsetting.FieldID, id),
 			sqlgraph.To(site.Table, site.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, scrapingselector.SiteTable, scrapingselector.SiteColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, scrapingsetting.SiteTable, scrapingsetting.SiteColumn),
 		)
 		fromV = sqlgraph.Neighbors(ss.driver.Dialect(), step)
 		return fromV, nil
@@ -669,27 +669,27 @@ func (c *ScrapingSelectorClient) QuerySite(ss *ScrapingSelector) *SiteQuery {
 }
 
 // Hooks returns the client hooks.
-func (c *ScrapingSelectorClient) Hooks() []Hook {
-	return c.hooks.ScrapingSelector
+func (c *ScrapingSettingClient) Hooks() []Hook {
+	return c.hooks.ScrapingSetting
 }
 
 // Interceptors returns the client interceptors.
-func (c *ScrapingSelectorClient) Interceptors() []Interceptor {
-	return c.inters.ScrapingSelector
+func (c *ScrapingSettingClient) Interceptors() []Interceptor {
+	return c.inters.ScrapingSetting
 }
 
-func (c *ScrapingSelectorClient) mutate(ctx context.Context, m *ScrapingSelectorMutation) (Value, error) {
+func (c *ScrapingSettingClient) mutate(ctx context.Context, m *ScrapingSettingMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&ScrapingSelectorCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ScrapingSettingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&ScrapingSelectorUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ScrapingSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&ScrapingSelectorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ScrapingSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&ScrapingSelectorDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ScrapingSettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown ScrapingSelector mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown ScrapingSetting mutation op: %q", m.Op())
 	}
 }
 
@@ -801,15 +801,15 @@ func (c *SiteClient) GetX(ctx context.Context, id int) *Site {
 	return obj
 }
 
-// QueryScrapingSelector queries the scraping_selector edge of a Site.
-func (c *SiteClient) QueryScrapingSelector(s *Site) *ScrapingSelectorQuery {
-	query := (&ScrapingSelectorClient{config: c.config}).Query()
+// QueryScrapingSettings queries the scraping_settings edge of a Site.
+func (c *SiteClient) QueryScrapingSettings(s *Site) *ScrapingSettingQuery {
+	query := (&ScrapingSettingClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(site.Table, site.FieldID, id),
-			sqlgraph.To(scrapingselector.Table, scrapingselector.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, site.ScrapingSelectorTable, site.ScrapingSelectorColumn),
+			sqlgraph.To(scrapingsetting.Table, scrapingsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, site.ScrapingSettingsTable, site.ScrapingSettingsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -861,10 +861,10 @@ func (c *SiteClient) mutate(ctx context.Context, m *SiteMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Feed, FeedItem, ScrapingSelector, Site []ent.Hook
+		Feed, FeedItem, ScrapingSetting, Site []ent.Hook
 	}
 	inters struct {
-		Feed, FeedItem, ScrapingSelector, Site []ent.Interceptor
+		Feed, FeedItem, ScrapingSetting, Site []ent.Interceptor
 	}
 )
 

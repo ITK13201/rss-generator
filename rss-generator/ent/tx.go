@@ -18,8 +18,8 @@ type Tx struct {
 	Feed *FeedClient
 	// FeedItem is the client for interacting with the FeedItem builders.
 	FeedItem *FeedItemClient
-	// ScrapingSelector is the client for interacting with the ScrapingSelector builders.
-	ScrapingSelector *ScrapingSelectorClient
+	// ScrapingSetting is the client for interacting with the ScrapingSetting builders.
+	ScrapingSetting *ScrapingSettingClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 
@@ -155,7 +155,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Feed = NewFeedClient(tx.config)
 	tx.FeedItem = NewFeedItemClient(tx.config)
-	tx.ScrapingSelector = NewScrapingSelectorClient(tx.config)
+	tx.ScrapingSetting = NewScrapingSettingClient(tx.config)
 	tx.Site = NewSiteClient(tx.config)
 }
 

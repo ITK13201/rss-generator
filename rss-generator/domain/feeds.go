@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type ScrapingSelectors struct {
+type ScrapingSetting struct {
 	Selector            string  `json:"selector"`
 	InnerSelector       string  `json:"inner_selector"`
 	TitleSelector       string  `json:"title_selector"`
@@ -27,9 +27,8 @@ type Feed struct {
 	PublishedAt *time.Time `json:"published_at"`
 }
 
-type FeedCreateInput struct {
-	SiteID    int               `json:"site_id"`
-	Selectors ScrapingSelectors `json:"selectors"`
+type FeedUpsertInput struct {
+	ScrapingSetting ScrapingSetting `json:"scraping_setting"`
 }
 
 type FeedGetOutput struct {
