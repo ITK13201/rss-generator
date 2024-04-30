@@ -69,16 +69,23 @@ RUN go mod download
 
 COPY ./${APP} .
 
-RUN go build -o ./bin/${APP}
+RUN go build -o /usr/local/bin/${APP}
 
 
 # Production environment
 FROM gcr.io/distroless/base:debug AS production
 
 ARG APP=rss-generator
+WORKDIR /usr/local/src/${APP}
 
 COPY --from=tools /usr/local/bin/goose /usr/local/bin/goose
-COPY --from=builder /backend/bin/${APP} /usr/local/bin/${APP}
+COPY --from=tools /usr/local/bin/dockerize /usr/local/bin/dockerize
+COPY --from=builder /usr/local/bin/${APP} /usr/local/bin/${APP}
+
+COPY --chmod=775 ./docker/${APP}/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY --chmod=775 ./docker/${APP}/bin/goose.sh /usr/local/bin/goose.sh
+
+COPY ./rss-generator/migrations ./migrations
 
 ENTRYPOINT ["sh", "/usr/local/bin/docker-entrypoint.sh"]
 CMD ["-w", "-m"]

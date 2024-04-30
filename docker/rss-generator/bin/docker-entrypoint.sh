@@ -45,7 +45,7 @@ fi
 
 if [ "$MIGRATION" = "1" ]; then
     echo "Running migration..."
-    /usr/local/bin/goose.sh up
+    sh /usr/local/bin/goose.sh up
     echo "Migration completed!"
 fi
 
