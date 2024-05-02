@@ -8,6 +8,7 @@ usage() {
     echo "Usage: $0 [-d] [-m] [-q] [-w]" 1>&2
     echo "Options: " 1>&2
     echo "-d: Run as development mode" 1>&2
+    echo "-j: Run as job mode" 1>&2
     echo "-m: Run migration" 1>&2
     echo "-q: Quit without running server" 1>&2
     echo "-w: Wait for database to start" 1>&2
@@ -18,11 +19,14 @@ WAIT=0
 QUIT=0
 MIGRATION=0
 ENVIRONMENT=prod
+JOB=0
 
-while getopts :dwmqh OPT
+while getopts :djwmqh OPT
 do
     case $OPT in
     d)  ENVIRONMENT=dev
+        ;;
+    j)  JOB=1
         ;;
     w)  WAIT=1
         ;;
@@ -50,6 +54,12 @@ if [ "$MIGRATION" = "1" ]; then
 fi
 
 if [ "$QUIT" = "1" ]; then
+    exit 0
+fi
+
+if [ "$JOB" = "1" ]; then
+    /usr/local/bin/${APP} jobs update_feeds
+    /usr/local/bin/${APP} jobs delete_expired_test_feeds
     exit 0
 fi
 
