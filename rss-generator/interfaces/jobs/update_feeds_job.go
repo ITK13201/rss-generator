@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"entgo.io/ent/dialect/sql"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/feed"
@@ -36,7 +37,11 @@ func (ufj *updateFeedsJob) Run(ctx context.Context) {
 	}).Info("job started")
 
 	sites, err := ufj.sqlClient.Site.Query().
-		WithFeeds().
+		WithFeeds(func(fq *ent.FeedQuery) {
+			fq.WithFeedItems(func(fiq *ent.FeedItemQuery) {
+				fiq.Order(feeditem.ByPublishedAt(sql.OrderDesc()))
+			})
+		}).
 		WithScrapingSettings().
 		All(ctx)
 	if err != nil {
@@ -66,7 +71,7 @@ func (ufj *updateFeedsJob) Run(ctx context.Context) {
 			ufj.logger.WithFields(logrus.Fields{
 				"site":  s.Slug,
 				"error": err.Error(),
-			})
+			}).Fatal("failed to scrape feed")
 		}
 
 		oldFeed := domain.ConvertFeedFromModelToDomain(s.Edges.Feeds[0])
@@ -96,7 +101,7 @@ func (ufj *updateFeedsJob) Run(ctx context.Context) {
 					SetTitle(updatedFeed.Items[i].Title).
 					SetDescription(updatedFeed.Items[i].Description).
 					SetLink(*updatedFeed.Items[i].Link).
-					SetPublishedAt(updatedFeed.PublishedAt)
+					SetPublishedAt(updatedFeed.Items[i].PublishedAt)
 			}).Exec(ctx)
 			if err != nil {
 				return err

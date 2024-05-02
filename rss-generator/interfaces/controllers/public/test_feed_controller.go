@@ -2,9 +2,11 @@ package public
 
 import (
 	"context"
+	"entgo.io/ent/dialect/sql"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/testfeed"
+	"github.com/ITK13201/rss-generator/ent/testfeeditem"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/public"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/ITK13201/rss-generator/internal/rss"
@@ -43,7 +45,15 @@ func (tfc *testFeedController) Get(c *gin.Context) {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	f, err := tfc.sqlClient.TestFeed.Query().Where(testfeed.IDEQ(feedUUID)).WithSite().WithTestFeedItems().Only(ctx)
+	f, err := tfc.sqlClient.TestFeed.Query().
+		Where(testfeed.IDEQ(feedUUID)).
+		WithSite().
+		WithTestFeedItems(func(tfiq *ent.TestFeedItemQuery) {
+			tfiq.Order(
+				testfeeditem.ByPublishedAt(sql.OrderDesc()),
+			)
+		}).
+		Only(ctx)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return

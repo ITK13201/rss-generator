@@ -56,9 +56,10 @@ func (r *RssUtil) Update(oldFeed *domain.Feed, newFeed *domain.Feed) *domain.Fee
 			Link:        newFeedItem.Link,
 			PublishedAt: newFeedItem.PublishedAt,
 		}
-		for i := 0; i < len(oldFeed.Items); i++ {
-			if oldFeed.Items[i].Title == newFeedItem.Title {
-				updatedFeedItem.PublishedAt = oldFeed.Items[i].PublishedAt
+		for j := 0; j < len(oldFeed.Items); j++ {
+			oldFeedItem := oldFeed.Items[j]
+			if oldFeedItem.Title == newFeedItem.Title {
+				updatedFeedItem.PublishedAt = oldFeedItem.PublishedAt
 				break
 			}
 		}

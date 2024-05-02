@@ -20,6 +20,15 @@ type FeedItem struct {
 	PublishedAt time.Time `json:"published_at"`
 }
 
+func ConvertFeedItemFromModelToDomain(feedItem *ent.FeedItem) *FeedItem {
+	return &FeedItem{
+		Title:       feedItem.Title,
+		Description: feedItem.Description,
+		Link:        &feedItem.Link,
+		PublishedAt: feedItem.PublishedAt,
+	}
+}
+
 type Feed struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -37,11 +46,16 @@ type FeedGetOutput struct {
 }
 
 func ConvertFeedFromModelToDomain(feed *ent.Feed) *Feed {
+	items := []*FeedItem{}
+	for _, model := range feed.Edges.FeedItems {
+		items = append(items, ConvertFeedItemFromModelToDomain(model))
+	}
 	return &Feed{
 		Title:       feed.Title,
 		Description: feed.Description,
 		Link:        feed.Link,
 		PublishedAt: feed.PublishedAt,
+		Items:       items,
 	}
 }
 

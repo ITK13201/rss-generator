@@ -1,9 +1,11 @@
 package public
 
 import (
+	"entgo.io/ent/dialect/sql"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/feed"
+	"github.com/ITK13201/rss-generator/ent/feeditem"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/public"
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/ITK13201/rss-generator/internal/rss"
@@ -40,7 +42,15 @@ func (fc *feedController) GetByID(c *gin.Context) {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	f, err := fc.sqlClient.Feed.Query().Where(feed.IDEQ(feedUUID)).WithSite().WithFeedItems().Only(c.Request.Context())
+	f, err := fc.sqlClient.Feed.Query().
+		Where(feed.IDEQ(feedUUID)).
+		WithSite().
+		WithFeedItems(func(fiq *ent.FeedItemQuery) {
+			fiq.Order(
+				feeditem.ByPublishedAt(sql.OrderDesc()),
+			)
+		}).
+		Only(c.Request.Context())
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return

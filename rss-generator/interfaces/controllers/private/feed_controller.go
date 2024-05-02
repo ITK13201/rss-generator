@@ -1,6 +1,7 @@
 package private
 
 import (
+	"entgo.io/ent/dialect/sql"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/feed"
@@ -41,7 +42,11 @@ func (fc *feedController) Upsert(c *gin.Context) {
 	site_slug := c.Param("site_slug")
 	siteModel, err := fc.sqlClient.Site.Query().
 		Where(site.SlugEQ(site_slug)).
-		WithFeeds().
+		WithFeeds(func(fq *ent.FeedQuery) {
+			fq.WithFeedItems(func(fiq *ent.FeedItemQuery) {
+				fiq.Order(feeditem.ByPublishedAt(sql.OrderDesc()))
+			})
+		}).
 		WithScrapingSettings().
 		Only(c.Request.Context())
 	if err != nil {
@@ -69,6 +74,10 @@ func (fc *feedController) Upsert(c *gin.Context) {
 	if err = db.WithTx(c.Request.Context(), fc.sqlClient, func(tx *ent.Tx) error {
 		if len(siteModel.Edges.Feeds) == 0 {
 			// create
+			fc.logger.WithFields(logrus.Fields{
+				"site": site_slug,
+			}).Info("creating new feed")
+
 			feedModel, err := tx.Feed.Create().
 				SetSite(siteModel).
 				SetTitle(newFeed.Title).
@@ -84,7 +93,7 @@ func (fc *feedController) Upsert(c *gin.Context) {
 					SetTitle(newFeed.Items[i].Title).
 					SetDescription(newFeed.Items[i].Description).
 					SetLink(*newFeed.Items[i].Link).
-					SetPublishedAt(newFeed.PublishedAt)
+					SetPublishedAt(newFeed.Items[i].PublishedAt)
 			}).Exec(c.Request.Context())
 			if err != nil {
 				return err
@@ -92,6 +101,10 @@ func (fc *feedController) Upsert(c *gin.Context) {
 			feedID = feedModel.ID.String()
 		} else {
 			// update
+			fc.logger.WithFields(logrus.Fields{
+				"site": site_slug,
+			}).Info("updating existing feed")
+
 			oldFeed := domain.ConvertFeedFromModelToDomain(siteModel.Edges.Feeds[0])
 
 			rssUtil := rss.NewRssUtil(fc.cfg, fc.logger)
@@ -118,7 +131,7 @@ func (fc *feedController) Upsert(c *gin.Context) {
 					SetTitle(updatedFeed.Items[i].Title).
 					SetDescription(updatedFeed.Items[i].Description).
 					SetLink(*updatedFeed.Items[i].Link).
-					SetPublishedAt(updatedFeed.PublishedAt)
+					SetPublishedAt(updatedFeed.Items[i].PublishedAt)
 			}).Exec(c.Request.Context())
 			if err != nil {
 				return err
