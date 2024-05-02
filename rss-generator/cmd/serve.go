@@ -34,7 +34,7 @@ func serve(cfg *domain.Config) {
 	sqlClient := infrastructure.NewSqlClient(cfg)
 	publicApp := infrastructure.NewPublicApplication(cfg, logger, sqlClient)
 	privateApp := infrastructure.NewPrivateApplication(cfg, logger, sqlClient)
-	router := infrastructure.NewRouter(publicApp, privateApp)
+	router := infrastructure.NewRouter(cfg, publicApp, privateApp)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),

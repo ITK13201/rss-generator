@@ -47,6 +47,7 @@ func (r *RssUtil) Generate(f *domain.Feed) (*string, error) {
 
 func (r *RssUtil) Update(oldFeed *domain.Feed, newFeed *domain.Feed) *domain.Feed {
 	updatedFeedItems := []*domain.FeedItem{}
+	lastUpdatedAt := oldFeed.PublishedAt
 	for i := 0; i < len(newFeed.Items); i++ {
 		newFeedItem := newFeed.Items[i]
 		updatedFeedItem := &domain.FeedItem{
@@ -61,6 +62,9 @@ func (r *RssUtil) Update(oldFeed *domain.Feed, newFeed *domain.Feed) *domain.Fee
 				break
 			}
 		}
+		if lastUpdatedAt.Before(updatedFeedItem.PublishedAt) {
+			lastUpdatedAt = updatedFeedItem.PublishedAt
+		}
 		updatedFeedItems = append(updatedFeedItems, updatedFeedItem)
 	}
 
@@ -68,7 +72,7 @@ func (r *RssUtil) Update(oldFeed *domain.Feed, newFeed *domain.Feed) *domain.Fee
 		Title:       newFeed.Title,
 		Description: newFeed.Description,
 		Link:        newFeed.Link,
-		PublishedAt: newFeed.PublishedAt,
+		PublishedAt: lastUpdatedAt,
 		Items:       updatedFeedItems,
 	}
 	return updatedFeed

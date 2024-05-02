@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"github.com/ITK13201/rss-generator/domain"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -18,7 +19,12 @@ func corsHandler() gin.HandlerFunc {
 	})
 }
 
-func NewRouter(publicApp *PublicApplication, privateApp *PrivateApplication) *gin.Engine {
+func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *PrivateApplication) *gin.Engine {
+	if cfg.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	router := gin.Default()
 	router.Use(corsHandler())
 
