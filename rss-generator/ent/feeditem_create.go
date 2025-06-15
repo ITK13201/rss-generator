@@ -164,11 +164,6 @@ func (fic *FeedItemCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "FeedItem.description": %w`, err)}
 		}
 	}
-	if v, ok := fic.mutation.Link(); ok {
-		if err := feeditem.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "FeedItem.link": %w`, err)}
-		}
-	}
 	if _, ok := fic.mutation.PublishedAt(); !ok {
 		return &ValidationError{Name: "published_at", err: errors.New(`ent: missing required field "FeedItem.published_at"`)}
 	}

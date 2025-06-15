@@ -1,13 +1,14 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"time"
 )
 
 // Feed holds the schema definition for the Feed entity.
@@ -19,9 +20,9 @@ type Feed struct {
 func (Feed) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
-		field.String("title").NotEmpty().MaxLen(1023),
-		field.String("description").NotEmpty().MaxLen(2047),
-		field.String("link").NotEmpty().MaxLen(2047),
+		field.String("title").NotEmpty(),
+		field.String("description").NotEmpty(),
+		field.String("link").NotEmpty(),
 		field.Time("published_at"),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

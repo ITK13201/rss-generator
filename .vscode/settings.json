@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "server": "localhost",
+            "port": 13306,
+            "database": "rss",
+            "username": "user",
+            "password": "password",
+            "driver": "MySQL",
+            "name": "rss",
+        }
+    ]
+}

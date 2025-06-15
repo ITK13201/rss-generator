@@ -182,11 +182,6 @@ func (tfiu *TestFeedItemUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "TestFeedItem.description": %w`, err)}
 		}
 	}
-	if v, ok := tfiu.mutation.Link(); ok {
-		if err := testfeeditem.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "TestFeedItem.link": %w`, err)}
-		}
-	}
 	if _, ok := tfiu.mutation.TestFeedID(); tfiu.mutation.TestFeedCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "TestFeedItem.test_feed"`)
 	}
@@ -438,11 +433,6 @@ func (tfiuo *TestFeedItemUpdateOne) check() error {
 	if v, ok := tfiuo.mutation.Description(); ok {
 		if err := testfeeditem.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "TestFeedItem.description": %w`, err)}
-		}
-	}
-	if v, ok := tfiuo.mutation.Link(); ok {
-		if err := testfeeditem.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "TestFeedItem.link": %w`, err)}
 		}
 	}
 	if _, ok := tfiuo.mutation.TestFeedID(); tfiuo.mutation.TestFeedCleared() && !ok {

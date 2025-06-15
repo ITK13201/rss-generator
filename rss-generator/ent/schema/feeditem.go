@@ -1,12 +1,13 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"time"
 )
 
 // FeedItem holds the schema definition for the FeedItems entity.
@@ -18,9 +19,9 @@ type FeedItem struct {
 func (FeedItem) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique().Immutable(),
-		field.String("title").NotEmpty().MaxLen(1023),
-		field.String("description").NotEmpty().MaxLen(2047),
-		field.String("link").Optional().MaxLen(2047),
+		field.String("title").NotEmpty(),
+		field.String("description").NotEmpty(),
+		field.String("link").Optional(),
 		field.Time("published_at"),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

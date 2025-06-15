@@ -12,9 +12,9 @@ var (
 	// FeedsColumns holds the columns for the "feeds" table.
 	FeedsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "title", Type: field.TypeString, Size: 1023},
-		{Name: "description", Type: field.TypeString, Size: 2047},
-		{Name: "link", Type: field.TypeString, Size: 2047},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "link", Type: field.TypeString},
 		{Name: "published_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -37,9 +37,9 @@ var (
 	// FeedItemsColumns holds the columns for the "feed_items" table.
 	FeedItemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "title", Type: field.TypeString, Size: 1023},
-		{Name: "description", Type: field.TypeString, Size: 2047},
-		{Name: "link", Type: field.TypeString, Nullable: true, Size: 2047},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "link", Type: field.TypeString, Nullable: true},
 		{Name: "published_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -105,9 +105,9 @@ var (
 	// TestFeedsColumns holds the columns for the "test_feeds" table.
 	TestFeedsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "title", Type: field.TypeString, Size: 1023},
-		{Name: "description", Type: field.TypeString, Size: 2047},
-		{Name: "link", Type: field.TypeString, Size: 2047},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "link", Type: field.TypeString},
 		{Name: "published_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -130,9 +130,9 @@ var (
 	// TestFeedItemsColumns holds the columns for the "test_feed_items" table.
 	TestFeedItemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "title", Type: field.TypeString, Size: 1023},
-		{Name: "description", Type: field.TypeString, Size: 2047},
-		{Name: "link", Type: field.TypeString, Nullable: true, Size: 2047},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "link", Type: field.TypeString, Nullable: true},
 		{Name: "published_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},

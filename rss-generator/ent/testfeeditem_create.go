@@ -164,11 +164,6 @@ func (tfic *TestFeedItemCreate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "TestFeedItem.description": %w`, err)}
 		}
 	}
-	if v, ok := tfic.mutation.Link(); ok {
-		if err := testfeeditem.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "TestFeedItem.link": %w`, err)}
-		}
-	}
 	if _, ok := tfic.mutation.PublishedAt(); !ok {
 		return &ValidationError{Name: "published_at", err: errors.New(`ent: missing required field "TestFeedItem.published_at"`)}
 	}

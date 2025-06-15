@@ -24,57 +24,15 @@ func init() {
 	// feedDescTitle is the schema descriptor for title field.
 	feedDescTitle := feedFields[1].Descriptor()
 	// feed.TitleValidator is a validator for the "title" field. It is called by the builders before save.
-	feed.TitleValidator = func() func(string) error {
-		validators := feedDescTitle.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(title string) error {
-			for _, fn := range fns {
-				if err := fn(title); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	feed.TitleValidator = feedDescTitle.Validators[0].(func(string) error)
 	// feedDescDescription is the schema descriptor for description field.
 	feedDescDescription := feedFields[2].Descriptor()
 	// feed.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	feed.DescriptionValidator = func() func(string) error {
-		validators := feedDescDescription.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(description string) error {
-			for _, fn := range fns {
-				if err := fn(description); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	feed.DescriptionValidator = feedDescDescription.Validators[0].(func(string) error)
 	// feedDescLink is the schema descriptor for link field.
 	feedDescLink := feedFields[3].Descriptor()
 	// feed.LinkValidator is a validator for the "link" field. It is called by the builders before save.
-	feed.LinkValidator = func() func(string) error {
-		validators := feedDescLink.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(link string) error {
-			for _, fn := range fns {
-				if err := fn(link); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	feed.LinkValidator = feedDescLink.Validators[0].(func(string) error)
 	// feedDescCreatedAt is the schema descriptor for created_at field.
 	feedDescCreatedAt := feedFields[5].Descriptor()
 	// feed.DefaultCreatedAt holds the default value on creation for the created_at field.
@@ -94,43 +52,11 @@ func init() {
 	// feeditemDescTitle is the schema descriptor for title field.
 	feeditemDescTitle := feeditemFields[1].Descriptor()
 	// feeditem.TitleValidator is a validator for the "title" field. It is called by the builders before save.
-	feeditem.TitleValidator = func() func(string) error {
-		validators := feeditemDescTitle.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(title string) error {
-			for _, fn := range fns {
-				if err := fn(title); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	feeditem.TitleValidator = feeditemDescTitle.Validators[0].(func(string) error)
 	// feeditemDescDescription is the schema descriptor for description field.
 	feeditemDescDescription := feeditemFields[2].Descriptor()
 	// feeditem.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	feeditem.DescriptionValidator = func() func(string) error {
-		validators := feeditemDescDescription.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(description string) error {
-			for _, fn := range fns {
-				if err := fn(description); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// feeditemDescLink is the schema descriptor for link field.
-	feeditemDescLink := feeditemFields[3].Descriptor()
-	// feeditem.LinkValidator is a validator for the "link" field. It is called by the builders before save.
-	feeditem.LinkValidator = feeditemDescLink.Validators[0].(func(string) error)
+	feeditem.DescriptionValidator = feeditemDescDescription.Validators[0].(func(string) error)
 	// feeditemDescCreatedAt is the schema descriptor for created_at field.
 	feeditemDescCreatedAt := feeditemFields[5].Descriptor()
 	// feeditem.DefaultCreatedAt holds the default value on creation for the created_at field.
@@ -198,57 +124,15 @@ func init() {
 	// testfeedDescTitle is the schema descriptor for title field.
 	testfeedDescTitle := testfeedFields[1].Descriptor()
 	// testfeed.TitleValidator is a validator for the "title" field. It is called by the builders before save.
-	testfeed.TitleValidator = func() func(string) error {
-		validators := testfeedDescTitle.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(title string) error {
-			for _, fn := range fns {
-				if err := fn(title); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	testfeed.TitleValidator = testfeedDescTitle.Validators[0].(func(string) error)
 	// testfeedDescDescription is the schema descriptor for description field.
 	testfeedDescDescription := testfeedFields[2].Descriptor()
 	// testfeed.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	testfeed.DescriptionValidator = func() func(string) error {
-		validators := testfeedDescDescription.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(description string) error {
-			for _, fn := range fns {
-				if err := fn(description); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	testfeed.DescriptionValidator = testfeedDescDescription.Validators[0].(func(string) error)
 	// testfeedDescLink is the schema descriptor for link field.
 	testfeedDescLink := testfeedFields[3].Descriptor()
 	// testfeed.LinkValidator is a validator for the "link" field. It is called by the builders before save.
-	testfeed.LinkValidator = func() func(string) error {
-		validators := testfeedDescLink.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(link string) error {
-			for _, fn := range fns {
-				if err := fn(link); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	testfeed.LinkValidator = testfeedDescLink.Validators[0].(func(string) error)
 	// testfeedDescCreatedAt is the schema descriptor for created_at field.
 	testfeedDescCreatedAt := testfeedFields[5].Descriptor()
 	// testfeed.DefaultCreatedAt holds the default value on creation for the created_at field.
@@ -268,43 +152,11 @@ func init() {
 	// testfeeditemDescTitle is the schema descriptor for title field.
 	testfeeditemDescTitle := testfeeditemFields[1].Descriptor()
 	// testfeeditem.TitleValidator is a validator for the "title" field. It is called by the builders before save.
-	testfeeditem.TitleValidator = func() func(string) error {
-		validators := testfeeditemDescTitle.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(title string) error {
-			for _, fn := range fns {
-				if err := fn(title); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	testfeeditem.TitleValidator = testfeeditemDescTitle.Validators[0].(func(string) error)
 	// testfeeditemDescDescription is the schema descriptor for description field.
 	testfeeditemDescDescription := testfeeditemFields[2].Descriptor()
 	// testfeeditem.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	testfeeditem.DescriptionValidator = func() func(string) error {
-		validators := testfeeditemDescDescription.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(description string) error {
-			for _, fn := range fns {
-				if err := fn(description); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// testfeeditemDescLink is the schema descriptor for link field.
-	testfeeditemDescLink := testfeeditemFields[3].Descriptor()
-	// testfeeditem.LinkValidator is a validator for the "link" field. It is called by the builders before save.
-	testfeeditem.LinkValidator = testfeeditemDescLink.Validators[0].(func(string) error)
+	testfeeditem.DescriptionValidator = testfeeditemDescDescription.Validators[0].(func(string) error)
 	// testfeeditemDescCreatedAt is the schema descriptor for created_at field.
 	testfeeditemDescCreatedAt := testfeeditemFields[5].Descriptor()
 	// testfeeditem.DefaultCreatedAt holds the default value on creation for the created_at field.
