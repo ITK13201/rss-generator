@@ -2,22 +2,28 @@ package infrastructure
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/ITK13201/rss-generator/domain"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func corsHandler() gin.HandlerFunc {
-	return cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	})
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Max-Age", "43200")
+
+		// If the request method is OPTIONS, respond with 204 No Content
+		if c.Request.Method == http.MethodOptions {
+			c.Status(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
 }
 
 func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *PrivateApplication) *gin.Engine {
@@ -27,6 +33,7 @@ func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *Pri
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.Default()
+	// CORS middleware
 	router.Use(corsHandler())
 
 	// ping: always return 200 OK
