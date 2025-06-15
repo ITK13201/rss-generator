@@ -69,6 +69,7 @@ func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *Pri
 			feeds := v1.Group("/feeds")
 			{
 				feeds.GET("", privateApp.FeedController.GetAll)
+				feeds.GET("/:id", privateApp.FeedController.GetByID)
 			}
 			testFeeds := v1.Group("/test-feeds")
 			{
