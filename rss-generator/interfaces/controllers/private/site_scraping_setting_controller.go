@@ -1,6 +1,9 @@
 package private
 
 import (
+	"net/http"
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
@@ -14,32 +17,78 @@ import (
 	"github.com/ITK13201/rss-generator/internal/scraper"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
-type FeedController interface {
+type SiteScrapingSettingController interface {
+	GetBySiteSlug(ctx *gin.Context)
 	Upsert(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 }
 
-type feedController struct {
-	cfg            *domain.Config
-	logger         *logrus.Logger
-	sqlClient      *ent.Client
-	feedInteractor private.FeedInteractor
+type siteScrapingSettingController struct {
+	cfg                           *domain.Config
+	logger                        *logrus.Logger
+	sqlClient                     *ent.Client
+	siteScrapingSettingInteractor private.SiteScrapingSettingInteractor
 }
 
-func NewFeedController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) FeedController {
-	return &feedController{
-		cfg:            cfg,
-		logger:         logger,
-		sqlClient:      sqlClient,
-		feedInteractor: private.NewFeedInteractor(sqlClient),
+func NewSiteScrapingSettingController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent.Client) SiteScrapingSettingController {
+	return &siteScrapingSettingController{
+		cfg:                           cfg,
+		logger:                        logger,
+		sqlClient:                     sqlClient,
+		siteScrapingSettingInteractor: private.NewSiteScrapingSettingInteractor(sqlClient),
 	}
 }
 
-func (fc *feedController) Upsert(c *gin.Context) {
-	site_slug := c.Param("site_slug")
+func (sssc *siteScrapingSettingController) GetBySiteSlug(c *gin.Context) {
+	siteSlug := c.Param("slug")
+	siteModel, err := sssc.sqlClient.Site.Query().
+		Where(site.SlugEQ(siteSlug)).
+		WithScrapingSettings().
+		Only(c.Request.Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			rest.RespondMessage(c, http.StatusNotFound, err.Error())
+			return
+		} else {
+			sssc.logger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"site":  siteSlug,
+			}).Error("failed to get site scraping settings")
+			rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+	if siteModel.Edges.ScrapingSettings == nil {
+		rest.RespondMessage(c, http.StatusNotFound, "scraping settings not found for site")
+		return
+	}
+
+	scrapingSettingsModel := siteModel.Edges.ScrapingSettings[0]
+	dataScrapingSetting := domain.SiteScrapingSettingOutputScrapingSetting{
+		Selector:            scrapingSettingsModel.Selector,
+		InnerSelector:       scrapingSettingsModel.InnerSelector,
+		TitleSelector:       scrapingSettingsModel.TitleSelector,
+		DescriptionSelector: scrapingSettingsModel.DescriptionSelector,
+		LinkSelector:        &scrapingSettingsModel.LinkSelector,
+		CreatedAt:           scrapingSettingsModel.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:           scrapingSettingsModel.UpdatedAt.Format(time.RFC3339),
+	}
+
+	data := domain.SiteScrapingSettingOutput{
+		Slug:              siteModel.Slug,
+		Title:             siteModel.Title,
+		Description:       &siteModel.Description,
+		URL:               siteModel.URL,
+		EnableJSRendering: siteModel.EnableJsRendering,
+		ScrapingSetting:   dataScrapingSetting,
+	}
+	rest.RespondOKWithData(c, data)
+}
+
+func (fc *siteScrapingSettingController) Upsert(c *gin.Context) {
+	site_slug := c.Param("slug")
 	siteModel, err := fc.sqlClient.Site.Query().
 		Where(site.SlugEQ(site_slug)).
 		WithFeeds(func(fq *ent.FeedQuery) {
@@ -169,8 +218,8 @@ func (fc *feedController) Upsert(c *gin.Context) {
 		"feed_id": feedID,
 	})
 }
-func (fc *feedController) Delete(c *gin.Context) {
-	site_slug := c.Param("site_slug")
+func (fc *siteScrapingSettingController) Delete(c *gin.Context) {
+	site_slug := c.Param("slug")
 	siteModel, err := fc.sqlClient.Site.Query().
 		Where(site.SlugEQ(site_slug), site.HasFeeds()).
 		WithFeeds().

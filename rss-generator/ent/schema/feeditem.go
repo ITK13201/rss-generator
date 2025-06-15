@@ -20,7 +20,7 @@ func (FeedItem) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique().Immutable(),
 		field.String("title").NotEmpty(),
-		field.String("description").NotEmpty(),
+		field.String("description"),
 		field.String("link").Optional(),
 		field.Time("published_at"),
 		field.Time("created_at").Default(time.Now),

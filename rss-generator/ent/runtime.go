@@ -53,10 +53,6 @@ func init() {
 	feeditemDescTitle := feeditemFields[1].Descriptor()
 	// feeditem.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	feeditem.TitleValidator = feeditemDescTitle.Validators[0].(func(string) error)
-	// feeditemDescDescription is the schema descriptor for description field.
-	feeditemDescDescription := feeditemFields[2].Descriptor()
-	// feeditem.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	feeditem.DescriptionValidator = feeditemDescDescription.Validators[0].(func(string) error)
 	// feeditemDescCreatedAt is the schema descriptor for created_at field.
 	feeditemDescCreatedAt := feeditemFields[5].Descriptor()
 	// feeditem.DefaultCreatedAt holds the default value on creation for the created_at field.

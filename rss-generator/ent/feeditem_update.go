@@ -177,11 +177,6 @@ func (fiu *FeedItemUpdate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "FeedItem.title": %w`, err)}
 		}
 	}
-	if v, ok := fiu.mutation.Description(); ok {
-		if err := feeditem.DescriptionValidator(v); err != nil {
-			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "FeedItem.description": %w`, err)}
-		}
-	}
 	if _, ok := fiu.mutation.FeedID(); fiu.mutation.FeedCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "FeedItem.feed"`)
 	}
@@ -428,11 +423,6 @@ func (fiuo *FeedItemUpdateOne) check() error {
 	if v, ok := fiuo.mutation.Title(); ok {
 		if err := feeditem.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "FeedItem.title": %w`, err)}
-		}
-	}
-	if v, ok := fiuo.mutation.Description(); ok {
-		if err := feeditem.DescriptionValidator(v); err != nil {
-			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "FeedItem.description": %w`, err)}
 		}
 	}
 	if _, ok := fiuo.mutation.FeedID(); fiuo.mutation.FeedCleared() && !ok {

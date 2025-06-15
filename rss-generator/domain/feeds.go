@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"github.com/ITK13201/rss-generator/ent"
 	"time"
+
+	"github.com/ITK13201/rss-generator/ent"
 )
 
 type ScrapingSetting struct {
@@ -41,6 +42,7 @@ type FeedUpsertInput struct {
 	ScrapingSetting ScrapingSetting `json:"scraping_setting"`
 }
 
+// Public API output for getting a feed by ID
 type FeedGetOutput struct {
 	FeedID int `json:"feed_id"`
 }
@@ -68,3 +70,5 @@ func ConvertScrapingSettingFromModelToDomain(scrapingSetting *ent.ScrapingSettin
 		LinkSelector:        &scrapingSetting.LinkSelector,
 	}
 }
+
+// Private API output for getting a feed by site slug

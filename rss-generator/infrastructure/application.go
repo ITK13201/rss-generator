@@ -9,9 +9,9 @@ import (
 )
 
 type PrivateApplication struct {
-	SiteController     private.SiteController
-	TestFeedController private.TestFeedController
-	FeedController     private.FeedController
+	SiteController                private.SiteController
+	TestFeedController            private.TestFeedController
+	SiteScrapingSettingController private.SiteScrapingSettingController
 }
 
 type PublicApplication struct {
@@ -21,9 +21,9 @@ type PublicApplication struct {
 
 func NewPrivateApplication(cfg *domain.Config, logger *logrus.Logger, sqliClient *ent.Client) *PrivateApplication {
 	return &PrivateApplication{
-		SiteController:     private.NewSiteController(cfg, logger, sqliClient),
-		TestFeedController: private.NewTestFeedController(cfg, logger, sqliClient),
-		FeedController:     private.NewFeedController(cfg, logger, sqliClient),
+		SiteController:                private.NewSiteController(cfg, logger, sqliClient),
+		TestFeedController:            private.NewTestFeedController(cfg, logger, sqliClient),
+		SiteScrapingSettingController: private.NewSiteScrapingSettingController(cfg, logger, sqliClient),
 	}
 }
 

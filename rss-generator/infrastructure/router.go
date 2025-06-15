@@ -58,15 +58,17 @@ func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *Pri
 				sites.POST("", privateApp.SiteController.Create)
 				sites.DELETE("/:slug", privateApp.SiteController.Delete)
 				sites.POST("/:slug", privateApp.SiteController.Update)
+
+				settings := sites.Group("/:slug/settings")
+				{
+					settings.GET("", privateApp.SiteScrapingSettingController.GetBySiteSlug)
+					settings.POST("", privateApp.SiteScrapingSettingController.Upsert)
+					settings.DELETE("", privateApp.SiteScrapingSettingController.Delete)
+				}
 			}
 			testFeeds := v1.Group("/test-feeds")
 			{
 				testFeeds.POST(":site_slug", privateApp.TestFeedController.Create)
-			}
-			feeds := v1.Group("/feeds")
-			{
-				feeds.POST("/:site_slug", privateApp.FeedController.Upsert)
-				feeds.DELETE("/:site_slug", privateApp.FeedController.Delete)
 			}
 		}
 	}

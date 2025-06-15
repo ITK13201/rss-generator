@@ -2,25 +2,26 @@ package private
 
 import (
 	"context"
+
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/site"
 )
 
-type FeedInteractor interface {
+type SiteScrapingSettingInteractor interface {
 	GetSite(siteID int) (*ent.Site, error)
 }
 
-type feedInteractor struct {
+type siteScrapingSettingInteractor struct {
 	sqlClient *ent.Client
 }
 
-func NewFeedInteractor(sqlClient *ent.Client) FeedInteractor {
-	return &feedInteractor{
+func NewSiteScrapingSettingInteractor(sqlClient *ent.Client) SiteScrapingSettingInteractor {
+	return &siteScrapingSettingInteractor{
 		sqlClient: sqlClient,
 	}
 }
 
-func (fi *feedInteractor) GetSite(siteID int) (*ent.Site, error) {
+func (fi *siteScrapingSettingInteractor) GetSite(siteID int) (*ent.Site, error) {
 	ctx := context.Background()
 	s, err := fi.sqlClient.Site.Query().Where(site.IDEQ(siteID)).Only(ctx)
 	if err != nil {
