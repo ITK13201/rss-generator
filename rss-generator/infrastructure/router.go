@@ -1,11 +1,12 @@
 package infrastructure
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"time"
 )
 
 func corsHandler() gin.HandlerFunc {
@@ -52,6 +53,8 @@ func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *Pri
 		{
 			sites := v1.Group("/sites")
 			{
+				sites.GET("", privateApp.SiteController.GetAll)
+				sites.GET("/:slug", privateApp.SiteController.GetBySlug)
 				sites.POST("", privateApp.SiteController.Create)
 				sites.DELETE("/:slug", privateApp.SiteController.Delete)
 				sites.POST("/:slug", privateApp.SiteController.Update)

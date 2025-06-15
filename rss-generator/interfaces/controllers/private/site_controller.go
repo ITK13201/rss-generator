@@ -2,6 +2,9 @@ package private
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/site"
@@ -9,10 +12,11 @@ import (
 	"github.com/ITK13201/rss-generator/internal/rest"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type SiteController interface {
+	GetAll(ctx *gin.Context)
+	GetBySlug(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 	Update(ctx *gin.Context)
@@ -32,6 +36,66 @@ func NewSiteController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent
 		sqlClient:      sqlClient,
 		siteInteractor: private.NewSiteInteractor(sqlClient),
 	}
+}
+
+func (sc *siteController) GetAll(c *gin.Context) {
+	sites, err := sc.sqlClient.Site.Query().All(c.Request.Context())
+	if err != nil {
+		sc.logger.WithFields(logrus.Fields{
+			"error": err.Error(),
+		}).Error("site query failed")
+		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	data := make([]domain.SitesGetAllOutput, len(sites))
+	for i, s := range sites {
+		data[i] = domain.SitesGetAllOutput{
+			Slug:              s.Slug,
+			Title:             s.Title,
+			Description:       &s.Description,
+			URL:               s.URL,
+			EnableJSRendering: s.EnableJsRendering,
+			CreatedAt:         s.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:         s.UpdatedAt.Format(time.RFC3339),
+		}
+	}
+	dataJson, _ := json.Marshal(data)
+	sc.logger.WithFields(logrus.Fields{
+		"data": string(dataJson),
+	}).Info("sites retrieved")
+	rest.RespondOKWithData(c, &data)
+}
+
+func (sc *siteController) GetBySlug(c *gin.Context) {
+	slug := c.Param("slug")
+	s, err := sc.sqlClient.Site.Query().Where(site.SlugEQ(slug)).Only(c.Request.Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			rest.RespondMessage(c, http.StatusNotFound, err.Error())
+			return
+		} else {
+			sc.logger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"slug":  slug,
+			}).Error("site query failed")
+			rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+	data := domain.SitesGetBySlugOutput{
+		Slug:              s.Slug,
+		Title:             s.Title,
+		Description:       &s.Description,
+		URL:               s.URL,
+		EnableJSRendering: s.EnableJsRendering,
+		CreatedAt:         s.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:         s.UpdatedAt.Format(time.RFC3339),
+	}
+	dataJson, _ := json.Marshal(data)
+	sc.logger.WithFields(logrus.Fields{
+		"data": string(dataJson),
+	}).Info("site retrieved")
+	rest.RespondOKWithData(c, &data)
 }
 
 func (sc *siteController) Create(c *gin.Context) {
