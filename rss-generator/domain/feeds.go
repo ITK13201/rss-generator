@@ -70,5 +70,3 @@ func ConvertScrapingSettingFromModelToDomain(scrapingSetting *ent.ScrapingSettin
 		LinkSelector:        &scrapingSetting.LinkSelector,
 	}
 }
-
-// Private API output for getting a feed by site slug

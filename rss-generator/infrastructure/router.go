@@ -66,6 +66,10 @@ func NewRouter(cfg *domain.Config, publicApp *PublicApplication, privateApp *Pri
 					settings.DELETE("", privateApp.SiteScrapingSettingController.Delete)
 				}
 			}
+			feeds := v1.Group("/feeds")
+			{
+				feeds.GET("", privateApp.FeedController.GetAll)
+			}
 			testFeeds := v1.Group("/test-feeds")
 			{
 				testFeeds.POST(":site_slug", privateApp.TestFeedController.Create)

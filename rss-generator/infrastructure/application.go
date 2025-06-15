@@ -12,6 +12,7 @@ type PrivateApplication struct {
 	SiteController                private.SiteController
 	TestFeedController            private.TestFeedController
 	SiteScrapingSettingController private.SiteScrapingSettingController
+	FeedController                private.FeedController
 }
 
 type PublicApplication struct {
@@ -24,6 +25,7 @@ func NewPrivateApplication(cfg *domain.Config, logger *logrus.Logger, sqliClient
 		SiteController:                private.NewSiteController(cfg, logger, sqliClient),
 		TestFeedController:            private.NewTestFeedController(cfg, logger, sqliClient),
 		SiteScrapingSettingController: private.NewSiteScrapingSettingController(cfg, logger, sqliClient),
+		FeedController:                private.NewFeedController(cfg, logger, sqliClient),
 	}
 }
 
