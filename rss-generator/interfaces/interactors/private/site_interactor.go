@@ -2,6 +2,7 @@ package private
 
 import (
 	"context"
+
 	"github.com/ITK13201/rss-generator/domain"
 	"github.com/ITK13201/rss-generator/ent"
 )

@@ -29,8 +29,13 @@ type SitesCreateInput struct {
 }
 
 type SitesCreateOutput struct {
-	Slug  string `json:"slug"`
-	Title string `json:"title"`
+	Slug              string  `json:"slug"`
+	Title             string  `json:"title"`
+	Description       *string `json:"description"`
+	URL               string  `json:"url"`
+	EnableJSRendering bool    `json:"enable_js_rendering"`
+	CreatedAt         string  `json:"created_at"`
+	UpdatedAt         string  `json:"updated_at"`
 }
 
 type SitesUpdateInput struct {
@@ -38,4 +43,14 @@ type SitesUpdateInput struct {
 	Description       *string `json:"description"`
 	URL               *string `json:"url"`
 	EnableJSRendering *bool   `json:"enable_js_rendering"`
+}
+
+type SitesUpdateOutput struct {
+	Slug              string  `json:"slug"`
+	Title             string  `json:"title"`
+	Description       *string `json:"description"`
+	URL               string  `json:"url"`
+	EnableJSRendering bool    `json:"enable_js_rendering"`
+	CreatedAt         string  `json:"created_at"`
+	UpdatedAt         string  `json:"updated_at"`
 }

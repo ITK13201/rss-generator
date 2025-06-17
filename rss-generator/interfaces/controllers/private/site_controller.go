@@ -114,8 +114,13 @@ func (sc *siteController) Create(c *gin.Context) {
 		return
 	}
 	data := domain.SitesCreateOutput{
-		Slug:  site.Slug,
-		Title: site.Title,
+		Slug:              site.Slug,
+		Title:             site.Title,
+		Description:       &site.Description,
+		URL:               site.URL,
+		EnableJSRendering: site.EnableJsRendering,
+		CreatedAt:         site.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:         site.UpdatedAt.Format(time.RFC3339),
 	}
 	dataJson, _ := json.Marshal(data)
 	sc.logger.WithFields(logrus.Fields{
@@ -175,12 +180,12 @@ func (sc *siteController) Update(c *gin.Context) {
 		return
 	}
 
-	err = sc.sqlClient.Site.UpdateOne(s).
+	updatedSite, err := sc.sqlClient.Site.UpdateOne(s).
 		SetNillableTitle(input.Title).
 		SetNillableDescription(input.Description).
 		SetNillableURL(input.URL).
 		SetNillableEnableJsRendering(input.EnableJSRendering).
-		Exec(c.Request.Context())
+		Save(c.Request.Context())
 	if err != nil {
 		sc.logger.WithFields(logrus.Fields{
 			"error": err.Error(),
@@ -189,5 +194,14 @@ func (sc *siteController) Update(c *gin.Context) {
 		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	rest.RespondOKWithData(c, gin.H{"slug": slug})
+	data := domain.SitesUpdateOutput{
+		Slug:              updatedSite.Slug,
+		Title:             updatedSite.Title,
+		Description:       &updatedSite.Description,
+		URL:               updatedSite.URL,
+		EnableJSRendering: updatedSite.EnableJsRendering,
+		CreatedAt:         updatedSite.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:         updatedSite.UpdatedAt.Format(time.RFC3339),
+	}
+	rest.RespondOKWithData(c, &data)
 }
