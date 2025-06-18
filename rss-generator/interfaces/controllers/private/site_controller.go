@@ -39,7 +39,9 @@ func NewSiteController(cfg *domain.Config, logger *logrus.Logger, sqlClient *ent
 }
 
 func (sc *siteController) GetAll(c *gin.Context) {
-	sites, err := sc.sqlClient.Site.Query().All(c.Request.Context())
+	sites, err := sc.sqlClient.Site.Query().
+		WithScrapingSettings().
+		All(c.Request.Context())
 	if err != nil {
 		sc.logger.WithFields(logrus.Fields{
 			"error": err.Error(),
@@ -49,6 +51,19 @@ func (sc *siteController) GetAll(c *gin.Context) {
 	}
 	data := make([]domain.SitesGetAllOutput, len(sites))
 	for i, s := range sites {
+		var scrapingSetting *domain.ScrapingSettingV2
+		if len(s.Edges.ScrapingSettings) > 0 {
+			scrapingSetting = &domain.ScrapingSettingV2{
+				SiteSlug:            s.Slug,
+				Selector:            s.Edges.ScrapingSettings[0].Selector,
+				InnerSelector:       s.Edges.ScrapingSettings[0].InnerSelector,
+				TitleSelector:       s.Edges.ScrapingSettings[0].TitleSelector,
+				DescriptionSelector: s.Edges.ScrapingSettings[0].DescriptionSelector,
+				LinkSelector:        &s.Edges.ScrapingSettings[0].LinkSelector,
+				CreatedAt:           s.Edges.ScrapingSettings[0].CreatedAt.Format(time.RFC3339),
+				UpdatedAt:           s.Edges.ScrapingSettings[0].UpdatedAt.Format(time.RFC3339),
+			}
+		}
 		data[i] = domain.SitesGetAllOutput{
 			Slug:              s.Slug,
 			Title:             s.Title,
@@ -57,6 +72,7 @@ func (sc *siteController) GetAll(c *gin.Context) {
 			EnableJSRendering: s.EnableJsRendering,
 			CreatedAt:         s.CreatedAt.Format(time.RFC3339),
 			UpdatedAt:         s.UpdatedAt.Format(time.RFC3339),
+			ScrapingSetting:   scrapingSetting,
 		}
 	}
 	dataJson, _ := json.Marshal(data)
@@ -68,7 +84,11 @@ func (sc *siteController) GetAll(c *gin.Context) {
 
 func (sc *siteController) GetBySlug(c *gin.Context) {
 	slug := c.Param("slug")
-	s, err := sc.sqlClient.Site.Query().Where(site.SlugEQ(slug)).Only(c.Request.Context())
+	s, err := sc.sqlClient.Site.
+		Query().
+		Where(site.SlugEQ(slug)).
+		WithScrapingSettings().
+		Only(c.Request.Context())
 	if err != nil {
 		if ent.IsNotFound(err) {
 			rest.RespondMessage(c, http.StatusNotFound, err.Error())
@@ -82,6 +102,19 @@ func (sc *siteController) GetBySlug(c *gin.Context) {
 			return
 		}
 	}
+	var scrapingSetting *domain.ScrapingSettingV2
+	if s.Edges.ScrapingSettings != nil {
+		scrapingSetting = &domain.ScrapingSettingV2{
+			SiteSlug:            s.Slug,
+			Selector:            s.Edges.ScrapingSettings[0].Selector,
+			InnerSelector:       s.Edges.ScrapingSettings[0].InnerSelector,
+			TitleSelector:       s.Edges.ScrapingSettings[0].TitleSelector,
+			DescriptionSelector: s.Edges.ScrapingSettings[0].DescriptionSelector,
+			LinkSelector:        &s.Edges.ScrapingSettings[0].LinkSelector,
+			CreatedAt:           s.Edges.ScrapingSettings[0].CreatedAt.Format(time.RFC3339),
+			UpdatedAt:           s.Edges.ScrapingSettings[0].UpdatedAt.Format(time.RFC3339),
+		}
+	}
 	data := domain.SitesGetBySlugOutput{
 		Slug:              s.Slug,
 		Title:             s.Title,
@@ -90,6 +123,7 @@ func (sc *siteController) GetBySlug(c *gin.Context) {
 		EnableJSRendering: s.EnableJsRendering,
 		CreatedAt:         s.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:         s.UpdatedAt.Format(time.RFC3339),
+		ScrapingSetting:   scrapingSetting,
 	}
 	dataJson, _ := json.Marshal(data)
 	sc.logger.WithFields(logrus.Fields{

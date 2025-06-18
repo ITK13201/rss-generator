@@ -38,10 +38,6 @@ type Feed struct {
 	PublishedAt time.Time `json:"published_at"`
 }
 
-type FeedUpsertInput struct {
-	ScrapingSetting ScrapingSetting `json:"scraping_setting"`
-}
-
 // Public API output for getting a feed by ID
 type FeedGetOutput struct {
 	FeedID int `json:"feed_id"`

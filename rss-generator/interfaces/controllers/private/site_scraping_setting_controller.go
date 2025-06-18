@@ -9,6 +9,7 @@ import (
 	"github.com/ITK13201/rss-generator/ent"
 	"github.com/ITK13201/rss-generator/ent/feed"
 	"github.com/ITK13201/rss-generator/ent/feeditem"
+	"github.com/ITK13201/rss-generator/ent/scrapingsetting"
 	"github.com/ITK13201/rss-generator/ent/site"
 	"github.com/ITK13201/rss-generator/interfaces/interactors/private"
 	"github.com/ITK13201/rss-generator/internal/db"
@@ -43,9 +44,9 @@ func NewSiteScrapingSettingController(cfg *domain.Config, logger *logrus.Logger,
 
 func (sssc *siteScrapingSettingController) GetBySiteSlug(c *gin.Context) {
 	siteSlug := c.Param("slug")
-	siteModel, err := sssc.sqlClient.Site.Query().
-		Where(site.SlugEQ(siteSlug)).
-		WithScrapingSettings().
+	scrapingSettingModel, err := sssc.sqlClient.ScrapingSetting.Query().
+		Where(scrapingsetting.HasSiteWith(site.SlugEQ(siteSlug))).
+		WithSite().
 		Only(c.Request.Context())
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -60,31 +61,18 @@ func (sssc *siteScrapingSettingController) GetBySiteSlug(c *gin.Context) {
 			return
 		}
 	}
-	if siteModel.Edges.ScrapingSettings == nil {
-		rest.RespondMessage(c, http.StatusNotFound, "scraping settings not found for site")
-		return
-	}
 
-	scrapingSettingsModel := siteModel.Edges.ScrapingSettings[0]
-	dataScrapingSetting := domain.SiteScrapingSettingOutputScrapingSetting{
-		Selector:            scrapingSettingsModel.Selector,
-		InnerSelector:       scrapingSettingsModel.InnerSelector,
-		TitleSelector:       scrapingSettingsModel.TitleSelector,
-		DescriptionSelector: scrapingSettingsModel.DescriptionSelector,
-		LinkSelector:        &scrapingSettingsModel.LinkSelector,
-		CreatedAt:           scrapingSettingsModel.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:           scrapingSettingsModel.UpdatedAt.Format(time.RFC3339),
+	data := domain.SiteScrapingSettingOutputScrapingSetting{
+		SiteSlug:            scrapingSettingModel.Edges.Site.Slug,
+		Selector:            scrapingSettingModel.Selector,
+		InnerSelector:       scrapingSettingModel.InnerSelector,
+		TitleSelector:       scrapingSettingModel.TitleSelector,
+		DescriptionSelector: scrapingSettingModel.DescriptionSelector,
+		LinkSelector:        &scrapingSettingModel.LinkSelector,
+		CreatedAt:           scrapingSettingModel.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:           scrapingSettingModel.UpdatedAt.Format(time.RFC3339),
 	}
-
-	data := domain.SiteScrapingSettingOutput{
-		Slug:              siteModel.Slug,
-		Title:             siteModel.Title,
-		Description:       &siteModel.Description,
-		URL:               siteModel.URL,
-		EnableJSRendering: siteModel.EnableJsRendering,
-		ScrapingSetting:   dataScrapingSetting,
-	}
-	rest.RespondOKWithData(c, data)
+	rest.RespondOKWithData(c, &data)
 }
 
 func (fc *siteScrapingSettingController) Upsert(c *gin.Context) {
@@ -105,21 +93,21 @@ func (fc *siteScrapingSettingController) Upsert(c *gin.Context) {
 		}
 	}
 
-	var input domain.FeedUpsertInput
-	err = c.Bind(&input)
+	var scrapingSetting domain.ScrapingSetting
+	err = c.Bind(&scrapingSetting)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	siteScraper := scraper.NewScraper(fc.cfg, fc.logger)
-	newFeed, err := siteScraper.FetchFeedElements(siteModel.URL, siteModel.EnableJsRendering, &input.ScrapingSetting)
+	newFeed, err := siteScraper.FetchFeedElements(siteModel.URL, siteModel.EnableJsRendering, &scrapingSetting)
 	if err != nil {
 		rest.RespondMessage(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	var feedID string
+	var settingID int
 	if err = db.WithTx(c.Request.Context(), fc.sqlClient, func(tx *ent.Tx) error {
 		if len(siteModel.Edges.Feeds) == 0 {
 			// create
@@ -147,7 +135,6 @@ func (fc *siteScrapingSettingController) Upsert(c *gin.Context) {
 			if err != nil {
 				return err
 			}
-			feedID = feedModel.ID.String()
 		} else {
 			// update
 			fc.logger.WithFields(logrus.Fields{
@@ -185,19 +172,18 @@ func (fc *siteScrapingSettingController) Upsert(c *gin.Context) {
 			if err != nil {
 				return err
 			}
-			feedID = feedModel.ID.String()
 		}
 
-		err = tx.ScrapingSetting.Create().
+		settingID, err = tx.ScrapingSetting.Create().
 			SetSite(siteModel).
-			SetSelector(input.ScrapingSetting.Selector).
-			SetInnerSelector(input.ScrapingSetting.InnerSelector).
-			SetTitleSelector(input.ScrapingSetting.TitleSelector).
-			SetDescriptionSelector(input.ScrapingSetting.DescriptionSelector).
-			SetNillableLinkSelector(input.ScrapingSetting.LinkSelector).
+			SetSelector(scrapingSetting.Selector).
+			SetInnerSelector(scrapingSetting.InnerSelector).
+			SetTitleSelector(scrapingSetting.TitleSelector).
+			SetDescriptionSelector(scrapingSetting.DescriptionSelector).
+			SetNillableLinkSelector(scrapingSetting.LinkSelector).
 			OnConflict().
 			UpdateNewValues().
-			Exec(c.Request.Context())
+			ID(c.Request.Context())
 		if err != nil {
 			return err
 		}
@@ -211,13 +197,33 @@ func (fc *siteScrapingSettingController) Upsert(c *gin.Context) {
 		rest.RespondMessage(c, http.StatusInternalServerError, err.Error())
 	}
 
+	scrapingSettingModel, err := fc.sqlClient.ScrapingSetting.Query().
+		Where(scrapingsetting.IDEQ(settingID)).
+		WithSite().
+		Only(c.Request.Context())
+
+	if err != nil {
+		rest.RespondMessage(c, http.StatusNotFound, err.Error())
+		return
+	}
+
 	fc.logger.WithFields(logrus.Fields{
 		"site": siteModel.Slug,
 	}).Info("upserted feed")
-	rest.RespondOKWithData(c, gin.H{
-		"feed_id": feedID,
-	})
+
+	data := domain.SiteScrapingSettingOutputScrapingSetting{
+		SiteSlug:            scrapingSettingModel.Edges.Site.Slug,
+		Selector:            scrapingSettingModel.Selector,
+		InnerSelector:       scrapingSettingModel.InnerSelector,
+		TitleSelector:       scrapingSettingModel.TitleSelector,
+		DescriptionSelector: scrapingSettingModel.DescriptionSelector,
+		LinkSelector:        &scrapingSettingModel.LinkSelector,
+		CreatedAt:           scrapingSettingModel.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:           scrapingSettingModel.UpdatedAt.Format(time.RFC3339),
+	}
+	rest.RespondOKWithData(c, &data)
 }
+
 func (fc *siteScrapingSettingController) Delete(c *gin.Context) {
 	site_slug := c.Param("slug")
 	siteModel, err := fc.sqlClient.Site.Query().
