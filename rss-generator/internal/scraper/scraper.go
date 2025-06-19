@@ -3,14 +3,15 @@ package scraper
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ITK13201/rss-generator/domain"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/sirupsen/logrus"
-	"github.com/tebeka/selenium"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ITK13201/rss-generator/domain"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/sirupsen/logrus"
+	"github.com/tebeka/selenium"
 )
 
 type Scraper struct {
@@ -94,21 +95,34 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scraping
 	selection.Find(innerSelector).Each(func(i int, s *goquery.Selection) {
 		var title string
 		s.Find(titleSelector).Each(func(i int, s *goquery.Selection) {
-			tmp := s.Clone()
-			tmp.Find("*").Remove()
-			title = tmp.Text()
+			if titleSelector == "\"\"" || titleSelector == "''" {
+				title = s.Text()
+			} else {
+				tmp := s.Clone()
+				tmp.Find("*").Remove()
+				title = tmp.Text()
+			}
 		})
 		var description string
 		s.Find(descriptionSelector).Each(func(i int, s *goquery.Selection) {
-			tmp := s.Clone()
-			tmp.Find("*").Remove()
-			description = tmp.Text()
+			if descriptionSelector == "\"\"" || descriptionSelector == "''" {
+				description = s.Text()
+			} else {
+				tmp := s.Clone()
+				tmp.Find("*").Remove()
+				description = tmp.Text()
+			}
 		})
 
 		var link *string
 		if linkSelector != nil {
-			linkStr, _ := s.Find(*linkSelector).Attr("href")
-			link = &linkStr
+			if *linkSelector == "\"\"" || *linkSelector == "''" {
+				linkStr, _ := s.Attr("href")
+				link = &linkStr
+			} else {
+				linkStr, _ := s.Find(*linkSelector).Attr("href")
+				link = &linkStr
+			}
 		}
 
 		formattedTitle := scraper.formatString(title)
