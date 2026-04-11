@@ -1,0 +1,112 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "commitMessagePrefix": "chore(deps): ",
+  "dependencyDashboard": true,
+  "prBodyColumns": [
+    "Package",
+    "Update",
+    "Change",
+    "Pending"
+  ],
+  "separateMajorMinor": true,
+  "separateMinorPatch": true,
+  "enabledManagers": [
+    "dockerfile",
+    "gomod",
+    "custom.regex"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)docker/rss-generator/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG GOOSE_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "pressly/goose",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)docker/rss-generator/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG AIR_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "cosmtrek/air",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)docker/rss-generator/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG COBRA_CLI_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "go",
+      "depNameTemplate": "github.com/spf13/cobra-cli",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)docker/rss-generator/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG DELVE_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "go",
+      "depNameTemplate": "github.com/go-delve/delve",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)docker/rss-generator/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG DOCKERIZE_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "jwilder/dockerize",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "gomod"
+      ],
+      "groupName": "Go modules",
+      "groupSlug": "go-modules",
+      "postUpdateOptions": [
+        "gomodTidy"
+      ]
+    },
+    {
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "groupName": "Docker base images",
+      "groupSlug": "docker-base-images"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "groupName": "Docker tool ARG versions",
+      "groupSlug": "docker-tool-args"
+    }
+  ]
+}

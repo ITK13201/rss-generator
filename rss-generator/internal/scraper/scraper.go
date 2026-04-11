@@ -46,7 +46,7 @@ func (scraper *Scraper) fetchHTML(siteURL string) (*string, error) {
 
 func (scraper *Scraper) fetchHTMLWithJS(siteURL string) (*string, error) {
 	caps := selenium.Capabilities{"browserName": "chrome"}
-	driver, err := selenium.NewRemote(caps, fmt.Sprintf(scraper.cfg.SeleniumServerURL))
+	driver, err := selenium.NewRemote(caps, scraper.cfg.SeleniumServerURL)
 	if err != nil {
 		return nil, err
 	}
