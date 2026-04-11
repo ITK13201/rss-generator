@@ -48,6 +48,15 @@ func (r *RssUtil) Generate(f *domain.Feed) (*string, error) {
 func (r *RssUtil) Update(oldFeed *domain.Feed, newFeed *domain.Feed) *domain.Feed {
 	updatedFeedItems := []*domain.FeedItem{}
 	lastUpdatedAt := oldFeed.PublishedAt
+	oldFeedItemsByTitle := map[string]*domain.FeedItem{}
+	for _, oldFeedItem := range oldFeed.Items {
+		if oldFeedItem.Title != "" {
+			if _, exists := oldFeedItemsByTitle[oldFeedItem.Title]; !exists {
+				oldFeedItemsByTitle[oldFeedItem.Title] = oldFeedItem
+			}
+		}
+	}
+
 	for i := 0; i < len(newFeed.Items); i++ {
 		newFeedItem := newFeed.Items[i]
 		updatedFeedItem := &domain.FeedItem{
@@ -56,13 +65,11 @@ func (r *RssUtil) Update(oldFeed *domain.Feed, newFeed *domain.Feed) *domain.Fee
 			Link:        newFeedItem.Link,
 			PublishedAt: newFeedItem.PublishedAt,
 		}
-		for j := 0; j < len(oldFeed.Items); j++ {
-			oldFeedItem := oldFeed.Items[j]
-			if oldFeedItem.Title == newFeedItem.Title {
-				updatedFeedItem.PublishedAt = oldFeedItem.PublishedAt
-				break
-			}
+
+		if oldFeedItem, exists := oldFeedItemsByTitle[newFeedItem.Title]; exists {
+			updatedFeedItem.PublishedAt = oldFeedItem.PublishedAt
 		}
+
 		if lastUpdatedAt.Before(updatedFeedItem.PublishedAt) {
 			lastUpdatedAt = updatedFeedItem.PublishedAt
 		}

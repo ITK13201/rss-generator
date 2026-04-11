@@ -33,6 +33,9 @@ func (scraper *Scraper) fetchHTML(siteURL string) (*string, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
+	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+	}
 	htmlByte, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -161,6 +164,10 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scraping
 		}
 		feedItems = append(feedItems, feedItem)
 	})
+
+	if len(feedItems) == 0 {
+		return nil, fmt.Errorf("no feed items extracted")
+	}
 
 	feed := &domain.Feed{
 		Title:       siteTitle,
