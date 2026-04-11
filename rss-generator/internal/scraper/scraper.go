@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -71,6 +72,27 @@ func (scraper *Scraper) formatString(str string) string {
 	return str
 }
 
+func (scraper *Scraper) resolveLink(siteURL string, rawLink string) string {
+	if rawLink == "" {
+		return rawLink
+	}
+
+	parsedLink, err := url.Parse(rawLink)
+	if err != nil {
+		return rawLink
+	}
+	if parsedLink.IsAbs() {
+		return rawLink
+	}
+
+	baseURL, err := url.Parse(siteURL)
+	if err != nil {
+		return rawLink
+	}
+
+	return baseURL.ResolveReference(parsedLink).String()
+}
+
 func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scrapingSetting *domain.ScrapingSetting) (*domain.Feed, error) {
 	now := time.Now()
 
@@ -116,12 +138,15 @@ func (scraper *Scraper) selectFeedObjects(siteURL string, html *string, scraping
 
 		var link *string
 		if linkSelector != nil {
+			var linkStr string
 			if *linkSelector == "\"\"" || *linkSelector == "''" {
-				linkStr, _ := s.Attr("href")
-				link = &linkStr
+				linkStr, _ = s.Attr("href")
 			} else {
-				linkStr, _ := s.Find(*linkSelector).Attr("href")
-				link = &linkStr
+				linkStr, _ = s.Find(*linkSelector).Attr("href")
+			}
+			if linkStr != "" {
+				resolvedLink := scraper.resolveLink(siteURL, linkStr)
+				link = &resolvedLink
 			}
 		}
 
