@@ -30,8 +30,10 @@ func (r *RssUtil) Generate(f *domain.Feed) (*string, error) {
 		feedItem := &feedsLib.Item{
 			Title:       item.Title,
 			Description: item.Description,
-			Link:        &feedsLib.Link{Href: *item.Link},
 			Created:     item.PublishedAt,
+		}
+		if item.Link != nil {
+			feedItem.Link = &feedsLib.Link{Href: *item.Link}
 		}
 		feedItems = append(feedItems, feedItem)
 	}

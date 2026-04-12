@@ -97,11 +97,14 @@ func (ufj *updateFeedsJob) Run(ctx context.Context) {
 				return err
 			}
 			err = tx.FeedItem.MapCreateBulk(updatedFeed.Items, func(fic *ent.FeedItemCreate, i int) {
-				fic.SetFeed(feedModel).
-					SetTitle(updatedFeed.Items[i].Title).
-					SetDescription(updatedFeed.Items[i].Description).
-					SetLink(*updatedFeed.Items[i].Link).
-					SetPublishedAt(updatedFeed.Items[i].PublishedAt)
+				item := updatedFeed.Items[i]
+				c := fic.SetFeed(feedModel).
+					SetTitle(item.Title).
+					SetDescription(item.Description).
+					SetPublishedAt(item.PublishedAt)
+				if item.Link != nil {
+					c.SetLink(*item.Link)
+				}
 			}).Exec(ctx)
 			if err != nil {
 				return err
