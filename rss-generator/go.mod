@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	entgo.io/ent v0.14.6
 	github.com/PuerkitoBio/goquery v1.12.0
-	github.com/caarlos0/env/v11 v11.4.0
+	github.com/caarlos0/env/v11 v11.4.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/google/uuid v1.6.0
