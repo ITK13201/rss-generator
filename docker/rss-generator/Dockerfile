@@ -1,4 +1,4 @@
-ARG GOLANG_VERSION=1.25-bookworm
+ARG GOLANG_VERSION=1.27-bookworm
 
 # Tools
 FROM golang:${GOLANG_VERSION} AS tools
