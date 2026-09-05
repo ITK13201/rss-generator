@@ -3,11 +3,11 @@ ARG GOLANG_VERSION=1.25-bookworm
 # Tools
 FROM golang:${GOLANG_VERSION} AS tools
 
-ARG GOOSE_VERSION=3.19.2
-ARG AIR_VERSION=1.51.0
+ARG GOOSE_VERSION=3.28.0
+ARG AIR_VERSION=1.67.4
 ARG COBRA_CLI_VERSION=1.3.0
-ARG DELVE_VERSION=1.22.1
-ARG DOCKERIZE_VERSION=0.7.0
+ARG DELVE_VERSION=1.27.1
+ARG DOCKERIZE_VERSION=0.15.0
 
 RUN wget -O /usr/local/bin/goose https://github.com/pressly/goose/releases/download/v${GOOSE_VERSION}/goose_linux_x86_64 \
     && chmod +x /usr/local/bin/goose
